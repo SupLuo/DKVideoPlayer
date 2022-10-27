@@ -9,7 +9,7 @@ interface VideoViewController {
     /**
      * 控制视图是否处于显示状态
      */
-    var isShowing: Boolean
+    val isShowing: Boolean
 
     /**
      * 显示控制视图
@@ -99,12 +99,15 @@ interface VideoViewController {
     var adaptCutout: Boolean
 
     /**
-     * 是否需要适配刘海
+     * 设备是否存在刘海屏
+     * todo 这个变量有点怪 +
      */
     var hasCutout: Boolean?
 
     /**
      * 获取刘海的高度
+     *
+     * todo 这个变量有点怪 +
      */
     var cutoutHeight: Int
 }

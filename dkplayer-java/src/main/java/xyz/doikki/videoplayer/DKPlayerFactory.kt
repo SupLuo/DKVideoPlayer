@@ -2,6 +2,7 @@ package xyz.doikki.videoplayer
 
 import android.content.Context
 import xyz.doikki.videoplayer.sys.SysDKPlayer
+import xyz.doikki.videoplayer.sys.SysDKPlayerFactory
 
 /**
  * 此接口使用方法：
@@ -26,12 +27,9 @@ fun interface DKPlayerFactory {
         /**
          * 创建[SysDKPlayer]的工厂类，不推荐，系统的MediaPlayer兼容性较差，建议使用IjkPlayer或者ExoPlayer
          */
-//        @Deprecated("兼容性较差：比如某些盒子上不能配合texture使用")
         @JvmStatic
         fun systemMediaPlayerFactory(): DKPlayerFactory {
-            return DKPlayerFactory {
-                SysDKPlayer(it)
-            }
+            return SysDKPlayerFactory()
         }
     }
 

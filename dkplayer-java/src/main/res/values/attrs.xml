@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <declare-styleable name="DKVideoView">
+        <!--是否循环播放：默认false-->
         <attr name="looping" format="boolean" />
+        <!--是否处理音频焦点：默认true-->
         <attr name="enableAudioFocus" format="boolean" />
+        <!--界面模式：默认0，按比例缩放-->
         <attr name="screenScaleType" format="dimension">
             <enum name="type_default" value="0" />
             <enum name="type_4_3" value="1" />
@@ -12,9 +16,11 @@
             <enum name="type_center_crop" value="10" />
             <enum name="type_match_parent" value="20" />
         </attr>
+        <!--播放器窗口背景颜色-->
         <attr name="playerBackgroundColor" format="color" />
     </declare-styleable>
 
-    <item name="screen_mode_layout_params" type="id"/>
+    <!--内部使用的id-->
+    <item name="screen_mode_layout_params" type="id" />
 
 </resources>

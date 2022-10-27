@@ -2,7 +2,6 @@ package xyz.doikki.videoplayer.controller.component
 
 import android.view.View
 import android.view.animation.Animation
-import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.DKPlayerConfig
 import xyz.doikki.videoplayer.DKVideoView
 import xyz.doikki.videoplayer.controller.VideoController

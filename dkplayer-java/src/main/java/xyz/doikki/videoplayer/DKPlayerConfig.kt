@@ -61,7 +61,7 @@ object DKPlayerConfig {
      */
     @JvmStatic
     @AspectRatioType
-    var screenAspectRatioType: Int = AspectRatioType.DEFAULT_SCALE
+    var screenAspectRatioType: Int = DKVideoView.SCREEN_ASPECT_RATIO_DEFAULT
 
     /**
      * RenderView 是否重用（即在播放器调用播放或者重新播放的时候，是否重用已有的RenderView：以前的版本是每次都会创建一个新的RenderView）

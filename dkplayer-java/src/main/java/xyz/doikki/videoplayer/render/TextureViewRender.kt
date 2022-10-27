@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
-import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.DKPlayer
 import xyz.doikki.videoplayer.DKPlayerConfig
 import xyz.doikki.videoplayer.render.Render.Companion.createShotBitmap

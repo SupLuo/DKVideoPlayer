@@ -57,16 +57,9 @@ interface PlayerControl {
      */
     @get:IntRange(from = 0, to = 100)
     val bufferedPercentage: Int
-    /*以下是扩展的播放器功能代码*/
+
     /**
-     * 获取播放速度
-     *
-     * @return
-     */
-    /**
-     * 设置播放速度
-     *
-     * @param speed 0.5f：表示0.5倍数 2f:表示2倍速
+     * 播放速度 0.5f：表示0.5倍数 2f:表示2倍速
      */
     var speed: Float
 }

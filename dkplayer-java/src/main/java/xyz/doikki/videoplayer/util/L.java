@@ -2,7 +2,6 @@ package xyz.doikki.videoplayer.util;
 
 import android.util.Log;
 
-import xyz.doikki.videoplayer.DKManager;
 import xyz.doikki.videoplayer.DKPlayerConfig;
 
 /**

@@ -30,6 +30,7 @@ interface VideoViewControl : PlayerControl {
      * 横竖屏切换
      */
     fun toggleFullScreen(): Boolean
+
     fun startFullScreen(): Boolean {
         return startFullScreen(false)
     }

@@ -9,17 +9,17 @@ import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
 import xyz.doikki.videoplayer.DKVideoView
-import xyz.doikki.videoplayer.util.INVALIDATE_SEEK_POSITION
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
-import xyz.doikki.videoplayer.util.getActivityContext
+import xyz.doikki.videoplayer.util.INVALIDATE_SEEK_POSITION
 import xyz.doikki.videoplayer.util.PlayerUtils
+import xyz.doikki.videoplayer.util.getActivityContext
 import kotlin.math.abs
 
 /**
  * 包含手势操作的VideoController
  * Created by Doikki on 2018/1/6.
  */
-abstract class GestureVideoController @JvmOverloads constructor(
+open class GestureVideoController @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
 ) : VideoController(context, attrs, defStyleAttr),
     GestureDetector.OnGestureListener,

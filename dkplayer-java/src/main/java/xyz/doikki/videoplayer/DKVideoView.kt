@@ -13,7 +13,6 @@ import android.widget.FrameLayout
 import androidx.annotation.CallSuper
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
-import xyz.doikki.videoplayer.DKPlayerConfig.playerFactory
 import xyz.doikki.videoplayer.controller.VideoController
 import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.internal.DKVideoViewContainer
@@ -38,7 +37,7 @@ open class DKVideoView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), VideoViewControl, DKPlayer.EventListener {
+) : FrameLayout(context, attrs, defStyleAttr), VideoViewControl {
 
     /**
      * 播放器状态
@@ -59,15 +58,6 @@ open class DKVideoView @JvmOverloads constructor(
     annotation class PlayerState
 
     /**
-     * 当前播放器的状态
-     */
-    var playerState = STATE_IDLE
-        private set(state) {
-            field = state
-            notifyPlayerStateChanged()
-        }
-
-    /**
      * 屏幕模式
      */
     @IntDef(
@@ -79,12 +69,25 @@ open class DKVideoView @JvmOverloads constructor(
     annotation class ScreenMode
 
     /**
+     * 当前播放器的状态
+     */
+    var playerState = STATE_IDLE
+        private set(state) {
+            if (state != field) {
+                field = state
+                notifyPlayerStateChanged()
+            }
+        }
+
+    /**
      * 当前屏幕模式：普通、全屏、小窗口
      */
     var screenMode = SCREEN_MODE_NORMAL
         private set(screenMode) {
-            field = screenMode
-            notifyScreenModeChanged()
+            if (screenMode != field) {
+                field = screenMode
+                notifyScreenModeChanged()
+            }
         }
 
     /**
@@ -101,15 +104,15 @@ open class DKVideoView @JvmOverloads constructor(
      * 真正承载播放器视图的容器
      */
     @JvmField
-    internal val playerContainer: DKVideoViewContainer
+    internal val playerContainer: DKVideoViewContainer = DKVideoViewContainer(context)
 
     /**
      * 自定义播放器构建工厂，继承[DKPlayerFactory]实现自己的播放核心
      */
-    var playerFactory = DKPlayerConfig.playerFactory
+    var playerFactory: DKPlayerFactory = DKPlayerConfig.playerFactory
 
     /**
-     * 播放器内核
+     * 播放器内核实例
      */
     protected var player: DKPlayer? = null
         private set
@@ -156,17 +159,88 @@ open class DKVideoView @JvmOverloads constructor(
     private var assetFileDescriptor: AssetFileDescriptor? = null
 
     /**
-     * 当前正在播放视频的位置
+     * 待处理的seek position
      */
-    private var pendingPosition = 0L
-
+    private var pendingSeekPosition = 0L
 
     private val activityContext: Activity get() = preferredActivity!!
 
     /**
      * 获取Activity，优先通过Controller去获取Activity
      */
-    private val preferredActivity: Activity? get() = (videoController?.context ?: context).getActivityContext()
+    private val preferredActivity: Activity?
+        get() = (videoController?.context ?: context).getActivityContext()
+
+    /**
+     * 内部播放器事件监听
+     */
+    private val internalEventListener = object : DKPlayer.EventListener {
+
+        /**
+         * 视频缓冲完毕，准备开始播放时回调
+         */
+        override fun onPrepared() {
+            playerState = STATE_PREPARED
+            // 跳转到指定位置
+            if (pendingSeekPosition > 0) {
+                player?.seekTo(pendingSeekPosition)
+            }
+            stateChangedListeners.forEach {
+                it.onPlayerPrepared()
+            }
+        }
+
+        /**
+         * 播放信息回调，播放中的缓冲开始与结束，开始渲染视频第一帧，视频旋转信息
+         */
+        override fun onInfo(what: Int, extra: Int) {
+            when (what) {
+                DKPlayer.MEDIA_INFO_BUFFERING_START -> playerState = STATE_BUFFERING
+                DKPlayer.MEDIA_INFO_BUFFERING_END -> playerState = STATE_BUFFERED
+                DKPlayer.MEDIA_INFO_RENDERING_START -> {
+                    playerState = STATE_PLAYING
+                    playerContainer.keepScreenOn = true
+                }
+                DKPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED -> setRotation(extra)
+            }
+            stateChangedListeners.forEach {
+                it.onPlayerInfo(what, extra)
+            }
+        }
+
+        /**
+         * 视频播放出错回调
+         */
+        override fun onError(e: Throwable) {
+            playerContainer.keepScreenOn = false
+            playerState = STATE_ERROR
+            stateChangedListeners.forEach {
+                it.onPlayerError(e)
+            }
+        }
+
+        /**
+         * 视频播放完成回调
+         */
+        override fun onCompletion() {
+            playerContainer.keepScreenOn = false
+            pendingSeekPosition = 0
+            playerState = STATE_PLAYBACK_COMPLETED
+            stateChangedListeners.forEach {
+                it.onPlayerComplete()
+            }
+        }
+
+        /**
+         * 视频宽高回调
+         */
+        override fun onVideoSizeChanged(width: Int, height: Int) {
+            playerContainer.onVideoSizeChanged(width, height)
+            stateChangedListeners.forEach {
+                it.onVideoSizeChanged(width, height)
+            }
+        }
+    }
 
     /**
      * 设置[playerContainer]的背景色
@@ -278,7 +352,7 @@ open class DKVideoView @JvmOverloads constructor(
      */
     protected open fun setupMediaPlayer() {
         player = createMediaPlayer().also {
-            it.setEventListener(this)
+            it.setEventListener(internalEventListener)
             it.init()
             onMediaPlayerCreated(player)
         }
@@ -398,7 +472,7 @@ open class DKVideoView @JvmOverloads constructor(
                 }
             }
             //重置播放进度
-            pendingPosition = 0
+            pendingSeekPosition = 0
             //切换转态
             playerState = STATE_IDLE
         }
@@ -416,8 +490,8 @@ open class DKVideoView @JvmOverloads constructor(
     override val currentPosition: Long
         get() {
             if (isInPlaybackState) {
-                pendingPosition = player?.getCurrentPosition().orDefault()
-                return pendingPosition
+                pendingSeekPosition = player?.getCurrentPosition().orDefault()
+                return pendingSeekPosition
             }
             return 0
         }
@@ -432,7 +506,7 @@ open class DKVideoView @JvmOverloads constructor(
      * 定位播放位置
      */
     override fun seekTo(position: Long) {
-        pendingPosition = position
+        pendingSeekPosition = position
         if (isInPlaybackState) {
             player?.seekTo(position)
         }
@@ -463,7 +537,7 @@ open class DKVideoView @JvmOverloads constructor(
      */
     override fun replay(resetPosition: Boolean) {
         if (resetPosition) {
-            pendingPosition = 0
+            pendingSeekPosition = 0
         }
         startPrepare(true)
         playerContainer.attachPlayer(player!!)
@@ -646,56 +720,6 @@ open class DKVideoView @JvmOverloads constructor(
     }
 
     /**
-     * 视频缓冲完毕，准备开始播放时回调
-     */
-    override fun onPrepared() {
-        playerState = STATE_PREPARED
-        // 跳转到指定位置
-        if (pendingPosition > 0) {
-            player?.seekTo(pendingPosition)
-        }
-    }
-
-    /**
-     * 播放信息回调，播放中的缓冲开始与结束，开始渲染视频第一帧，视频旋转信息
-     */
-    override fun onInfo(what: Int, extra: Int) {
-        when (what) {
-            DKPlayer.MEDIA_INFO_BUFFERING_START -> playerState = STATE_BUFFERING
-            DKPlayer.MEDIA_INFO_BUFFERING_END -> playerState = STATE_BUFFERED
-            DKPlayer.MEDIA_INFO_RENDERING_START -> {
-                playerState = STATE_PLAYING
-                playerContainer.keepScreenOn = true
-            }
-            DKPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED -> setRotation(extra)
-        }
-    }
-
-    /**
-     * 视频播放出错回调
-     */
-    override fun onError(e: Throwable) {
-        playerContainer.keepScreenOn = false
-        playerState = STATE_ERROR
-    }
-
-    /**
-     * 视频播放完成回调
-     */
-    override fun onCompletion() {
-        playerContainer.keepScreenOn = false
-        pendingPosition = 0
-        playerState = STATE_PLAYBACK_COMPLETED
-    }
-
-    /**
-     * 视频宽高回调
-     */
-    override fun onVideoSizeChanged(width: Int, height: Int) {
-        playerContainer.onVideoSizeChanged(width, height)
-    }
-
-    /**
      * 通知播放器状态发生变化
      */
     private fun notifyPlayerStateChanged() {
@@ -723,6 +747,9 @@ open class DKVideoView @JvmOverloads constructor(
      */
     interface OnStateChangeListener {
 
+        /**
+         * 界面模式发生了变化
+         */
         fun onScreenModeChanged(@ScreenMode screenMode: Int) {}
 
         /**
@@ -732,6 +759,35 @@ open class DKVideoView @JvmOverloads constructor(
          * todo 增加一个参数
          */
         fun onPlayerStateChanged(@PlayerState playState: Int) {}
+
+        /**
+         * 视频画面大小发生了变化
+         */
+        fun onVideoSizeChanged(width: Int, height: Int) {}
+
+        /**
+         * 播放器已准备
+         * 等同于通过[onPlayerStateChanged]回调判断playState ==  [STATE_PREPARED]
+         */
+        fun onPlayerPrepared() {}
+
+        /**
+         * 播放结束
+         * 等同于通过[onPlayerStateChanged]回调判断playState ==  [STATE_PLAYBACK_COMPLETED]
+         */
+        fun onPlayerComplete() {}
+
+        /**
+         * 播放出错
+         * 等同于通过[onPlayerStateChanged]回调判断playState ==  [STATE_ERROR],只不过这个方法可以用于获取具体的错误异常信息
+         */
+        fun onPlayerError(e: Throwable) {}
+
+        /**
+         * 播放器信息：不同的播放器信息，参数含义有所不同
+         * todo: 是否需要消除不同播放器的what 和 extra含义？（应该有点困难）
+         */
+        fun onPlayerInfo(what: Int, extra: Int) {}
     }
 
     /**
@@ -761,6 +817,25 @@ open class DKVideoView @JvmOverloads constructor(
     fun onBackPressed(): Boolean {
         return playerContainer.onBackPressed()
     }
+
+    init {
+
+        //读取xml中的配置，并综合全局配置
+        val ta = context.obtainStyledAttributes(attrs, R.styleable.DKVideoView)
+        looping = ta.getBoolean(R.styleable.DKVideoView_looping, false)
+        val screenAspectRatioType =
+            ta.getInt(R.styleable.DKVideoView_screenScaleType, DKPlayerConfig.screenAspectRatioType)
+        val playerBackgroundColor =
+            ta.getColor(R.styleable.DKVideoView_playerBackgroundColor, Color.BLACK)
+        ta.recycle()
+
+        //准备播放器容器
+        setPlayerBackgroundColor(playerBackgroundColor)
+        val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        this.addView(playerContainer, params)
+        playerContainer.setScreenAspectRatioType(screenAspectRatioType)
+    }
+
 
     companion object {
         /**
@@ -840,22 +915,4 @@ open class DKVideoView @JvmOverloads constructor(
         const val SCREEN_MODE_TINY = 12
     }
 
-    init {
-
-        //读取xml中的配置，并综合全局配置
-        val ta = context.obtainStyledAttributes(attrs, R.styleable.DKVideoView)
-        looping = ta.getBoolean(R.styleable.DKVideoView_looping, false)
-        val screenAspectRatioType =
-            ta.getInt(R.styleable.DKVideoView_screenScaleType, DKPlayerConfig.screenAspectRatioType)
-        val playerBackgroundColor =
-            ta.getColor(R.styleable.DKVideoView_playerBackgroundColor, Color.BLACK)
-        ta.recycle()
-
-        //准备播放器容器
-        playerContainer = DKVideoViewContainer(context)
-        setPlayerBackgroundColor(playerBackgroundColor)
-        val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        this.addView(playerContainer, params)
-        playerContainer.setScreenAspectRatioType(screenAspectRatioType)
-    }
 }

@@ -10,10 +10,10 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import xyz.doikki.videoplayer.AbstractDKPlayer
 import xyz.doikki.videoplayer.DKPlayer
-import xyz.doikki.videoplayer.util.orDefault
 import xyz.doikki.videoplayer.internal.DKPlayerException
-import xyz.doikki.videoplayer.util.tryIgnore
 import xyz.doikki.videoplayer.util.L
+import xyz.doikki.videoplayer.util.orDefault
+import xyz.doikki.videoplayer.util.tryIgnore
 import kotlin.concurrent.thread
 
 /**
