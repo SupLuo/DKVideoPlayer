@@ -5,8 +5,11 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.widget.TextView
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 import kotlin.math.abs
 
 /**
@@ -14,15 +17,24 @@ import kotlin.math.abs
  * Created by Doikki on 2017/4/13.
  * update by luochao on022/9/28 调整基类接口变更引起的变动，去掉无用代码
  */
+@TVCompatible("没为TV适配专门做什么修改")
 class ErrorView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = R.layout.dkplayer_layout_error_view
 ) : BaseControlComponent(
     context, attrs, defStyleAttr
 ) {
     private var mDownX = 0f
     private var mDownY = 0f
+
+    /**
+     * 设置错误信息
+     */
+    fun setErrorMessage(message: CharSequence?) {
+        findViewById<TextView?>(R.id.message)?.text = message
+    }
 
     override fun onPlayStateChanged(playState: Int) {
         if (playState == DKVideoView.STATE_ERROR) {
@@ -66,7 +78,7 @@ class ErrorView @JvmOverloads constructor(
             visibility = VISIBLE
         }
         setBackgroundResource(R.color.dkplayer_control_component_container_color)
-        layoutInflater.inflate(R.layout.dkplayer_layout_error_view, this)
+        layoutInflater.inflate(layoutId, this)
         val statusBtn = findViewById<View>(R.id.status_btn)
         if (isTelevisionUiMode()) {
             statusBtn.isFocusable = true

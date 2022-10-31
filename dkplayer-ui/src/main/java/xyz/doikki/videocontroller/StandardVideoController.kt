@@ -11,13 +11,11 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.AttrRes
 import xyz.doikki.videocontroller.component.*
-import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.DKPlayerConfig
 import xyz.doikki.videoplayer.DKVideoView
 import xyz.doikki.videoplayer.controller.GestureVideoController
-import xyz.doikki.videoplayer.util.orDefault
-import xyz.doikki.videoplayer.util.toast
 import xyz.doikki.videoplayer.util.PlayerUtils
+import xyz.doikki.videoplayer.util.toast
 
 /**
  * 直播/点播控制器
@@ -53,7 +51,7 @@ open class StandardVideoController @JvmOverloads constructor(
      * @param title  标题
      * @param isLive 是否为直播
      */
-    fun addDefaultControlComponent(title: String?, isLive: Boolean) {
+    fun addPreferredComponents(title: String?, isLive: Boolean) {
         val completeView = CompleteView(context)
         val errorView = ErrorView(context)
         val prepareView = PrepareView(context)

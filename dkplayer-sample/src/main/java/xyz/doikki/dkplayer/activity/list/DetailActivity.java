@@ -66,7 +66,7 @@ public class DetailActivity extends BaseActivity<DKVideoView> {
         Intent intent = getIntent();
         boolean seamlessPlay = intent.getBooleanExtra(IntentKeys.SEAMLESS_PLAY, false);
         String title = intent.getStringExtra(IntentKeys.TITLE);
-        controller.addDefaultControlComponent(title, false);
+        controller.addPreferredComponents(title, false);
         if (seamlessPlay) {
             //无缝播放需还原Controller状态
             controller.setPlayerState(mVideoView.getPlayerState());

@@ -41,7 +41,7 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
         mBack = findViewById(R.id.back);
         mBack.setVisibility(GONE);
         mVolume = findViewById(R.id.iv_volume);
-        mFullScreen = findViewById(R.id.fullscreen);
+        mFullScreen = findViewById(R.id.ctrl_fullscreen);
         mPlayButton = findViewById(R.id.iv_play);
         mPlayButton.setOnClickListener(this);
         mAdTime.setOnClickListener(this);
@@ -101,7 +101,7 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.back | id == R.id.fullscreen) {
+        if (id == R.id.back | id == R.id.ctrl_fullscreen) {
             toggleFullScreen();
         } else if (id == R.id.iv_volume) {
             doMute();

@@ -34,7 +34,7 @@ public class CustomExoPlayerActivity extends BaseActivity<ExoVideoView> {
         super.initView();
         mVideoView = findViewById(R.id.vv);
         StandardVideoController controller = new StandardVideoController(this);
-        controller.addDefaultControlComponent("custom exo", false);
+        controller.addPreferredComponents("custom exo", false);
         mVideoView.setVideoController(controller);
         mHelper = ExoMediaSourceHelper.getInstance(this);
     }

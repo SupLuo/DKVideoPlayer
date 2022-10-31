@@ -6,24 +6,32 @@ import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.util.isVisible
 import xyz.doikki.videoplayer.util.orDefault
 
 /**
  * 自动播放完成界面
  *
- *
+ * 已适配TV
  * update by luochao at 2022/9/28
+ *
+ * @param layoutId 自定义布局id 默认未指定（未指定的情况下会根据是否是tv模式选择不同的默认布局）
  */
+@TVCompatible("兼容TV展示：默认情况不会在TV上显示返回按钮")
 class CompleteView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
+    context: Context, attrs: AttributeSet? = null,
+    @LayoutRes layoutId: Int = UNDEFINED
 ) : BaseControlComponent(context, attrs) {
 
-    private val mStopFullscreen: ImageView
+    /**
+     * 退出全屏按钮
+     */
+    private val mStopFullscreen: View?
 
     /**
      * 设置播放结束按钮的文本（默认是“重新播放”）
@@ -31,14 +39,13 @@ class CompleteView @JvmOverloads constructor(
      * @param message
      */
     fun setCompleteText(message: CharSequence?) {
-        val tv = findViewById<TextView>(R.id.tv_replay) ?: return
-        tv.text = message
+        findViewById<TextView?>(R.id.tv_replay)?.text = message
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == DKVideoView.STATE_PLAYBACK_COMPLETED) {
+        if (playState == DKVideoView.STATE_PLAYBACK_COMPLETED) {//只有播放结束的时候才显示
             visibility = VISIBLE
-            mStopFullscreen.isVisible = controller?.isFullScreen.orDefault()
+            mStopFullscreen?.isVisible = controller?.isFullScreen.orDefault()
             bringToFront()
         } else {
             visibility = GONE
@@ -47,11 +54,13 @@ class CompleteView @JvmOverloads constructor(
 
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
+        mStopFullscreen ?: return
         if (screenMode == DKVideoView.SCREEN_MODE_FULL) {
             mStopFullscreen.visibility = VISIBLE
         } else if (screenMode == DKVideoView.SCREEN_MODE_NORMAL) {
             mStopFullscreen.visibility = GONE
         }
+
         controller?.let { controller ->
             val activity = activity
             if (activity != null && controller.hasCutout == true) {
@@ -75,23 +84,35 @@ class CompleteView @JvmOverloads constructor(
 
     init {
         visibility = GONE
-        layoutInflater.inflate(R.layout.dkplayer_layout_complete_view, this)
-        //在xml中去除了一个布局层级，因此xml中的背景色改为代码设置在当前布局中
-        setBackgroundColor(Color.parseColor("#33000000"))
-        val replyAct = findViewById<View>(R.id.replay_layout)
-        if (isTelevisionUiMode()) {
-            replyAct.isClickable = true
-            setViewInFocusMode(replyAct)
+        if (layoutId <= 0) {
+            layoutInflater.inflate(
+                if (isTelevisionUiMode()) R.layout.dkplayer_layout_complete_view_tv else R.layout.dkplayer_layout_complete_view,
+                this
+            )
         } else {
-            //防止touch模式下，事件穿透
-            isClickable = true
+            layoutInflater.inflate(layoutId, this)
         }
 
-        replyAct.setOnClickListener { //重新播放
-            controller?.replay(true)
+        //在xml中去除了一个布局层级，因此xml中的背景色改为代码设置在当前布局中
+        setBackgroundColor(Color.parseColor("#33000000"))
+        //防止touch模式下，事件穿透
+        isClickable = true
+
+        findViewById<View?>(R.id.replay_layout)?.let {
+//            if (isTelevisionUiMode()) {
+//                it.isClickable = true
+//                setViewInFocusMode(it)
+//            } else {
+//                //防止touch模式下，事件穿透
+//                isClickable = true
+//            }
+            it.setOnClickListener { //重新播放
+                controller?.replay(true)
+            }
         }
+
         mStopFullscreen = findViewById(R.id.stop_fullscreen)
-        mStopFullscreen.setOnClickListener {
+        mStopFullscreen?.setOnClickListener {
             controller?.let { controller ->
                 if (controller.isFullScreen) {
                     val activity = activity
@@ -102,4 +123,5 @@ class CompleteView @JvmOverloads constructor(
             }
         }
     }
+
 }

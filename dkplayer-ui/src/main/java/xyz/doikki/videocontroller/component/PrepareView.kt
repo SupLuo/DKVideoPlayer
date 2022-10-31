@@ -6,29 +6,50 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKPlayerConfig
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 
 /**
- * 准备播放界面
+ * 准备播放界面:包含加载中、封面、网络提示
  */
+@TVCompatible
 class PrepareView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = R.layout.dkplayer_layout_prepare_view
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
 
+    /**
+     * 缩略图
+     */
     private val mThumb: ImageView
+
+    /**
+     * 开始播放
+     */
     private val mStartPlay: ImageView
+
+    /**
+     * 正在加载
+     */
     private val mLoading: ProgressBar
+
+    /**
+     * 网络提醒
+     */
     private val mNetWarning: FrameLayout
 
     /**
      * 设置点击此界面开始播放
      */
     fun setClickStart() {
-        if (isTelevisionUiMode()) {
-            setViewInFocusMode(this)
-        }
+//        if (isTelevisionUiMode()) {
+//            setViewInFocusMode(this)
+//        }
         setOnClickListener { controller?.playerControl?.start() }
     }
 
@@ -60,7 +81,7 @@ class PrepareView @JvmOverloads constructor(
     }
 
     init {
-        layoutInflater.inflate(R.layout.dkplayer_layout_prepare_view, this)
+        layoutInflater.inflate(layoutId, this)
         mThumb = findViewById(R.id.thumb)
         mStartPlay = findViewById(R.id.start_play)
         mLoading = findViewById(R.id.loading)

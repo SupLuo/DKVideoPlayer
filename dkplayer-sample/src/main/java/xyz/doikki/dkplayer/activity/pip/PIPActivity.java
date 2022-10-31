@@ -40,7 +40,7 @@ public class PIPActivity extends BaseActivity {
         mPIPManager = PIPManager.getInstance();
         DKVideoView videoView = getVideoViewManager().get(Tag.PIP);
         StandardVideoController controller = new StandardVideoController(this);
-        controller.addDefaultControlComponent(getString(R.string.str_pip), false);
+        controller.addPreferredComponents(getString(R.string.str_pip), false);
         videoView.setVideoController(controller);
         if (mPIPManager.isStartFloatWindow()) {
             mPIPManager.stopFloatWindow();

@@ -106,6 +106,8 @@ open class DKVideoView @JvmOverloads constructor(
     @JvmField
     internal val playerContainer: DKVideoViewContainer = DKVideoViewContainer(context)
 
+    val container:FrameLayout get() = playerContainer
+
     /**
      * 自定义播放器构建工厂，继承[DKPlayerFactory]实现自己的播放核心
      */
@@ -677,6 +679,7 @@ open class DKVideoView @JvmOverloads constructor(
             return true
         }
         return false
+
     }
 
     /**
@@ -819,7 +822,6 @@ open class DKVideoView @JvmOverloads constructor(
     }
 
     init {
-
         //读取xml中的配置，并综合全局配置
         val ta = context.obtainStyledAttributes(attrs, R.styleable.DKVideoView)
         looping = ta.getBoolean(R.styleable.DKVideoView_looping, false)

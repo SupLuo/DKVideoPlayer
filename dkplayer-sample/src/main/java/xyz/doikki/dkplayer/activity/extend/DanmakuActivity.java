@@ -1,6 +1,7 @@
 package xyz.doikki.dkplayer.activity.extend;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 import xyz.doikki.dkplayer.R;
@@ -34,7 +35,7 @@ public class DanmakuActivity extends BaseActivity<DKVideoView> {
         super.initView();
         mVideoView = findViewById(R.id.player);
         StandardVideoController controller = new StandardVideoController(this);
-        controller.addDefaultControlComponent(getString(R.string.str_danmu), false);
+        controller.addPreferredComponents(getString(R.string.str_danmu), false);
         mMyDanmakuView = new MyDanmakuView(this);
         controller.addControlComponent(mMyDanmakuView);
         mVideoView.setVideoController(controller);
@@ -47,6 +48,7 @@ public class DanmakuActivity extends BaseActivity<DKVideoView> {
                 if (playState == DKVideoView.STATE_PREPARED) {
                     simulateDanmu();
                 } else if (playState == DKVideoView.STATE_PLAYBACK_COMPLETED) {
+                    mMyDanmakuView.removeAllDanmakus(true);
                     mHandler.removeCallbacksAndMessages(null);
                 }
             }
@@ -85,6 +87,7 @@ public class DanmakuActivity extends BaseActivity<DKVideoView> {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                Log.d("Danmu","1 "+System.currentTimeMillis());
                 mMyDanmakuView.addDanmaku("破防了", false);
                 mHandler.postDelayed(this, 100);
             }

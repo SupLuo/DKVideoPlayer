@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
-import xyz.doikki.dkplayer.util.Utils;
 import xyz.doikki.videocontroller.StandardVideoController;
 import xyz.doikki.videoplayer.DKVideoView;
 import xyz.doikki.videoplayer.exo.ExoMediaPlayerFactory;
@@ -37,7 +36,7 @@ public class PlayRawAssetsActivity extends BaseActivity<DKVideoView> {
         super.initView();
         mVideoView = findViewById(R.id.player);
         StandardVideoController controller = new StandardVideoController(this);
-        controller.addDefaultControlComponent(getString(R.string.str_raw_or_assets), false);
+        controller.addPreferredComponents(getString(R.string.str_raw_or_assets), false);
         mVideoView.setVideoController(controller);
     }
 

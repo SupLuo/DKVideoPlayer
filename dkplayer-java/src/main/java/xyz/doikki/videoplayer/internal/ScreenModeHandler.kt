@@ -2,10 +2,7 @@ package xyz.doikki.videoplayer.internal
 
 import android.app.Activity
 import android.os.Build
-import android.view.Gravity
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.FrameLayout
 import androidx.annotation.Px
 import xyz.doikki.videoplayer.R
@@ -50,15 +47,18 @@ class ScreenModeHandler {
         mTinyScreenSize[1] = height
     }
 
+    fun startFullScreen(activity: Activity, view: View):Boolean{
+        return startFullScreen(activity.window,view)
+    }
     /**
      * 切换到全屏
-     *
+     * @param window 所在界面：用于适配在dialog中使用的场景 todo： 待测试
      * @param view 用于全屏展示的view
      */
-    fun startFullScreen(activity: Activity, view: View): Boolean {
-        val decorView = activity.decorView ?: return false
+    fun startFullScreen(window: Window, view: View): Boolean {
+        val decorView = window.decorView as? ViewGroup ?: return false
         //隐藏NavigationBar和StatusBar
-        hideSystemBar(activity, decorView)
+        hideSystemBar(window, decorView)
         //从parent中移除指定view
         view.removeFromParent()
         //将视图添加到DecorView中即实现了全屏展示该控件
@@ -187,20 +187,25 @@ class ScreenModeHandler {
             hideSystemBar(activity, decorView)
         }
 
+        @JvmStatic
+        fun hideSystemBar(activity: Activity, decorView: ViewGroup){
+            hideSystemBar(activity.window,decorView)
+        }
+
         /**
          * 隐藏系统状态栏(NavigationBar和StatusBar)
          *
          * @param activity
          */
         @JvmStatic
-        fun hideSystemBar(activity: Activity, decorView: ViewGroup) {
+        fun hideSystemBar(window: Window, decorView: ViewGroup) {
             var uiOptions = decorView.systemUiVisibility
             uiOptions = uiOptions or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 uiOptions = uiOptions or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             }
             decorView.systemUiVisibility = uiOptions
-            activity.window.setFlags(
+            window.setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )

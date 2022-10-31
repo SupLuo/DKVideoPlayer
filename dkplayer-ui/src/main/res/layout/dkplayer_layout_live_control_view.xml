@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:background="@android:color/black"
     tools:parentTag="android.widget.FrameLayout">
 
     <LinearLayout
@@ -34,7 +35,7 @@
             android:layout_weight="1"/>
 
         <ImageView
-            android:id="@+id/fullscreen"
+            android:id="@+id/ctrl_fullscreen"
             android:layout_width="@dimen/dkplayer_controller_height"
             android:layout_height="@dimen/dkplayer_controller_height"
             android:padding="@dimen/dkplayer_controller_icon_padding"

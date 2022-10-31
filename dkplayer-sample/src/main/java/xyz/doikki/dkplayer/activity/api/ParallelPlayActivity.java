@@ -42,7 +42,7 @@ public class ParallelPlayActivity extends AppCompatActivity {
         //必须设置
 //        player1.setEnableAudioFocus(false);
         StandardVideoController controller1 = new StandardVideoController(this);
-        controller1.addDefaultControlComponent(getString(R.string.str_multi_player), false);
+        controller1.addPreferredComponents(getString(R.string.str_multi_player), false);
         player1.setVideoController(controller1);
         mVideoViews.add(player1);
 
@@ -51,7 +51,7 @@ public class ParallelPlayActivity extends AppCompatActivity {
         //必须设置
 //        player2.setEnableAudioFocus(false);
         StandardVideoController controller2 = new StandardVideoController(this);
-        controller2.addDefaultControlComponent(getString(R.string.str_multi_player), false);
+        controller2.addPreferredComponents(getString(R.string.str_multi_player), false);
         player2.setVideoController(controller2);
         mVideoViews.add(player2);
     }

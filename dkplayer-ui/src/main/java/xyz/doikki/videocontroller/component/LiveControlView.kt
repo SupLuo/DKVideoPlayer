@@ -84,7 +84,7 @@ class LiveControlView @JvmOverloads constructor(
     override fun onClick(v: View) {
         controller?.let { controller ->
             when (v.id) {
-                R.id.fullscreen -> {
+                R.id.ctrl_fullscreen -> {
                     controller.toggleFullScreen()
                 }
                 R.id.iv_play -> {
@@ -102,7 +102,7 @@ class LiveControlView @JvmOverloads constructor(
     init {
         visibility = GONE
         layoutInflater.inflate(R.layout.dkplayer_layout_live_control_view, this)
-        mFullScreen = findViewById(R.id.fullscreen)
+        mFullScreen = findViewById(R.id.ctrl_fullscreen)
         mFullScreen.setOnClickListener(this)
         mBottomContainer = findViewById(R.id.bottom_container)
         mPlayButton = findViewById(R.id.iv_play)

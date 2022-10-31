@@ -28,7 +28,7 @@ public class CacheActivity extends BaseActivity<DKVideoView> {
         String proxyUrl = cacheServer.getProxyUrl(DataUtil.SAMPLE_URL);
         mVideoView.setDataSource(proxyUrl);
         StandardVideoController controller = new StandardVideoController(this);
-        controller.addDefaultControlComponent(getString(R.string.str_cache), false);
+        controller.addPreferredComponents(getString(R.string.str_cache), false);
         mVideoView.setVideoController(controller);
         mVideoView.start();
 

@@ -64,11 +64,20 @@ public class DanmukuVideoView extends DKVideoView {
         super.setupMediaPlayer();
         if (mDanmakuView == null) {
             initDanMuView();
+            addOnStateChangeListener(new OnStateChangeListener() {
+                @Override
+                public void onPlayerComplete() {
+                    if (mDanmakuView != null) {
+                        mDanmakuView.clearDanmakusOnScreen();
+                    }
+                    Log.d("Danmu","播放结束");
+                }
+            });
         }
-        playerContainer.removeView(mDanmakuView);
+        getContainer().removeView(mDanmakuView);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.topMargin = (int) PlayerUtils.getStatusBarHeight(getContext());
-        playerContainer.addView(mDanmakuView, layoutParams);
+        getContainer().addView(mDanmakuView, layoutParams);
         //将控制器提到最顶层，如果有的话
         VideoController controller = getVideoController();
         if (controller != null) {
@@ -126,14 +135,6 @@ public class DanmukuVideoView extends DKVideoView {
         super.seekTo(position);
         if (isInPlaybackState()) {
             if (mDanmakuView != null) mDanmakuView.seekTo(position);
-        }
-    }
-
-    @Override
-    public void onCompletion() {
-        super.onCompletion();
-        if (mDanmakuView != null) {
-            mDanmakuView.clearDanmakusOnScreen();
         }
     }
 

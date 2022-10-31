@@ -39,5 +39,9 @@ abstract class BaseControlComponent @JvmOverloads constructor(
         return this
     }
 
+    companion object {
+
+        const val UNDEFINED: Int = 1
+    }
 
 }

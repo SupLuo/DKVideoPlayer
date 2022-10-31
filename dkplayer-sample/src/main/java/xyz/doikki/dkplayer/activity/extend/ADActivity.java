@@ -75,7 +75,7 @@ public class ADActivity extends BaseActivity<DKVideoView> {
     private void playVideo() {
         mVideoView.release();
         mController.removeAllControlComponent();
-        mController.addDefaultControlComponent("正片", false);
+        mController.addPreferredComponents("正片", false);
         //重新设置数据
         mVideoView.setDataSource(DataUtil.SAMPLE_URL);
         //开始播放

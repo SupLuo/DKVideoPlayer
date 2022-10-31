@@ -101,7 +101,7 @@ public class AndroidOPiPActivity extends AppCompatActivity {
 
         mVideoView.setDataSource(DataUtil.SAMPLE_URL);
         mController = new StandardVideoController(this);
-        mController.addDefaultControlComponent(getString(R.string.str_pip_android_o), false);
+        mController.addPreferredComponents(getString(R.string.str_pip_android_o), false);
         mVideoView.setVideoController(mController);
         mVideoView.start();
         mVideoView.addOnStateChangeListener(new DKVideoView.OnStateChangeListener() {

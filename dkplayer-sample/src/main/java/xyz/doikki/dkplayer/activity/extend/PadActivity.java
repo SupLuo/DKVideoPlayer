@@ -25,9 +25,9 @@ public class PadActivity extends BaseActivity {
         mVideoView.setDataSource(DataUtil.SAMPLE_URL);
 
         mController = new StandardVideoController(this);
-        mController.addDefaultControlComponent("pad", false);
+        mController.addPreferredComponents("pad", false);
 
-        mController.findViewById(R.id.fullscreen).setOnClickListener(new View.OnClickListener() {
+        mController.findViewById(R.id.ctrl_fullscreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mVideoView.isFullScreen()) {

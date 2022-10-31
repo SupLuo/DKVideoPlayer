@@ -9,7 +9,6 @@ import xyz.doikki.dkplayer.R
 import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.component.VodControlView
 import xyz.doikki.videoplayer.DKVideoView
-import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.util.PlayerUtils
 
 class PortraitWhenFullScreenController @JvmOverloads constructor(
@@ -22,8 +21,8 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
 
     init {
         val vodControlView = VodControlView(context)
-        vodControlView.showBottomProgress = false
-        mFullScreen = vodControlView.findViewById(R.id.fullscreen)
+        vodControlView.bottomProgressEnabled = false
+        mFullScreen = vodControlView.findViewById(R.id.ctrl_fullscreen)
         mFullScreen.setOnClickListener { toggleFullScreen() }
         addControlComponent(vodControlView)
     }
@@ -75,7 +74,7 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
 
     override fun onClick(v: View) {
         val i = v.id
-        if (i == R.id.fullscreen) {
+        if (i == R.id.ctrl_fullscreen) {
             toggleFullScreen()
         } else if (i == R.id.lock) {
             toggleLock()

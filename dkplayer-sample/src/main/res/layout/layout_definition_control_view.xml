@@ -63,7 +63,7 @@
             tools:text="高清" />
 
         <ImageView
-            android:id="@+id/fullscreen"
+            android:id="@+id/ctrl_fullscreen"
             android:layout_width="@dimen/dkplayer_controller_height"
             android:layout_height="@dimen/dkplayer_controller_height"
             android:padding="@dimen/dkplayer_controller_icon_padding"
@@ -71,7 +71,7 @@
     </LinearLayout>
 
     <ProgressBar
-        android:id="@+id/bottom_progress"
+        android:id="@+id/ctrl_bottom_progress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="1dp"
