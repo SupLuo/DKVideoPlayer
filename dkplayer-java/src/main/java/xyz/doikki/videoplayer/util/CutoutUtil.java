@@ -128,19 +128,25 @@ public final class CutoutUtil {
 
     /**
      * 适配刘海屏，针对Android P以上系统
+     *
+     * @param isAdapt 是否适配刘海屏，false则会使用默认方式
      */
-    public static void adaptCutoutAboveAndroidP(Context context, boolean isAdapt) {
+    public static void adaptCutout(Context context, boolean isAdapt) {
         Activity activity = PlayerUtils.scanForActivity(context);
         if (activity == null) return;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
-            if (isAdapt) {
-                lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-            } else {
-                lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
-            }
-            activity.getWindow().setAttributes(lp);
+        if (Build.VERSION.SDK_INT < 28)
+            return;
+        WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+        if (isAdapt) {
+            if (lp.layoutInDisplayCutoutMode == WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES)
+                return;
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        } else {
+            if (lp.layoutInDisplayCutoutMode == WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT)
+                return;
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
         }
+        activity.getWindow().setAttributes(lp);
     }
 
 }

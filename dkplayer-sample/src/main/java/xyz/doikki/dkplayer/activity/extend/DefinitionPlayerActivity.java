@@ -42,8 +42,8 @@ public class DefinitionPlayerActivity extends BaseActivity<DKVideoView> implemen
         addControlComponents();
 
         LinkedHashMap<String, String> videos = new LinkedHashMap<>();
-        videos.put("标清", "http://34.92.158.191:8080/test-sd.mp4");
-        videos.put("高清", "http://34.92.158.191:8080/test-hd.mp4");
+        videos.put("标清","http://vfx.mtime.cn/Video/2019/03/18/mp4/190318231014076505.mp4");// "http://34.92.158.191:8080/test-sd.mp4");
+        videos.put("高清","http://vfx.mtime.cn/Video/2019/03/18/mp4/190318231014076505.mp4");// "http://34.92.158.191:8080/test-hd.mp4");
         mDefinitionControlView.setData(videos);
         mVideoView.setVideoController(mController);
         mVideoView.setDataSource(videos.get("标清"));//默认播放标清

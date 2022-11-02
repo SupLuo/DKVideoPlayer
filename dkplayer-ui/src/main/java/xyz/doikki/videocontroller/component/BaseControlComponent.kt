@@ -40,4 +40,9 @@ abstract class BaseControlComponent @JvmOverloads constructor(
     }
 
 
+    companion object{
+
+        const val UNDEFINED_LAYOUT = -1
+    }
+
 }

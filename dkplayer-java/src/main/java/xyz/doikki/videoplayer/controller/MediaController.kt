@@ -3,7 +3,6 @@ package xyz.doikki.videoplayer.controller
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.util.AttributeSet
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -594,14 +593,14 @@ open class MediaController @JvmOverloads constructor(
                     mOrientationSensorHelper.disable()
                 }
                 if (hasCutout()) {
-                    CutoutUtil.adaptCutoutAboveAndroidP(context, false)
+                    CutoutUtil.adaptCutout(context, false)
                 }
             }
             DKVideoView.SCREEN_MODE_FULL -> {
                 //在全屏时强制监听设备方向
                 mOrientationSensorHelper.enable()
                 if (hasCutout()) {
-                    CutoutUtil.adaptCutoutAboveAndroidP(context, true)
+                    CutoutUtil.adaptCutout(context, true)
                 }
             }
             DKVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()

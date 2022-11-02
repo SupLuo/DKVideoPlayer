@@ -7,25 +7,29 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.util.AttributeSet
+import android.view.View
 import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKVideoView
-import xyz.doikki.videoplayer.util.PlayerUtils
+import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.util.orDefault
 
 /**
  * 播放器顶部标题栏
  */
+@TVCompatible(message = "没指定布局id时，TV上运行和手机上运行会加载不同的默认布局，tv的布局不包含电量和返回按钮逻辑")
 class TitleView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
 
     private val mTitleContainer: LinearLayout
     private val mTitle: TextView
-    private val mSysTime: TextView//系统当前时间
+//    private val mSysTime: TextView//系统当前时间
 
     private lateinit var mBatteryReceiver: BatteryReceiver
 
@@ -37,8 +41,12 @@ class TitleView @JvmOverloads constructor(
      */
     private var mBatteryEnabled: Boolean = true
 
-    fun setTitle(title: String?) {
+    fun setTitle(title: CharSequence?) {
         mTitle.text = title
+    }
+
+    fun setOnBackClickListener(listener: OnClickListener?){
+        findViewById<View?>(R.id.back)?.setOnClickListener (listener)
     }
 
     override fun onDetachedFromWindow() {
@@ -62,7 +70,7 @@ class TitleView @JvmOverloads constructor(
         if (!mController?.isFullScreen.orDefault()) return
         if (isVisible) {
             if (visibility == GONE) {
-                mSysTime.text = PlayerUtils.getCurrentSystemTime()
+//                mSysTime.text = PlayerUtils.getCurrentSystemTime()
                 visibility = VISIBLE
                 anim?.let { startAnimation(it) }
             }
@@ -88,15 +96,15 @@ class TitleView @JvmOverloads constructor(
         if (screenMode == DKVideoView.SCREEN_MODE_FULL) {
             if (controller != null && controller.isShowing && !controller.isLocked) {
                 visibility = VISIBLE
-                mSysTime.text = PlayerUtils.getCurrentSystemTime()
+//                mSysTime.text = PlayerUtils.getCurrentSystemTime()
             }
             mTitle.isSelected = true
         } else {
             visibility = GONE
             mTitle.isSelected = false
         }
-        val activity = this.activity
-        if (activity != null && controller != null && controller.hasCutout()) {
+        val activity = this.activity ?: return
+        if (controller != null && controller.hasCutout()) {
             val orientation = activity.requestedOrientation
             val cutoutHeight = controller.cutoutHeight
             when (orientation) {
@@ -118,7 +126,7 @@ class TitleView @JvmOverloads constructor(
             visibility = GONE
         } else {
             visibility = VISIBLE
-            mSysTime.text = PlayerUtils.getCurrentSystemTime()
+//            mSysTime.text = PlayerUtils.getCurrentSystemTime()
         }
     }
 
@@ -134,16 +142,24 @@ class TitleView @JvmOverloads constructor(
 
     init {
         visibility = GONE
-        if (isTelevisionUiMode()) {
+        val isTelevisionUiMode = isTelevisionUiMode()
+        if (layoutId > 0) {
+            layoutInflater.inflate(layoutId, this)
+        } else {
+            layoutInflater.inflate(
+                if (isTelevisionUiMode) R.layout.dkplayer_layout_title_view_tv else R.layout.dkplayer_layout_title_view,
+                this
+            )
+        }
+
+        if (isTelevisionUiMode) {
             mBatteryEnabled = false
-            layoutInflater.inflate(R.layout.dkplayer_layout_title_view_tv, this)
             //tv模式不要电量，不要返回按钮
-            findViewById<ImageView>(R.id.back)?.visibility = GONE
-            findViewById<ImageView>(R.id.iv_battery)?.visibility = GONE
+            findViewById<View>(R.id.back)?.visibility = GONE
+            findViewById<View>(R.id.iv_battery)?.visibility = GONE
         } else {
             mBatteryEnabled = true
-            layoutInflater.inflate(R.layout.dkplayer_layout_title_view, this)
-            findViewById<ImageView>(R.id.back).setOnClickListener {
+            findViewById<View?>(R.id.back)?.setOnClickListener {
                 val activity = activity
                 if (activity != null && mController?.isFullScreen.orDefault()) {
                     mController?.stopFullScreen()
@@ -155,6 +171,6 @@ class TitleView @JvmOverloads constructor(
         }
         mTitleContainer = findViewById(R.id.title_container)
         mTitle = findViewById(R.id.title)
-        mSysTime = findViewById(R.id.sys_time)
+//        mSysTime = findViewById(R.id.sys_time)
     }
 }

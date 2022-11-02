@@ -5,8 +5,10 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 import kotlin.math.abs
 
 /**
@@ -14,10 +16,12 @@ import kotlin.math.abs
  * Created by Doikki on 2017/4/13.
  * update by luochao on022/9/28 调整基类接口变更引起的变动，去掉无用代码
  */
+@TVCompatible(message = "不用做什么特殊处理")
 class ErrorView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(
     context, attrs, defStyleAttr
 ) {
@@ -66,18 +70,23 @@ class ErrorView @JvmOverloads constructor(
             visibility = VISIBLE
         }
         setBackgroundResource(R.color.dkplayer_control_component_container_color)
-        layoutInflater.inflate(R.layout.dkplayer_layout_error_view, this)
-        val statusBtn = findViewById<View>(R.id.status_btn)
-        if (isTelevisionUiMode()) {
-            statusBtn.isFocusable = true
-            statusBtn.isFocusableInTouchMode = true
+        if (layoutId > 0) {
+            layoutInflater.inflate(layoutId, this)
         } else {
-            //设置当前容器能点击的原因是为了避免事件穿透
-            isClickable = true
+            layoutInflater.inflate(R.layout.dkplayer_layout_error_view, this)
         }
-        statusBtn.setOnClickListener {
+        findViewById<View?>(R.id.status_btn)?.setOnClickListener {
             visibility = GONE
             mController?.replay(false)
         }
+//        if (isTelevisionUiMode()) {
+//            statusBtn.isFocusable = true
+//            statusBtn.isFocusableInTouchMode = true
+//        } else {
+//            //设置当前容器能点击的原因是为了避免事件穿透
+//            isClickable = true
+//        }
+        //设置当前容器能点击的原因是为了避免事件穿透
+        isClickable = true
     }
 }

@@ -18,4 +18,5 @@ interface KeyControlComponent : GestureControlComponent {
      * 取消方向键拖动位置
      */
     fun onCancelLeftOrRightKeyPressedForSeeking(keyEvent: KeyEvent){}
+
 }

@@ -9,17 +9,20 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils
-import xyz.doikki.videoplayer.util.layoutInflater
 
 /**
- * 手势控制
+ * 手势控制：用于手势处理亮度、进度、音量等
  */
+@TVCompatible(message = "已适配tv上进度操作的显示指示：亮度和音量一般在tv上不用处理")
 class GestureView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr), KeyControlComponent {
 
     private val mIcon: ImageView
@@ -100,7 +103,11 @@ class GestureView @JvmOverloads constructor(
 
     init {
         visibility = GONE
-        layoutInflater.inflate(R.layout.dkplayer_layout_gesture_control_view, this)
+        if (layoutId > 0) {
+            layoutInflater.inflate(layoutId, this)
+        } else {
+            layoutInflater.inflate(R.layout.dkplayer_layout_gesture_control_view, this)
+        }
         mIcon = findViewById(R.id.iv_icon)
         mProgressPercent = findViewById(R.id.pro_percent)
         mTextPercent = findViewById(R.id.tv_percent)

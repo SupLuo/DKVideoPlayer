@@ -6,15 +6,21 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import xyz.doikki.videoplayer.DKManager.isPlayOnMobileNetwork
+import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 
 /**
  * 准备播放界面
  */
+@TVCompatible(message = "不用做额外适配")
 class PrepareView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
 
     private val mThumb: ImageView
@@ -26,9 +32,6 @@ class PrepareView @JvmOverloads constructor(
      * 设置点击此界面开始播放
      */
     fun setClickStart() {
-        if (isTelevisionUiMode()) {
-            setViewInFocusMode(this)
-        }
         setOnClickListener { mController?.playerControl?.start() }
     }
 
@@ -60,19 +63,18 @@ class PrepareView @JvmOverloads constructor(
     }
 
     init {
-        layoutInflater.inflate(R.layout.dkplayer_layout_prepare_view, this)
+        if (layoutId > 0) {
+            layoutInflater.inflate(layoutId, this)
+        } else {
+            layoutInflater.inflate(R.layout.dkplayer_layout_prepare_view, this)
+        }
         mThumb = findViewById(R.id.thumb)
         mStartPlay = findViewById(R.id.start_play)
         mLoading = findViewById(R.id.loading)
         mNetWarning = findViewById(R.id.net_warning_layout)
-        val btnInWarning = findViewById<View>(R.id.status_btn)
-        if (isTelevisionUiMode()) {
-            setViewInFocusMode(mStartPlay)
-            setViewInFocusMode(btnInWarning)
-        }
-        btnInWarning.setOnClickListener {
+        findViewById<View?>(R.id.status_btn)?.setOnClickListener {
             mNetWarning.visibility = GONE
-            isPlayOnMobileNetwork = true
+            DKManager.isPlayOnMobileNetwork = true
             mController?.playerControl?.start()
         }
     }

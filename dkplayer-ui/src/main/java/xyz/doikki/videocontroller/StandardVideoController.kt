@@ -7,15 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
-import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.AttrRes
 import xyz.doikki.videocontroller.component.*
 import xyz.doikki.videoplayer.DKVideoView
 import xyz.doikki.videoplayer.controller.GestureVideoController
+import xyz.doikki.videoplayer.util.PlayerUtils
 import xyz.doikki.videoplayer.util.orDefault
 import xyz.doikki.videoplayer.util.toast
-import xyz.doikki.videoplayer.util.PlayerUtils
 
 /**
  * 直播/点播控制器
@@ -29,7 +28,7 @@ open class StandardVideoController @JvmOverloads constructor(
     @AttrRes defStyleAttr: Int = 0
 ) : GestureVideoController(context, attrs, defStyleAttr), View.OnClickListener {
 
-    protected val lockButton: ImageView
+    protected val lockButton: View
     protected val loadingIndicator: ProgressBar
     private var isBuffering = false
 

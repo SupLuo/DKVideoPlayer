@@ -28,15 +28,22 @@
             android:textSize="@dimen/dkplayer_controller_text_size"
             tools:text="这是一个标题" />
 
-        <TextView
+        <TextClock
             android:id="@+id/sys_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:format24Hour="HH:mm"
             android:layout_marginEnd="14dp"
             android:layout_marginRight="14dp"
-            android:textColor="@android:color/white"
-            tools:text="12:00" />
-
+            android:textColor="@android:color/white"/>
+<!--        <TextView-->
+<!--            android:id="@+id/sys_time"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginEnd="14dp"-->
+<!--            android:layout_marginRight="14dp"-->
+<!--            android:textColor="@android:color/white"-->
+<!--            tools:text="12:00" />-->
     </LinearLayout>
 
 </merge>

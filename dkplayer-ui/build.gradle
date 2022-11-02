@@ -10,12 +10,21 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
+
+    kotlinOptions{
+        jvmTarget = '1.8'
+        freeCompilerArgs += [
+                '-Xjvm-default=all'
+        ]
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly project.ext.annotation
     api project(':dkplayer-java')
+
+    implementation "androidx.appcompat:appcompat:1.2.0"
 }
 
 ext {

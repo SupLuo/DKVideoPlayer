@@ -4,10 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.KeyEvent
+import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import xyz.doikki.videoplayer.util.loopKeyWhen
 import kotlin.math.ceil
 
+@TVCompatible(message = "内部适配了在tv上拖动、播放完成重播、播放失败等逻辑")
 open class TVVideoController @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : StandardVideoController(context, attrs) {
@@ -49,8 +51,9 @@ open class TVVideoController @JvmOverloads constructor(
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         Log.d(
-            "Controller2",
-            "now=${System.currentTimeMillis()} downTime=${event.downTime} eventTime=${event.eventTime} repeatCount=${event.repeatCount}"
+            "dispatchKeyEvent",
+            "keyCode = ${event.keyCode}   action = ${event.action} repeatCount = ${event.repeatCount} isInPlaybackState=${isInPlaybackState} " +
+                    "isShowing=${isShowing} mHasDispatchPendingSeek=${mHasDispatchPendingSeek} mCurrentPendingSeekPosition=${mCurrentPendingSeekPosition}"
         )
         val keyCode = event.keyCode
         val uniqueDown = (event.repeatCount == 0 && event.action == KeyEvent.ACTION_DOWN)
