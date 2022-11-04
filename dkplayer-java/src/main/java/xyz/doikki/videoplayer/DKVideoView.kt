@@ -373,48 +373,6 @@ open class DKVideoView @JvmOverloads constructor(
     }
 
     /**
-     * 继续播放
-     */
-    open fun resume() {
-        player?.let { player ->
-            if (isInPlaybackState && !player.isPlaying()) {
-                player.start()
-                playerState = STATE_PLAYING
-                if (!isMute) {
-                    mAudioFocusHelper?.requestFocus()
-                }
-                playerContainer.keepScreenOn = true
-            }
-        }
-    }
-
-    /**
-     * 释放播放器
-     */
-    open fun release() {
-        if (!isInIdleState) {
-            //释放播放器
-            player?.release()
-            //释放render
-            playerContainer.release()
-            //释放Assets资源
-            mAssetFileDescriptor?.let {
-                tryIgnore {
-                    it.close()
-                }
-            }
-            //关闭AudioFocus监听
-            mAudioFocusHelper?.abandonFocus()
-            //保存播放进度
-            saveCurrentPlayedProgress()
-            //重置播放进度
-            mCurrentPosition = 0
-            //切换转态
-            playerState = STATE_IDLE
-        }
-    }
-
-    /**
      * 是否处于播放状态
      */
     protected val isInPlaybackState: Boolean
@@ -546,6 +504,48 @@ open class DKVideoView @JvmOverloads constructor(
                 }
                 playerContainer.keepScreenOn = false
             }
+        }
+    }
+
+    /**
+     * 继续播放
+     */
+    open fun resume() {
+        player?.let { player ->
+            if (isInPlaybackState && !player.isPlaying()) {
+                player.start()
+                playerState = STATE_PLAYING
+                if (!isMute) {
+                    mAudioFocusHelper?.requestFocus()
+                }
+                playerContainer.keepScreenOn = true
+            }
+        }
+    }
+
+    /**
+     * 释放播放器
+     */
+    open fun release() {
+        if (!isInIdleState) {
+            //释放播放器
+            player?.release()
+            //释放render
+            playerContainer.release()
+            //释放Assets资源
+            mAssetFileDescriptor?.let {
+                tryIgnore {
+                    it.close()
+                }
+            }
+            //关闭AudioFocus监听
+            mAudioFocusHelper?.abandonFocus()
+            //保存播放进度
+            saveCurrentPlayedProgress()
+            //重置播放进度
+            mCurrentPosition = 0
+            //切换转态
+            playerState = STATE_IDLE
         }
     }
 

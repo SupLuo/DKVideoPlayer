@@ -21,6 +21,13 @@ public interface PlayerControl {
     void replay(boolean resetPosition);
 
     /**
+     * 是否正在播放
+     *
+     * @return
+     */
+    boolean isPlaying();
+
+    /**
      * 暂停
      */
     void pause();
@@ -45,13 +52,6 @@ public interface PlayerControl {
      * @param msec the offset in milliseconds from the start to seek to;偏移位置（毫秒）
      */
     void seekTo(long msec);
-
-    /**
-     * 是否正在播放
-     *
-     * @return
-     */
-    boolean isPlaying();
 
     /**
      * 获取缓冲百分比

@@ -242,11 +242,11 @@ abstract class GestureVideoController @JvmOverloads constructor(
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     stopSlide()
-                    handlePendingSeekPosition()
+                    handlePendingSeek()
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     stopSlide()
-                    cancelPendingSeekPosition()
+                    cancelPendingSeek()
                 }
             }
         }
@@ -266,7 +266,7 @@ abstract class GestureVideoController @JvmOverloads constructor(
         pendingSeekPosition = position
     }
 
-    protected open fun handlePendingSeekPosition() {
+    protected open fun handlePendingSeek() {
         invokeOnPlayerAttached { player ->
             if (pendingSeekPosition >= 0) {
                 player.seekTo(pendingSeekPosition.toLong())
@@ -275,7 +275,7 @@ abstract class GestureVideoController @JvmOverloads constructor(
         pendingSeekPosition = INVALIDATE_SEEK_POSITION
     }
 
-    protected open fun cancelPendingSeekPosition() {
+    protected open fun cancelPendingSeek() {
         pendingSeekPosition = INVALIDATE_SEEK_POSITION
     }
 

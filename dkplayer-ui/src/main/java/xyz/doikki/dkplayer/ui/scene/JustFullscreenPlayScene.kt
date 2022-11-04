@@ -1,4 +1,4 @@
-package xyz.doikki.scene
+package xyz.doikki.dkplayer.ui.scene
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
@@ -8,7 +8,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import xyz.doikki.videocontroller.R
-import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
 import xyz.doikki.videoplayer.DKVideoView
@@ -21,8 +20,8 @@ import xyz.doikki.videoplayer.util.PlayerUtils
  */
 class JustFullscreenPlayScene private constructor(
     val activity: ComponentActivity,
-    val videoView: DKVideoView,
-) {
+    private val videoView: DKVideoView,
+): BasePlayScene() {
 
     private lateinit var controller: MediaController
     private lateinit var titleView: TitleView
@@ -74,18 +73,8 @@ class JustFullscreenPlayScene private constructor(
         controller.findViewById<View?>(R.id.back)?.setOnClickListener(click)
     }
 
-
-    protected fun onResume() {
-        videoView.resume()
-    }
-
-
-    protected fun onPause() {
-        videoView.pause()
-    }
-
-    protected fun onDestroy() {
-        videoView.release()
+    override fun getVideoView(): DKVideoView {
+        return videoView
     }
 
     fun onBackPressed() {
@@ -127,7 +116,7 @@ class JustFullscreenPlayScene private constructor(
 
         /**
          * 本方法会创建一个[DKVideoView]播放器并调用[Activity.setContentView]进行设置
-         * 必须在[Activity.onCreate]方法中调用
+         * 必须在[Activity.onCreate]方法或之后调用
          */
         @JvmStatic
         fun create(activity: ComponentActivity): JustFullscreenPlayScene {

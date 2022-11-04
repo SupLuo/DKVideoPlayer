@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKVideoView
@@ -27,6 +28,16 @@ class ErrorView @JvmOverloads constructor(
 ) {
     private var mDownX = 0f
     private var mDownY = 0f
+
+    var errorButton: View? = null
+        private set
+
+    var errorTextView: TextView? = null
+        private set
+
+    fun setErrorMessage(message: CharSequence?) {
+        errorTextView?.text = message
+    }
 
     override fun onPlayStateChanged(playState: Int) {
         if (playState == DKVideoView.STATE_ERROR) {
@@ -75,10 +86,13 @@ class ErrorView @JvmOverloads constructor(
         } else {
             layoutInflater.inflate(R.layout.dkplayer_layout_error_view, this)
         }
-        findViewById<View?>(R.id.status_btn)?.setOnClickListener {
+        errorButton = findViewById(R.id.status_btn)
+        errorButton?.setOnClickListener {
             visibility = GONE
             mController?.replay(false)
         }
+
+        errorTextView = findViewById(R.id.message)
 //        if (isTelevisionUiMode()) {
 //            statusBtn.isFocusable = true
 //            statusBtn.isFocusableInTouchMode = true
@@ -87,6 +101,6 @@ class ErrorView @JvmOverloads constructor(
 //            isClickable = true
 //        }
         //设置当前容器能点击的原因是为了避免事件穿透
-        isClickable = true
+        isClickable = !isTelevisionUiMode()
     }
 }

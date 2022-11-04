@@ -56,7 +56,7 @@ object DKManager {
      */
     @JvmStatic
     @NewFunc
-    var isTelevisionUiMode = false
+    var isTelevisionUiMode = true
 
     /**
      * 是否启用了音频焦点处理；默认开启

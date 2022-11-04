@@ -5,7 +5,7 @@ import android.view.View;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
-import xyz.doikki.scene.JustFullscreenPlayScene;
+import xyz.doikki.dkplayer.ui.scene.JustFullscreenPlayScene;
 import xyz.doikki.videoplayer.DKVideoView;
 
 /**
@@ -40,7 +40,6 @@ public class FullScreenActivity extends BaseActivity<DKVideoView> {
 
     @Override
     public void onBackPressed() {
-        if(!mScene.onBackPressed())
-            super.onBackPressed();
+        mScene.onBackPressed();
     }
 }

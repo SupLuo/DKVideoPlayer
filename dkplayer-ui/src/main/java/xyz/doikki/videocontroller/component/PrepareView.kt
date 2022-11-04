@@ -29,6 +29,11 @@ class PrepareView @JvmOverloads constructor(
     private val mNetWarning: FrameLayout
 
     /**
+     * 封面ImageView
+     */
+    val coverImage: ImageView? get() = mThumb
+
+    /**
      * 设置点击此界面开始播放
      */
     fun setClickStart() {

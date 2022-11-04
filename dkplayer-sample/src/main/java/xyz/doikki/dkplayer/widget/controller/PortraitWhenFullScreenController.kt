@@ -15,7 +15,7 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : StandardVideoController(context, attrs, defStyleAttr) {
+) : StandardVideoController(context, attrs, defStyleAttr), View.OnClickListener {
 
     private val mFullScreen: View
 

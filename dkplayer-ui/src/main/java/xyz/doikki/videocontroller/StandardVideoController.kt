@@ -3,17 +3,19 @@ package xyz.doikki.videocontroller
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.ProgressBar
 import androidx.annotation.AttrRes
+import androidx.annotation.LayoutRes
+import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videocontroller.component.*
+import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.DKVideoView
+import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.GestureVideoController
 import xyz.doikki.videoplayer.util.PlayerUtils
-import xyz.doikki.videoplayer.util.orDefault
 import xyz.doikki.videoplayer.util.toast
 
 /**
@@ -22,27 +24,29 @@ import xyz.doikki.videoplayer.util.toast
  * 你自己的控制器
  * Created by Doikki on 2017/4/7.
  */
+@TVCompatible(message = "TV上使用不提供lock相关的逻辑")
 open class StandardVideoController @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    @AttrRes defStyleAttr: Int = 0
-) : GestureVideoController(context, attrs, defStyleAttr), View.OnClickListener {
+    @AttrRes defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
+) : GestureVideoController(context, attrs, defStyleAttr) {
 
     protected val lockButton: View
     protected val loadingIndicator: ProgressBar
     private var isBuffering = false
 
-    init {
-        val layoutId = getLayoutId()
-        if (layoutId > 0)
-            LayoutInflater.from(context).inflate(layoutId, this, true)
-        lockButton = findViewById(R.id.lock)
-        lockButton.setOnClickListener(this)
-        loadingIndicator = findViewById(R.id.loading)
-    }
+    var enableLock: Boolean = !DKManager.isTelevisionUiMode
 
-    protected open fun getLayoutId(): Int {
-        return R.layout.dkplayer_layout_standard_controller
+    init {
+        if (layoutId > 0)
+            inflate(context, layoutId, this)
+        else {
+            inflate(context, R.layout.dkplayer_layout_standard_controller, this)
+        }
+        lockButton = findViewById(R.id.lock)
+        lockButton.setOnClickListener(::onLockClick)
+        loadingIndicator = findViewById(R.id.loading)
     }
 
     /**
@@ -67,36 +71,39 @@ open class StandardVideoController @JvmOverloads constructor(
         seekEnabled = !isLive
     }
 
-    override fun onClick(v: View) {
-        val i = v.id
-        if (i == R.id.lock) {
-            toggleLock()
-        }
+    protected open fun onLockClick(v: View) {
+        toggleLock()
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {
-        if (isLocked) {
-            lockButton.isSelected = true
-            toast(R.string.dkplayer_locked)
-        } else {
-            lockButton.isSelected = false
-            toast(R.string.dkplayer_unlocked)
+        if (enableLock) {
+            if (isLocked) {
+                lockButton.isSelected = true
+                toast(R.string.dkplayer_locked)
+            } else {
+                lockButton.isSelected = false
+                toast(R.string.dkplayer_unlocked)
+            }
         }
     }
 
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
-        if (mPlayer?.isFullScreen.orDefault()) {
-            if (isVisible) {
-                if (lockButton.visibility == GONE) {
-                    lockButton.visibility = VISIBLE
+        if (!enableLock)
+            return
+        invokeOnPlayerAttached { player ->
+            if (player.isFullScreen) {
+                if (isVisible) {
+                    if (lockButton.visibility == GONE) {
+                        lockButton.visibility = VISIBLE
+                        if (anim != null) {
+                            lockButton.startAnimation(anim)
+                        }
+                    }
+                } else {
+                    lockButton.visibility = GONE
                     if (anim != null) {
                         lockButton.startAnimation(anim)
                     }
-                }
-            } else {
-                lockButton.visibility = GONE
-                if (anim != null) {
-                    lockButton.startAnimation(anim)
                 }
             }
         }
@@ -104,6 +111,8 @@ open class StandardVideoController @JvmOverloads constructor(
 
     override fun onScreenModeChanged(screenMode: Int) {
         super.onScreenModeChanged(screenMode)
+        if (!enableLock)
+            return
         when (screenMode) {
             DKVideoView.SCREEN_MODE_NORMAL -> {
                 layoutParams = LayoutParams(
@@ -118,8 +127,11 @@ open class StandardVideoController @JvmOverloads constructor(
                 lockButton.visibility = GONE
             }
         }
-        if (mActivity != null && hasCutout()) {
-            val orientation = mActivity!!.requestedOrientation
+
+        val activity = mActivity ?: return
+
+        if (hasCutout()) {
+            val orientation = activity.requestedOrientation
             val dp24 = PlayerUtils.dp2px(context, 24f)
             val cutoutHeight = cutoutHeight
             when (orientation) {
