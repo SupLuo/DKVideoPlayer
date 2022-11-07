@@ -26,7 +26,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
 
     private var bufferedPercent = 0
 
-    private fun createKernel():IjkMediaPlayer{
+    private fun createKernel(): IjkMediaPlayer {
         return IjkMediaPlayer().also {
             it.setOnErrorListener(this)
             it.setOnCompletionListener(this)
@@ -42,6 +42,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
         //native日志 todo  java.lang.UnsatisfiedLinkError: No implementation found for void tv.danmaku.ijk.media.player.IjkMediaPlayer.native_setLogLevel(int)
 //        IjkMediaPlayer.native_setLogLevel(if (isDebuggable) IjkMediaPlayer.IJK_LOG_INFO else IjkMediaPlayer.IJK_LOG_SILENT)
         kernel = createKernel()
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN)
     }
 
     override fun setDataSource(path: String, headers: Map<String, String>?) {
@@ -106,6 +107,9 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
 
     override fun prepareAsync() {
         try {
+            //需要手动调用开始播放
+            kernel!!.applyPreferredOptions()
+            kernel!!.setAutoPlayOnPrepared(false)
             kernel!!.prepareAsync()
         } catch (e: IllegalStateException) {
             eventListener!!.onError(e)
@@ -249,4 +253,6 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
     override fun onNativeInvoke(what: Int, args: Bundle): Boolean {
         return true
     }
+
+
 }

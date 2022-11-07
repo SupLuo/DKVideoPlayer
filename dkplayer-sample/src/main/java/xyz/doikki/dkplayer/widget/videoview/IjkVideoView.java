@@ -41,8 +41,8 @@ public class IjkVideoView extends DKVideoView {
     }
 
     @Override
-    protected void setupMediaPlayerOptions() {
-        super.setupMediaPlayerOptions();
+    protected void preparePlayerOptions() {
+        super.preparePlayerOptions();
         for (Map.Entry<String, Object> next : mPlayerOptions.entrySet()) {
             String key = next.getKey();
             Object value = next.getValue();

@@ -3,7 +3,6 @@ package xyz.doikki.dkplayer.activity.api
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.media.MediaPlayer
 import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
@@ -85,8 +84,6 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
             //根据是否为直播决定是否需要滑动调节进度
             controller.seekEnabled = !isLive
 
-            MediaPlayer()
-
             //设置标题
             val title = it.getStringExtra(IntentKeys.TITLE)
             titleView.setTitle(title)
@@ -125,7 +122,7 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
                 url = Utils.getFileFromContentUri(this, it.data)
             }
 //            val header = hashMapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
-            mVideoView.setDataSource(url!!)
+            mVideoView.setDataSource("http://uxclass.ucuxin.com/ux/209/video/m3u8/22/8/12/d1beeea108214e5f958132f1df82fe25.m3u8?Expires=1667883459&OSSAccessKeyId=LTAI4MoXZ37SNZPw&Signature=cfe5gjsmHaQ0KtYF4jLycHfehPU%3D&x-oss-process=hls%2Fsign")//url!!)
 
             //保存播放进度
 //            mVideoView.setProgressManager(ProgressManagerImpl())
@@ -169,6 +166,7 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
 
         //播放其他视频
         val etOtherVideo = findViewById<EditText>(R.id.et_other_video)
+        etOtherVideo.setText("http://uxclass.ucuxin.com/ux/209/video/m3u8/22/8/12/d1beeea108214e5f958132f1df82fe25.m3u8?Expires=1667733068&OSSAccessKeyId=LTAI4MoXZ37SNZPw&Signature=7ZgYYCm0I09fDK%2BoAfiYjKMXFiA%3D&x-oss-process=hls%2Fsign")
         findViewById<View>(R.id.btn_start_play).setOnClickListener {
             mVideoView.release()
             mVideoView.setDataSource(etOtherVideo.text.toString())
@@ -251,7 +249,7 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
         super.onPause()
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView!!.playerState == DKVideoView.STATE_PREPARING) {
+        if (mVideoView!!.currentState == DKVideoView.STATE_PREPARING) {
             mVideoView!!.release()
         }
     }

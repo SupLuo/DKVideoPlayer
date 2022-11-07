@@ -1,6 +1,5 @@
 package xyz.doikki.videoplayer
 
-import android.content.res.AssetFileDescriptor
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.FloatRange
@@ -13,7 +12,7 @@ import androidx.annotation.IntRange
  * update by luochao on 2022/9/16. 调整部分代码及结构
  * @see AbstractDKPlayer
  */
-interface DKPlayer {
+interface DKPlayer : PlayerCore {
 
     companion object {
         /**
@@ -44,36 +43,14 @@ interface DKPlayer {
     fun init()
 
     /**
-     * 设置播放地址
-     *
-     * @param path 播放地址
+     * 异步准备
      */
-    fun setDataSource(path: String) {
-        setDataSource(path, null)
-    }
-
-    /**
-     * 设置播放地址
-     *
-     * @param path    播放地址
-     * @param headers 播放地址请求头
-     */
-    fun setDataSource(path: String, headers: Map<String, String>?)
-
-    /**
-     * 用于播放raw和asset里面的视频文件
-     */
-    fun setDataSource(fd: AssetFileDescriptor)
+    fun prepareAsync()
 
     /**
      * 是否正在播放
      */
     fun isPlaying(): Boolean
-
-    /**
-     * 准备开始播放（异步）
-     */
-    fun prepareAsync()
 
     /**
      * 开始播放

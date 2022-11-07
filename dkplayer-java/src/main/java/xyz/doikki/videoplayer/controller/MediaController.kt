@@ -99,7 +99,7 @@ open class MediaController @JvmOverloads constructor(
     private val progressUpdateRunnable: Runnable = object : Runnable {
         override fun run() {
             val pos = updateProgress()
-            if (mPlayer?.isPlaying.orDefault()) {
+            if (mPlayer?.isPlaying().orDefault()) {
                 postDelayed(this, ((1000 - pos % 1000) / mPlayer?.speed.orDefault(1f)).toLong())
             } else {
                 mProgressRefreshing = false
@@ -165,7 +165,13 @@ open class MediaController @JvmOverloads constructor(
      * @return
      */
     protected val isInPlaybackState: Boolean
-        get() = mPlayer != null && mPlayerState != DKVideoView.STATE_ERROR && mPlayerState != DKVideoView.STATE_IDLE && mPlayerState != DKVideoView.STATE_PREPARING && mPlayerState != DKVideoView.STATE_PREPARED && mPlayerState != DKVideoView.STATE_START_ABORT && mPlayerState != DKVideoView.STATE_PLAYBACK_COMPLETED
+        get() = mPlayer != null
+                && mPlayerState != DKVideoView.STATE_ERROR
+                && mPlayerState != DKVideoView.STATE_IDLE
+                && mPlayerState != DKVideoView.STATE_PREPARING
+                && mPlayerState != DKVideoView.STATE_PREPARED
+                && mPlayerState != DKVideoView.STATE_PREPARED_BUT_ABORT
+                && mPlayerState != DKVideoView.STATE_PLAYBACK_COMPLETED
 
     protected val isInCompleteState: Boolean get() = mPlayerState == DKVideoView.STATE_PLAYBACK_COMPLETED
 
@@ -487,7 +493,7 @@ open class MediaController @JvmOverloads constructor(
      */
     fun togglePlay() {
         invokeOnPlayerAttached {
-            if (it.isPlaying) {
+            if (it.isPlaying()) {
                 it.pause()
             } else {
                 it.start()
@@ -508,7 +514,7 @@ open class MediaController @JvmOverloads constructor(
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         val player = mPlayer ?: return
-        if (player.isPlaying && (mEnableOrientationSensor || player.isFullScreen)) {
+        if (player.isPlaying() && (mEnableOrientationSensor || player.isFullScreen)) {
             if (hasWindowFocus) {
                 postDelayed({ mOrientationSensorHelper.enable() }, 800)
             } else {
@@ -556,8 +562,8 @@ open class MediaController @JvmOverloads constructor(
      */
     private fun updateProgress(): Int {
         val player = mPlayer ?: return 0
-        val position = player.currentPosition.toInt()
-        val duration = player.duration.toInt()
+        val position = player.getCurrentPosition().toInt()
+        val duration = player.getDuration().toInt()
         for ((component) in mControlComponents) {
             component.onProgressChanged(duration, position)
         }

@@ -45,7 +45,7 @@ public class PIPActivity extends BaseActivity {
         if (mPIPManager.isStartFloatWindow()) {
             mPIPManager.stopFloatWindow();
             controller.setScreenMode(videoView.getScreenMode());
-            controller.setPlayerState(videoView.getPlayerState());
+            controller.setPlayerState(videoView.getCurrentState());
         } else {
             mPIPManager.setActClass(PIPActivity.class);
             ImageView thumb = controller.findViewById(R.id.thumb);

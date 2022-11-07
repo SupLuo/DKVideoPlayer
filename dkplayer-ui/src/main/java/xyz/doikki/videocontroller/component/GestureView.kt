@@ -94,7 +94,7 @@ class GestureView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         visibility =
-            if (playState == DKVideoView.STATE_IDLE || playState == DKVideoView.STATE_START_ABORT || playState == DKVideoView.STATE_PREPARING || playState == DKVideoView.STATE_PREPARED || playState == DKVideoView.STATE_ERROR || playState == DKVideoView.STATE_PLAYBACK_COMPLETED) {
+            if (playState == DKVideoView.STATE_IDLE || playState == DKVideoView.STATE_PREPARED_BUT_ABORT || playState == DKVideoView.STATE_PREPARING || playState == DKVideoView.STATE_PREPARED || playState == DKVideoView.STATE_ERROR || playState == DKVideoView.STATE_PLAYBACK_COMPLETED) {
                 GONE
             } else {
                 VISIBLE

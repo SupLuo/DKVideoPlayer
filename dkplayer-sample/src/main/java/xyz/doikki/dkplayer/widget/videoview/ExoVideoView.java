@@ -59,14 +59,17 @@ public class ExoVideoView extends DKVideoView {
         return (CustomExoMediaPlayer) getPlayer();
     }
 
+    @NonNull
     @Override
-    protected void onMediaPlayerCreate(DKPlayer mediaPlayer) {
-        super.onMediaPlayerCreate(mediaPlayer);
-        CustomExoMediaPlayer mp = (CustomExoMediaPlayer) mediaPlayer;
+    protected DKPlayer createPlayer() {
+        DKPlayer player =  super.createPlayer();
+        CustomExoMediaPlayer mp = (CustomExoMediaPlayer) player;
         mp.setLoadControl(mLoadControl);
         mp.setRenderersFactory(mRenderersFactory);
         mp.setTrackSelector(mTrackSelector);
+        return player;
     }
+
 
     @Override
     protected boolean prepareDataSource() {

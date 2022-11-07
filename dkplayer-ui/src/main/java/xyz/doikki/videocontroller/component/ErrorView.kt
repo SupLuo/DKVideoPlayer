@@ -43,7 +43,7 @@ class ErrorView @JvmOverloads constructor(
         if (playState == DKVideoView.STATE_ERROR) {
             bringToFront()
             visibility = VISIBLE
-        } else if (playState == DKVideoView.STATE_IDLE) {
+        }else{
             visibility = GONE
         }
     }

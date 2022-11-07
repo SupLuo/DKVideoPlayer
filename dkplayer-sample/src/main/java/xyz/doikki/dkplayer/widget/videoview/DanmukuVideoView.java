@@ -60,8 +60,8 @@ public class DanmukuVideoView extends DKVideoView {
     }
 
     @Override
-    protected void setupMediaPlayer() {
-        super.setupMediaPlayer();
+    protected void ensurePlayer() {
+        super.ensurePlayer();
         if (mDanmakuView == null) {
             initDanMuView();
         }

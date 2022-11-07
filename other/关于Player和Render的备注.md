@@ -35,3 +35,10 @@ Textureview+Mediplay 播放视频时无画面有声音 https://blog.csdn.net/fei
 ## 5. IJK 重新播放（调用reset在重新设置数据源）的情况下，先于reset之前设置的surface会无效
 
 解决办法：整个DKVideoView的reply逻辑应该是先reset->set option -> set render -> setDatasource
+
+## 6. IJK + Texture在一款手机中播放m3u8，播放一段时间后会一直处于loading状态
+
+试了三款设备：vivo xplay 5a、red mi k30 、以及湖南的一款盒子 出问题的是vivo
+现象与以下链接描述现象相似：https://github.com/Bilibili/ijkplayer/issues/283
+
+测试情况结果：使用exo+texture、系统播放器播放均无问题；ijk+surface模式播放也没问题

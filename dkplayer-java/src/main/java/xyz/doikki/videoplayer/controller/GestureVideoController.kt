@@ -189,8 +189,8 @@ abstract class GestureVideoController @JvmOverloads constructor(
     protected fun slideToChangePosition(deltaX: Float) {
         invokeOnPlayerAttached {
             val width = measuredWidth
-            val duration = it.duration.toInt()
-            val currentPosition = it.currentPosition.toInt()
+            val duration = it.getDuration().toInt()
+            val currentPosition = it.getCurrentPosition().toInt()
             var position = (-deltaX / width * 120000 + currentPosition).toInt()
             if (position > duration) position = duration
             if (position < 0) position = 0

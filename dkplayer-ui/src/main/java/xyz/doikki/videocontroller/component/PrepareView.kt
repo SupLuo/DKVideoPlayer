@@ -59,7 +59,7 @@ class PrepareView @JvmOverloads constructor(
                 mStartPlay.visibility = VISIBLE
                 mThumb.visibility = VISIBLE
             }
-            DKVideoView.STATE_START_ABORT -> {
+            DKVideoView.STATE_PREPARED_BUT_ABORT -> {
                 visibility = VISIBLE
                 mNetWarning.visibility = VISIBLE
                 mNetWarning.bringToFront()

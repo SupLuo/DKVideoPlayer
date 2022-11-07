@@ -65,7 +65,7 @@ open class VodControlView @JvmOverloads constructor(
                 return
 
             mController?.playerControl?.let { player ->
-                val duration = player.duration
+                val duration = player.getDuration()
                 val newPosition = duration * progress / seekBar.max.orDefault(100)
                 mCurrTime?.text = PlayerUtils.stringForTime(newPosition.toInt())
             }
@@ -83,7 +83,7 @@ open class VodControlView @JvmOverloads constructor(
             try {
                 mController?.let { controller ->
                     val player = this@VodControlView.player ?: return@let
-                    val duration = player.duration
+                    val duration = player.getDuration()
                     val newPosition = duration * seekBar.progress / seekBar.max
                     player.seekTo(newPosition.toInt().toLong())
                     mTrackingTouch = false
@@ -139,7 +139,7 @@ open class VodControlView @JvmOverloads constructor(
                     it.secondaryProgress = 0
                 }
             }
-            DKVideoView.STATE_START_ABORT, DKVideoView.STATE_PREPARING,
+            DKVideoView.STATE_PREPARED_BUT_ABORT, DKVideoView.STATE_PREPARING,
             DKVideoView.STATE_PREPARED, DKVideoView.STATE_ERROR -> visibility = GONE
             DKVideoView.STATE_PLAYING -> {
                 mPlayButton?.isSelected = true
@@ -160,12 +160,12 @@ open class VodControlView @JvmOverloads constructor(
             }
             DKVideoView.STATE_PAUSED -> mPlayButton?.isSelected = false
             DKVideoView.STATE_BUFFERING -> {
-                mPlayButton?.isSelected = player?.isPlaying.orDefault()
+                mPlayButton?.isSelected = player?.isPlaying().orDefault()
                 // 停止刷新进度
                 mController?.stopUpdateProgress()
             }
             DKVideoView.STATE_BUFFERED -> {
-                mPlayButton?.isSelected = player?.isPlaying.orDefault()
+                mPlayButton?.isSelected = player?.isPlaying().orDefault()
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
@@ -234,7 +234,7 @@ open class VodControlView @JvmOverloads constructor(
             } else {
                 seekBar.isEnabled = false
             }
-            val percent = player?.bufferedPercentage.orDefault()
+            val percent = player?.getBufferedPercentage().orDefault()
             if (percent >= 95) { //解决缓冲进度不能100%问题
                 seekBar.secondaryProgress = seekBar.max
                 mBottomProgress?.secondaryProgress = mBottomProgress?.max.orDefault(100)

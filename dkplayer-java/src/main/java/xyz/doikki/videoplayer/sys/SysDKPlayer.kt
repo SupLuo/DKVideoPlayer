@@ -10,10 +10,10 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import xyz.doikki.videoplayer.AbstractDKPlayer
 import xyz.doikki.videoplayer.DKPlayer
-import xyz.doikki.videoplayer.util.orDefault
 import xyz.doikki.videoplayer.internal.DKPlayerException
-import xyz.doikki.videoplayer.util.tryIgnore
 import xyz.doikki.videoplayer.util.L
+import xyz.doikki.videoplayer.util.orDefault
+import xyz.doikki.videoplayer.util.tryIgnore
 import kotlin.concurrent.thread
 
 /**
@@ -86,6 +86,15 @@ class SysDKPlayer(context: Context) : AbstractDKPlayer(),
         try {
             logOnKernelInvalidate()
             kernel!!.start()
+            eventListener?.let {
+                // 修复播放纯音频时状态出错问题:：系统播放器播放纯音频没有对应回调
+                val isVideo = kernel!!.trackInfo?.any { trackInfo ->
+                    trackInfo.trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO
+                }.orDefault()
+                if (!isVideo) {
+                    it.onInfo(DKPlayer.MEDIA_INFO_RENDERING_START, 0)
+                }
+            }
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
         }
@@ -257,13 +266,16 @@ class SysDKPlayer(context: Context) : AbstractDKPlayer(),
 
     override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         //解决MEDIA_INFO_VIDEO_RENDERING_START多次回调问题
-        if (what == DKPlayer.MEDIA_INFO_RENDERING_START) {
-            if (isPreparing) {
-                eventListener?.onInfo(what, extra)
-                isPreparing = false
+        when (what) {
+            MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
+                if (isPreparing) {
+                    eventListener?.onInfo(what, extra)
+                    isPreparing = false
+                }
             }
-        } else {
-            eventListener?.onInfo(what, extra)
+            else -> {
+                eventListener?.onInfo(what, extra)
+            }
         }
         return true
     }
@@ -274,23 +286,6 @@ class SysDKPlayer(context: Context) : AbstractDKPlayer(),
 
     override fun onPrepared(mp: MediaPlayer) {
         eventListener?.onPrepared()
-        start()
-        // 修复播放纯音频时状态出错问题
-        eventListener?.let {
-            if (!isVideo()) {
-                it.onInfo(DKPlayer.MEDIA_INFO_RENDERING_START, 0)
-            }
-        }
-    }
-
-    private fun isVideo(): Boolean {
-        try {
-            return kernel?.trackInfo?.any {
-                it.trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO
-            }.orDefault()
-        } catch (e: Exception) {
-        }
-        return false
     }
 
     override fun onVideoSizeChanged(mp: MediaPlayer, width: Int, height: Int) {

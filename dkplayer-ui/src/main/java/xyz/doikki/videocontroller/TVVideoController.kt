@@ -64,8 +64,8 @@ open class TVVideoController @JvmOverloads constructor(
             when (msg.what) {
                 WHAT_BEGIN_PENDING_SEEK -> {
                     invokeOnPlayerAttached { player ->
-                        val duration = player.duration.toInt()
-                        val currentPosition = player.currentPosition.toInt()
+                        val duration = player.getDuration().toInt()
+                        val currentPosition = player.getCurrentPosition().toInt()
                         val event = msg.obj as KeyEvent
                         mCurrentPendingSeekPosition = currentPosition
                         mControlComponents.loopKeyWhen<KeyControlComponent> {
@@ -82,7 +82,7 @@ open class TVVideoController @JvmOverloads constructor(
                 }
                 WHAT_UPDATE_PENDING_SEEK_POSITION -> {
                     invokeOnPlayerAttached { player ->
-                        val duration = player.duration.toInt()
+                        val duration = player.getDuration().toInt()
                         val event = msg.obj as KeyEvent
                         val previousPosition = mCurrentPendingSeekPosition
                         val incrementTimeMs =

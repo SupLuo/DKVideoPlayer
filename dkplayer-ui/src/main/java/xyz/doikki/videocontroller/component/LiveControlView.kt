@@ -43,12 +43,12 @@ class LiveControlView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            DKVideoView.STATE_IDLE, DKVideoView.STATE_START_ABORT, DKVideoView.STATE_PREPARING, DKVideoView.STATE_PREPARED, DKVideoView.STATE_ERROR, DKVideoView.STATE_PLAYBACK_COMPLETED -> visibility =
+            DKVideoView.STATE_IDLE, DKVideoView.STATE_PREPARED_BUT_ABORT, DKVideoView.STATE_PREPARING, DKVideoView.STATE_PREPARED, DKVideoView.STATE_ERROR, DKVideoView.STATE_PLAYBACK_COMPLETED -> visibility =
                 GONE
             DKVideoView.STATE_PLAYING -> mPlayButton.isSelected = true
             DKVideoView.STATE_PAUSED -> mPlayButton.isSelected = false
             DKVideoView.STATE_BUFFERING, DKVideoView.STATE_BUFFERED -> mPlayButton.isSelected =
-                mController?.playerControl?.isPlaying.orDefault()
+                mController?.playerControl?.isPlaying().orDefault()
         }
     }
 
