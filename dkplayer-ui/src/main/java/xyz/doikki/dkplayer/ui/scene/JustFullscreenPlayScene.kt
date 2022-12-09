@@ -21,7 +21,7 @@ import xyz.doikki.videoplayer.util.PlayerUtils
 class JustFullscreenPlayScene private constructor(
     val activity: ComponentActivity,
     private val videoView: DKVideoView,
-): BasePlayScene() {
+) : BasePlayScene() {
 
     private lateinit var controller: MediaController
     private lateinit var titleView: TitleView
@@ -56,11 +56,12 @@ class JustFullscreenPlayScene private constructor(
     fun setTitle(title: CharSequence?) {
         if (!::controller.isInitialized)
             throw IllegalStateException("请先调用setController方法设置控制器，或者调用setControllerDefault方法使用默认提供的控制器")
+
         if (::titleView.isInitialized) {
             titleView.setTitle(title)
             return
         }
-        controller.findViewById<TextView?>(R.id.title)?.text
+        controller.findViewById<TextView?>(R.id.title)?.text = title
     }
 
     fun setOnBackClick(click: View.OnClickListener?) {
@@ -77,10 +78,12 @@ class JustFullscreenPlayScene private constructor(
         return videoView
     }
 
-    fun onBackPressed() {
-        if (!videoView.onBackPressed()) {
-            activity.finish()
-        }
+    fun onBackPressed(): Boolean {
+//        if (!videoView.onBackPressed()) {
+//            activity.finish()
+//        }
+        activity.finish()
+        return true
     }
 
     /**

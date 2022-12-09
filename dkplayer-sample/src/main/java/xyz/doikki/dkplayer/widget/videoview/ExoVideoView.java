@@ -70,14 +70,13 @@ public class ExoVideoView extends DKVideoView {
         return player;
     }
 
-
     @Override
-    protected boolean prepareDataSource() {
+    protected void prepareDataSource() {
         if (mMediaSource != null) {
             mediaPlayer().setDataSource(mMediaSource);
-            return true;
+            mediaPlayer().prepareAsync();
+            setCurrentState(STATE_PREPARING);
         }
-        return false;
     }
 
     /**

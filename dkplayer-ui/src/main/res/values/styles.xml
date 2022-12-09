@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DKVPlayer"/>
+
+    <style name="DKVPlayer.TextAppearanceBody">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+
+    <!--带阴影的文本-->
+    <style name="DKVPlayer.ShadowText">
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">5</item>
+        <item name="android:shadowRadius">3.0</item>
+        <item name="android:shadowColor">#6b1b2322</item>
+        <item name="android:textAppearance">@style/DKVPlayer.TextAppearanceBody</item>
+    </style>
+</resources>

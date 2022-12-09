@@ -1,6 +1,6 @@
 package xyz.doikki.videoplayer
 
-import xyz.doikki.videoplayer.internal.ProgressManagerImpl
+import xyz.doikki.videoplayer.internal.DefaultProgressManager
 
 /**
  * 播放进度管理器，继承此接口实现自己的进度管理器。
@@ -31,8 +31,30 @@ interface ProgressManager {
      */
     fun clearAll()
 
-    companion object {
-        @JvmStatic
-        val DEFAULT: ProgressManager = ProgressManagerImpl()
+    /**
+     * Key生成器，用于关联播放地址和播放进度
+     */
+    interface KeyGenerator {
+
+        /**
+         * 默认的Key生成器采用url对应的哈希值
+         */
+        fun generateKey(url: String): Long = url.hashCode().toLong()
+
     }
+
+    companion object {
+
+        @JvmStatic
+        fun default(): ProgressManager {
+            return DefaultProgressManager(object : KeyGenerator {})
+        }
+
+        @JvmStatic
+        fun default(keyGenerator: KeyGenerator): ProgressManager {
+            return DefaultProgressManager(keyGenerator)
+        }
+
+    }
+
 }

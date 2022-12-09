@@ -7,6 +7,9 @@ import android.os.Message
 import android.util.AttributeSet
 import android.util.Log
 import android.view.KeyEvent
+import androidx.annotation.AttrRes
+import androidx.annotation.LayoutRes
+import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import xyz.doikki.videoplayer.util.loopKeyWhen
@@ -14,8 +17,11 @@ import kotlin.math.ceil
 
 @TVCompatible(message = "内部适配了在tv上拖动、播放完成重播、播放失败等逻辑")
 open class TVVideoController @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : StandardVideoController(context, attrs) {
+    context: Context,
+    attrs: AttributeSet? = null,
+    @AttrRes defStyleAttr: Int = 0,
+    @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
+) : StandardVideoController(context, attrs, defStyleAttr, layoutId) {
 
     companion object {
 
@@ -161,8 +167,10 @@ open class TVVideoController @JvmOverloads constructor(
                     hide()
                     return true
                 }
-                //否则如果当前处于全屏则退出全屏
-                return super.onBackPressed()
+//                //否则如果当前处于全屏则退出全屏
+//                return super.onBackPressed()
+                //todo  是否应该调用super的backpress 处理横竖屏切换
+                return false
             }
             KeyEvent.KEYCODE_HEADSETHOOK,
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,

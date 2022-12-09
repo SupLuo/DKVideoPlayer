@@ -9,6 +9,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
 import xyz.doikki.videoplayer.DKVideoView
@@ -122,6 +123,17 @@ inline fun View.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
 inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
     context.toast(messageId, length)
 }
+
+fun TextView.setTextOrGone(message: CharSequence?) {
+    visibility = if (message.isNullOrEmpty()) {
+        View.GONE
+    } else {
+        View.VISIBLE
+    }
+    text = message
+}
+
+
 
 /**
  * 是否是第一次按下按键

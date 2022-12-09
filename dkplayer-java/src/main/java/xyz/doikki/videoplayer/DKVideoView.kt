@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.CallSuper
 import androidx.annotation.FloatRange
@@ -94,19 +95,29 @@ open class DKVideoView @JvmOverloads constructor(
      * 播放器状态
      */
     @IntDef(
+        //出错
         STATE_ERROR,
+        //闲置
         STATE_IDLE,
+        //准备数据源中：setDatasource与onPrepared之间
         STATE_PREPARING,
+        //数据源已准备：onPrepared回调
         STATE_PREPARED,
+        //开始播放：调用start()之后
         STATE_PLAYING,
+        //暂停
         STATE_PAUSED,
+        //播放结束
         STATE_PLAYBACK_COMPLETED,
+        //缓冲中
         STATE_BUFFERING,
+        //缓冲结束
         STATE_BUFFERED,
+        //已准备但因为用户设置不允许移动网络播放而中断：onPrepared回调之后并没有调用start
         STATE_PREPARED_BUT_ABORT
     )
     @Retention(AnnotationRetention.SOURCE)
-    annotation class PlayerState
+    annotation class PlayState
 
     /**
      * 屏幕模式
@@ -116,7 +127,6 @@ open class DKVideoView @JvmOverloads constructor(
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class ScreenMode
-
 
     /**
      * 播放器内核
@@ -140,9 +150,11 @@ open class DKVideoView @JvmOverloads constructor(
      */
     val renderName: String get() = playerContainer.renderName
 
-
     // recording the seek position while preparing
     private var mSeekWhenPrepared: Long = 0
+
+    //当前播放位置：用于重新播放（或重试时）恢复之前的播放位置
+    private var mCurrentPosition: Long = 0
 
     /**
      * 当前播放器的状态
@@ -152,9 +164,9 @@ open class DKVideoView @JvmOverloads constructor(
      * calling pause() intends to bring the object to a target state
      * of STATE_PAUSED.
      */
-    @PlayerState
+    @PlayState
     var currentState: Int = STATE_IDLE
-        private set(@PlayerState state) {
+        protected set(@PlayState state) {
             field = state
             notifyPlayerStateChanged()
         }
@@ -171,6 +183,11 @@ open class DKVideoView @JvmOverloads constructor(
         }
 
     /**
+     * 屏幕模式切换帮助类
+     */
+    private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
+
+    /**
      * 真正承载播放器视图的容器
      */
     @JvmField
@@ -180,11 +197,6 @@ open class DKVideoView @JvmOverloads constructor(
      * 自定义播放器构建工厂
      */
     private var mPlayerFactory: DKPlayerFactory<out DKPlayer>? = null
-
-    /**
-     * 屏幕模式切换帮助类
-     */
-    private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
 
     /**
      * 是否静音
@@ -298,19 +310,10 @@ open class DKVideoView @JvmOverloads constructor(
             // not ready for playback just yet, will try again later
             if (asset == null && url.isNullOrEmpty())
                 return
-
             releasePlayer(false)
             ensurePlayer()
             attachMediaController()
-
-            val player = requirePlayer()
-            if (asset != null) {
-                player.setDataSource(asset)
-            } else if (!url.isNullOrEmpty()) {
-                player.setDataSource(url, mHeaders)
-            }
-            player.prepareAsync()
-            currentState = STATE_PREPARING
+            prepareDataSource()
         } catch (e: Throwable) {
             currentState = STATE_ERROR
             mTargetState = STATE_ERROR
@@ -318,7 +321,22 @@ open class DKVideoView @JvmOverloads constructor(
                 it.onPlayerError(e)
             }
         }
+    }
 
+    protected open fun prepareDataSource() {
+        val asset = mAssetFileDescriptor
+        val url = mUrl
+        // not ready for playback just yet, will try again later
+        if (asset == null && url.isNullOrEmpty())
+            return
+        val player = requirePlayer()
+        if (asset != null) {
+            player.setDataSource(asset)
+        } else if (!url.isNullOrEmpty()) {
+            player.setDataSource(url, mHeaders)
+        }
+        player.prepareAsync()
+        currentState = STATE_PREPARING
     }
 
     /*
@@ -352,7 +370,15 @@ open class DKVideoView @JvmOverloads constructor(
      * 创建播放器
      */
     protected open fun createPlayer(): DKPlayer {
-        return DKManager.createMediaPlayer(context, mPlayerFactory)
+        return DKManager.createMediaPlayer(context, mPlayerFactory).also {
+            Log.d(
+                "DKPlayer", "使用播放器${
+                    it.javaClass.name.run {
+                        this.substring(this.lastIndexOf("."))
+                    }
+                }"
+            )
+        }
     }
 
     /**
@@ -402,6 +428,19 @@ open class DKVideoView @JvmOverloads constructor(
         }
     }
 
+    override fun replay(resetPosition: Boolean) {
+        //用于恢复之前播放的位置
+        if (!resetPosition && mCurrentPosition > 0) {
+            mSeekWhenPrepared = mCurrentPosition
+        }
+        player?.reset()
+        //重新设置option，media player reset之后，option会失效
+        preparePlayerOptions()
+        attachMediaController()
+        prepareDataSource()
+        start()
+    }
+
     /**
      * 播放状态下开始播放
      */
@@ -421,36 +460,6 @@ open class DKVideoView @JvmOverloads constructor(
      */
     private fun getSavedPlayedProgress(url: String): Long {
         return progressManager?.getSavedProgress(url).orDefault()
-    }
-
-    /**
-     * 开始准备播放（直接播放）
-     */
-    protected open fun startPrepare(reset: Boolean) {
-        if (reset) {
-            player?.reset()
-            //重新设置option，media player reset之后，option会失效
-            preparePlayerOptions()
-        }
-        if (prepareDataSource()) {
-            player!!.prepareAsync()
-            currentState = STATE_PREPARING
-            //这里的目的是为了满足历史版本触发通知的情况
-            screenMode = screenMode
-        }
-    }
-
-    /**
-     * 重新播放
-     *
-     * @param resetPosition 是否从头开始播放
-     */
-    override fun replay(resetPosition: Boolean) {
-        if (resetPosition) {
-            mSeekWhenPrepared = 0
-        }
-        startPrepare(true)
-        playerContainer.attachPlayer(player!!)
     }
 
     override fun pause() {
@@ -502,6 +511,7 @@ open class DKVideoView @JvmOverloads constructor(
         saveCurrentPlayedProgress()
         //重置播放进度
         mSeekWhenPrepared = 0
+        mCurrentPosition = 0
         //切换转态
         currentState = STATE_IDLE
         mTargetState = STATE_IDLE
@@ -511,7 +521,7 @@ open class DKVideoView @JvmOverloads constructor(
      * 释放播放器
      */
     open fun release() {
-        if (!isInIdleState) {
+        if (currentState != STATE_IDLE) {
             //释放播放器
             player?.release()
             //释放render
@@ -542,7 +552,8 @@ open class DKVideoView @JvmOverloads constructor(
 
     override fun getCurrentPosition(): Long {
         if (isInPlaybackState()) {
-            return player?.getCurrentPosition().orDefault()
+            mCurrentPosition = requirePlayer().getCurrentPosition()
+            return mCurrentPosition
         }
         return 0
     }
@@ -574,27 +585,6 @@ open class DKVideoView @JvmOverloads constructor(
     }
     /*************END 播放器相关的代码  */
 
-    /**
-     * 设置播放数据
-     * @return 播放数据是否设置成功
-     */
-    protected open fun prepareDataSource(): Boolean {
-        if (mAssetFileDescriptor != null) {
-            player!!.setDataSource(mAssetFileDescriptor!!)
-            return true
-        } else if (!mUrl.isNullOrEmpty()) {
-            player!!.setDataSource(mUrl!!, mHeaders)
-            return true
-        }
-        return false
-    }
-
-
-    /**
-     * 是否处于未播放状态
-     */
-    protected val isInIdleState: Boolean
-        get() = currentState == STATE_IDLE
 
     /**--***********对外访问的方法*/
 
@@ -887,13 +877,13 @@ open class DKVideoView @JvmOverloads constructor(
         playerContainer.onVideoSizeChanged(width, height)
     }
 
-
     /**
      * 视频播放出错回调
      */
     override fun onError(e: Throwable) {
         playerContainer.keepScreenOn = false
         currentState = STATE_ERROR
+        mTargetState = STATE_ERROR
         mStateChangedListeners.forEach {
             it.onPlayerError(e)
         }
@@ -905,9 +895,11 @@ open class DKVideoView @JvmOverloads constructor(
     override fun onCompletion() {
         playerContainer.keepScreenOn = false
         mSeekWhenPrepared = 0
+        mCurrentPosition = 0
         //播放完成，清除进度
-        savePlayedProgress(mUrl,0)
+        savePlayedProgress(mUrl, 0)
         currentState = STATE_PLAYBACK_COMPLETED
+        mTargetState = STATE_PLAYBACK_COMPLETED
     }
     /*************END AVPlayer#EventListener 实现逻辑 */
 
@@ -933,13 +925,6 @@ open class DKVideoView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * 一开始播放就seek到预先设置好的位置
-     */
-    fun skipPositionWhenPlay(position: Int) {
-        mSeekWhenPrepared = position.toLong()
-    }
-
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         if (hasWindowFocus && isFullScreen) {
@@ -961,7 +946,7 @@ open class DKVideoView @JvmOverloads constructor(
          *
          * @param playState
          */
-        fun onPlayerStateChanged(@PlayerState playState: Int) {}
+        fun onPlayerStateChanged(@PlayState playState: Int) {}
 
         /**
          * 播放出错
@@ -994,11 +979,10 @@ open class DKVideoView @JvmOverloads constructor(
     private fun saveCurrentPlayedProgress() {
         val position = mSeekWhenPrepared
         if (position <= 0) return
-        savePlayedProgress(mUrl,position)
+        savePlayedProgress(mUrl, position)
     }
 
     private fun savePlayedProgress(url: String?, position: Long) {
-        val url = mUrl
         if (url.isNullOrEmpty())
             return
         progressManager?.let {

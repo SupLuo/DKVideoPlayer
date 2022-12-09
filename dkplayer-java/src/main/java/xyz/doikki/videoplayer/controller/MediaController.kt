@@ -11,7 +11,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import xyz.doikki.videoplayer.*
-import xyz.doikki.videoplayer.DKVideoView.PlayerState
+import xyz.doikki.videoplayer.DKVideoView.PlayState
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper
 import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper.DeviceDirection
@@ -65,7 +65,7 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 当前播放器状态
      */
-    @PlayerState
+    @PlayState
     private var mPlayerState = 0
 
     /**
@@ -339,7 +339,7 @@ open class MediaController @JvmOverloads constructor(
      */
     @SuppressLint("SwitchIntDef")
     @CallSuper
-    fun setPlayerState(@PlayerState playState: Int) {
+    fun setPlayerState(@PlayState playState: Int) {
         mPlayerState = playState
         for ((key) in mControlComponents) {
             key.onPlayStateChanged(playState)
@@ -649,7 +649,7 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 用于子类重写
      */
-    protected open fun onPlayerStateChanged(@PlayerState playState: Int) {}
+    protected open fun onPlayerStateChanged(@PlayState playState: Int) {}
 
     /**
      * 用于子类重写

@@ -3,10 +3,12 @@ package xyz.doikki.dkplayer.activity.api
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.os.Handler
 import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.os.HandlerCompat.postDelayed
 import com.bumptech.glide.Glide
 import xyz.doikki.dkplayer.R
 import xyz.doikki.dkplayer.activity.BaseActivity
@@ -172,6 +174,28 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
             mVideoView.setDataSource(etOtherVideo.text.toString())
             mVideoView.start()
         }
+
+        loadingAssistRunnable.run()
+    }
+
+    private var lastBTime = System.currentTimeMillis()
+    private var isBuff = false
+    private val handler = Handler()
+    private val loadingAssistRunnable = object : Runnable {
+        override fun run() {
+            try {
+                if(isBuff && System.currentTimeMillis() - lastBTime >= 20*1000){
+                    println("补全代码")
+
+                    controller.replay(false)
+                    lastBTime = System.currentTimeMillis()
+                    isBuff = false
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+            handler.postDelayed(this,1000)
+        }
     }
 
     private val mOnStateChangeListener: DKVideoView.OnStateChangeListener =
@@ -194,8 +218,11 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
                     DKVideoView.STATE_PAUSED -> {
                     }
                     DKVideoView.STATE_BUFFERING -> {
+                        isBuff = true
+                        lastBTime = System.currentTimeMillis()
                     }
                     DKVideoView.STATE_BUFFERED -> {
+                        isBuff = false
                     }
                     DKVideoView.STATE_PLAYBACK_COMPLETED -> {
                     }

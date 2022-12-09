@@ -37,9 +37,10 @@ object DKManager {
 
     /**
      * 获取全局进度管理器
+     * @see ProgressManager.default 默认的实现，该实现在程序运行期间，会保存相同url的位置
      */
     @JvmStatic
-    var progressManager: ProgressManager = ProgressManager.DEFAULT
+    var progressManager: ProgressManager? = null
 
     /**
      * 用于共享的VideoView（无缝）

@@ -77,10 +77,10 @@ public class DanmukuVideoView extends DKVideoView {
     }
 
     @Override
-    protected void startPrepare(boolean reset) {
-        super.startPrepare(reset);
+    public void replay(boolean resetPosition) {
+        super.replay(resetPosition);
         if (mDanmakuView != null) {
-            if (reset) mDanmakuView.restart();
+            if (resetPosition) mDanmakuView.restart();
             mDanmakuView.prepare(mParser, mContext);
         }
     }

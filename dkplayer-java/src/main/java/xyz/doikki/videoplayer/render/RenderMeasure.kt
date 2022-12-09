@@ -3,6 +3,7 @@ package xyz.doikki.videoplayer.render
 import android.view.View
 import androidx.annotation.IntRange
 import xyz.doikki.videoplayer.util.L
+import kotlin.math.min
 
 /**
  * 测量工具类
@@ -107,9 +108,9 @@ class RenderMeasure {
         }
         val videoWidth = mVideoWidth
         val videoHeight = mVideoHeight
-        val widthSpecMode = View.MeasureSpec.getMode(relateWidthMeasureSpec)
+//        val widthSpecMode = View.MeasureSpec.getMode(relateWidthMeasureSpec)
         val widthSpecSize = View.MeasureSpec.getSize(relateWidthMeasureSpec)
-        val heightSpecMode = View.MeasureSpec.getMode(relateHeightMeasureSpec)
+//        val heightSpecMode = View.MeasureSpec.getMode(relateHeightMeasureSpec)
         val heightSpecSize = View.MeasureSpec.getSize(relateHeightMeasureSpec)
         //视屏图像比例
         val displayAspectRatio =
@@ -125,7 +126,7 @@ class RenderMeasure {
                 preMeasuredHeight = heightSpecSize
                 preMeasuredWidth = (preMeasuredHeight * displayAspectRatio).toInt()
             } else if (aspectType == AspectRatioType.SCALE_ORIGINAL) {
-                preMeasuredWidth = Math.min(widthSpecSize, videoWidth)
+                preMeasuredWidth = min(widthSpecSize, videoWidth)
                 preMeasuredHeight = (preMeasuredWidth / displayAspectRatio).toInt()
             } else { //缩放模式
                 preMeasuredWidth = widthSpecSize

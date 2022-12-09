@@ -33,7 +33,7 @@ open class StandardVideoController @JvmOverloads constructor(
 ) : GestureVideoController(context, attrs, defStyleAttr) {
 
     protected val lockButton: View
-    protected val loadingIndicator: ProgressBar
+    protected val loadingIndicator: ProgressBar?
     private var isBuffering = false
 
     var enableLock: Boolean = !DKManager.isTelevisionUiMode
@@ -156,24 +156,24 @@ open class StandardVideoController @JvmOverloads constructor(
         when (playState) {
             DKVideoView.STATE_IDLE -> {
                 lockButton.isSelected = false
-                loadingIndicator.visibility = GONE
+                loadingIndicator?.visibility = GONE
             }
             DKVideoView.STATE_PLAYING, DKVideoView.STATE_PAUSED, DKVideoView.STATE_PREPARED, DKVideoView.STATE_ERROR, DKVideoView.STATE_BUFFERED -> {
                 if (playState == DKVideoView.STATE_BUFFERED) {
                     isBuffering = false
                 }
                 if (!isBuffering) {
-                    loadingIndicator.visibility = GONE
+                    loadingIndicator?.visibility = GONE
                 }
             }
             DKVideoView.STATE_PREPARING, DKVideoView.STATE_BUFFERING -> {
-                loadingIndicator.visibility = VISIBLE
+                loadingIndicator?.visibility = VISIBLE
                 if (playState == DKVideoView.STATE_BUFFERING) {
                     isBuffering = true
                 }
             }
             DKVideoView.STATE_PLAYBACK_COMPLETED -> {
-                loadingIndicator.visibility = GONE
+                loadingIndicator?.visibility = GONE
                 lockButton.visibility = GONE
                 lockButton.isSelected = false
             }
