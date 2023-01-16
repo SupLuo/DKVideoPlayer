@@ -1,6 +1,5 @@
 package xyz.doikki.videoplayer.render
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.AttributeSet
@@ -22,8 +21,7 @@ import java.lang.ref.WeakReference
  *
  * @see Render 具体可调用的方法请查看Render
  */
-@SuppressLint("ViewConstructor")
-class TextureViewRender : TextureView, Render {
+class TextureRenderView : TextureView, Render {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -169,6 +167,7 @@ class TextureViewRender : TextureView, Render {
     }
 
     override fun release() {
+        mPlayerRef = null
         mSurface?.release()
         mSurfaceTexture?.release()
     }

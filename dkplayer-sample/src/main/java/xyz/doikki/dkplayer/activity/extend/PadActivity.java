@@ -38,12 +38,14 @@ public class PadActivity extends BaseActivity {
             }
         });
 
-        mController.findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mVideoView.stopVideoViewFullScreen();
-            }
-        });
+        View back = mController.findViewById(R.id.back);
+        if (back != null)
+            back.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mVideoView.stopVideoViewFullScreen();
+                }
+            });
 
         mVideoView.setVideoController(mController);
 

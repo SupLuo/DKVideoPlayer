@@ -239,7 +239,12 @@ open class DKVideoView @JvmOverloads constructor(
      */
     private var mHeaders: Map<String, String>? = null
 
+    /**
+     * 用于播放assets里面的视频文件
+     */
     private var mAssetFileDescriptor: AssetFileDescriptor? = null
+
+    //--------- end data sources ---------//
 
     /**
      * 进度管理器，设置之后播放器会记录播放进度，以便下次播放恢复进度
@@ -303,17 +308,18 @@ open class DKVideoView @JvmOverloads constructor(
         openVideo()
     }
 
-    private fun openVideo() {
+    private fun prepareAsync() {
         try {
             val asset = mAssetFileDescriptor
             val url = mUrl
             // not ready for playback just yet, will try again later
-            if (asset == null && url.isNullOrEmpty())
-                return
-            releasePlayer(false)
+            require(asset != null || !url.isNullOrEmpty()) {
+                "data source is null,please set first."
+            }
+            
             ensurePlayer()
             attachMediaController()
-            prepareDataSource()
+            prepareKernelDataSource()
         } catch (e: Throwable) {
             currentState = STATE_ERROR
             mTargetState = STATE_ERROR
@@ -323,7 +329,7 @@ open class DKVideoView @JvmOverloads constructor(
         }
     }
 
-    protected open fun prepareDataSource() {
+    protected open fun prepareKernelDataSource() {
         val asset = mAssetFileDescriptor
         val url = mUrl
         // not ready for playback just yet, will try again later
@@ -337,6 +343,26 @@ open class DKVideoView @JvmOverloads constructor(
         }
         player.prepareAsync()
         currentState = STATE_PREPARING
+    }
+
+    private fun openVideo() {
+        try {
+            val asset = mAssetFileDescriptor
+            val url = mUrl
+            // not ready for playback just yet, will try again later
+            if (asset == null && url.isNullOrEmpty())
+                return
+            releasePlayer(false)
+            ensurePlayer()
+            attachMediaController()
+            prepareKernelDataSource()
+        } catch (e: Throwable) {
+            currentState = STATE_ERROR
+            mTargetState = STATE_ERROR
+            mStateChangedListeners.forEach {
+                it.onPlayerError(e)
+            }
+        }
     }
 
     /*
@@ -424,6 +450,9 @@ open class DKVideoView @JvmOverloads constructor(
             }
             startInPlaybackState()
         } else {
+            if (currentState == STATE_IDLE || player == null) {
+                openVideo()
+            }
             mTargetState = STATE_PLAYING
         }
     }
@@ -437,7 +466,7 @@ open class DKVideoView @JvmOverloads constructor(
         //重新设置option，media player reset之后，option会失效
         preparePlayerOptions()
         attachMediaController()
-        prepareDataSource()
+        prepareKernelDataSource()
         start()
     }
 
@@ -524,6 +553,7 @@ open class DKVideoView @JvmOverloads constructor(
         if (currentState != STATE_IDLE) {
             //释放播放器
             player?.release()
+            player = null
             //释放render
             playerContainer.release()
             //释放Assets资源

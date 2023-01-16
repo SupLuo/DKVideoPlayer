@@ -71,7 +71,7 @@ public class ExoVideoView extends DKVideoView {
     }
 
     @Override
-    protected void prepareDataSource() {
+    protected void prepareKernelDataSource() {
         if (mMediaSource != null) {
             mediaPlayer().setDataSource(mMediaSource);
             mediaPlayer().prepareAsync();

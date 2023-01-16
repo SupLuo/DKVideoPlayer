@@ -117,8 +117,10 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
     }
 
     override fun reset() {
-        kernel!!.reset()
-        kernel!!.setOnVideoSizeChangedListener(this)
+        kernel?.let {
+            it.reset()
+            it.setOnVideoSizeChangedListener(this)
+        }
     }
 
     override fun isPlaying(): Boolean {
@@ -134,23 +136,24 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
     }
 
     override fun release() {
-        kernel!!.setOnErrorListener(null)
-        kernel!!.setOnCompletionListener(null)
-        kernel!!.setOnInfoListener(null)
-        kernel!!.setOnBufferingUpdateListener(null)
-        kernel!!.setOnPreparedListener(null)
-        kernel!!.setOnVideoSizeChangedListener(null)
-
-        val temp = kernel!!
-        object : Thread() {
-            override fun run() {
-                try {
-                    temp.release()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+        kernel?.let {
+            it.setOnErrorListener(null)
+            it.setOnCompletionListener(null)
+            it.setOnInfoListener(null)
+            it.setOnBufferingUpdateListener(null)
+            it.setOnPreparedListener(null)
+            it.setOnVideoSizeChangedListener(null)
+            object : Thread() {
+                val temp = it
+                override fun run() {
+                    try {
+                        temp.release()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
-            }
-        }.start()
+            }.start()
+        }
         kernel = null
     }
 

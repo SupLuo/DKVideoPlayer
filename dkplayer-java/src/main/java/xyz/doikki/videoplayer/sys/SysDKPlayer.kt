@@ -167,16 +167,19 @@ class SysDKPlayer(context: Context) : AbstractDKPlayer(),
             it.setOnPreparedListener(null)
             it.setOnVideoSizeChangedListener(null)
             it.stop()
-            val mediaPlayer = it
-            kernel = null
-            thread {
-                try {
-                    mediaPlayer.release()
-                } catch (e: Throwable) {
-                    e.printStackTrace()
+
+            object : Thread() {
+                val temp = it
+                override fun run() {
+                    try {
+                        temp.release()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
-            }
+            }.start()
         }
+        kernel = null
     }
 
     override fun getCurrentPosition(): Long {

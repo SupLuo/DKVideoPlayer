@@ -207,6 +207,7 @@ internal class DKVideoViewContainer @JvmOverloads constructor(
      * 释放资源
      */
     fun release() {
+        mAttachedPlayer = null
         removeRenderIfAdded()
         //关闭屏幕常亮
         this.keepScreenOn = false

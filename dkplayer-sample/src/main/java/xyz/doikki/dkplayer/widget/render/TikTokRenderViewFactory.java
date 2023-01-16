@@ -4,7 +4,7 @@ import android.content.Context;
 
 import xyz.doikki.videoplayer.render.Render;
 import xyz.doikki.videoplayer.render.RenderFactory;
-import xyz.doikki.videoplayer.render.TextureViewRender;
+import xyz.doikki.videoplayer.render.TextureRenderView;
 
 public class TikTokRenderViewFactory implements RenderFactory {
 
@@ -14,6 +14,6 @@ public class TikTokRenderViewFactory implements RenderFactory {
 
     @Override
     public Render create(Context context) {
-        return new TikTokRenderView(new TextureViewRender(context));
+        return new TikTokRenderView(new TextureRenderView(context));
     }
 }

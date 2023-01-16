@@ -109,12 +109,12 @@ open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listene
     }
 
     override fun reset() {
-        if (mInternalPlayer != null) {
-            mInternalPlayer!!.stop()
-            mInternalPlayer!!.clearMediaItems()
-            mInternalPlayer!!.setVideoSurface(null)
-            mIsPreparing = false
+        mInternalPlayer?.let {
+            it.stop()
+            it.clearMediaItems()
+            it.setVideoSurface(null)
         }
+        mIsPreparing = false
     }
 
     override fun isPlaying(): Boolean {
@@ -133,11 +133,11 @@ open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listene
     }
 
     override fun release() {
-        if (mInternalPlayer != null) {
-            mInternalPlayer!!.removeListener(this)
-            mInternalPlayer!!.release()
-            mInternalPlayer = null
+        mInternalPlayer?.let {
+            it.removeListener(this)
+            it.release()
         }
+        mInternalPlayer = null
         mIsPreparing = false
         mSpeedPlaybackParameters = null
     }

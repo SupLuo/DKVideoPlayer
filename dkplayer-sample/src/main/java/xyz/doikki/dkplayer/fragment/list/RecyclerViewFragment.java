@@ -191,9 +191,6 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
         //边播边存
 //        String proxyUrl = ProxyVideoCacheManager.getProxy(getActivity()).getProxyUrl(videoBean.getUrl());
 //        mVideoView.setUrl(proxyUrl);
-
-        mVideoView.setDataSource(videoBean.getUrl());
-        mTitleView.setTitle(videoBean.getTitle());
         View itemView = mLinearLayoutManager.findViewByPosition(position);
         if (itemView == null) return;
         VideoRecyclerViewAdapter.VideoHolder viewHolder = (VideoRecyclerViewAdapter.VideoHolder) itemView.getTag();
@@ -203,9 +200,11 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
         viewHolder.mPlayerContainer.addView(mVideoView, 0);
         //播放之前将VideoView添加到VideoViewManager以便在别的页面也能操作它
         getVideoViewManager().add(mVideoView, Tag.LIST);
+
+        mVideoView.setDataSource(videoBean.getUrl());
+        mTitleView.setTitle(videoBean.getTitle());
         mVideoView.start();
         mCurPos = position;
-
     }
 
     private void releaseVideoView() {

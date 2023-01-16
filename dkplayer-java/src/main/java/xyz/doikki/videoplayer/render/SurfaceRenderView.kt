@@ -18,7 +18,7 @@ import xyz.doikki.videoplayer.render.Render.SurfaceListener
 import xyz.doikki.videoplayer.util.L
 import java.lang.ref.WeakReference
 
-class SurfaceViewRender @JvmOverloads constructor(
+class SurfaceRenderView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyle: Int = 0
 ) : SurfaceView(context, attrs, defStyle), Render {
 
@@ -101,7 +101,9 @@ class SurfaceViewRender @JvmOverloads constructor(
 
     override val view: View = this
 
-    override fun release() {}
+    override fun release() {
+        mPlayerRef = null
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         mProxy.doMeasure(widthMeasureSpec, heightMeasureSpec)

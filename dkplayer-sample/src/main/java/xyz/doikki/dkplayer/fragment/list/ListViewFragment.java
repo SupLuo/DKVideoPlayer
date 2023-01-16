@@ -158,8 +158,6 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
             releaseVideoView();
         }
         VideoBean videoBean = mVideos.get(position);
-        mVideoView.setDataSource(videoBean.getUrl());
-        mTitleView.setTitle(videoBean.getTitle());
         View itemView = mAdapter.getItemView(position);
         VideoListViewAdapter.ViewHolder viewHolder = (VideoListViewAdapter.ViewHolder) itemView.getTag();
         //请点进去看isDissociate的解释
@@ -168,6 +166,8 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
         viewHolder.mPlayerContainer.addView(mVideoView, 0);
         //播放之前将VideoView添加到VideoViewManager以便在别的页面也能操作它
         getVideoViewManager().add(mVideoView, Tag.LIST);
+        mVideoView.setDataSource(videoBean.getUrl());
+        mTitleView.setTitle(videoBean.getTitle());
         mVideoView.start();
         mCurPosition = position;
     }
