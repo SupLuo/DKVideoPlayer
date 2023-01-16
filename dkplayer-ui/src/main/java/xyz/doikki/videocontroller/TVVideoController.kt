@@ -56,12 +56,12 @@ open class TVVideoController @JvmOverloads constructor(
      */
     private var mCurrentPendingSeekPosition: Int = 0
 
-    /**
-     * 按键seek的系数，
-     */
-    private var mKeySeekRatio: Float = 1f
-
     private val seekCalculator: PendingSeekCalculator = DurationSamplingSeekCalculator()
+
+    /**
+     * 是否处理KeyEvent
+     */
+    var keyEventEnable: Boolean = true
 
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
 
@@ -141,18 +141,10 @@ open class TVVideoController @JvmOverloads constructor(
         descendantFocusability = FOCUS_BEFORE_DESCENDANTS
     }
 
-    /**
-     * 设置按键seek的系数
-     * @param ratio >0
-     */
-    fun setKeySeekRatio(ratio: Float) {
-        require(ratio > 0) {
-            "ratio must be greater than 0."
-        }
-        mKeySeekRatio = ratio
-    }
-
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!keyEventEnable)
+            return super.dispatchKeyEvent(event)
+
         Log.d(
             "dispatchKeyEvent",
             "keyCode = ${event.keyCode}   action = ${event.action} repeatCount = ${event.repeatCount} isInPlaybackState=${isInPlaybackState} " +
@@ -167,9 +159,6 @@ open class TVVideoController @JvmOverloads constructor(
                     hide()
                     return true
                 }
-//                //否则如果当前处于全屏则退出全屏
-//                return super.onBackPressed()
-                //todo  是否应该调用super的backpress 处理横竖屏切换
                 return false
             }
             KeyEvent.KEYCODE_HEADSETHOOK,
@@ -391,7 +380,7 @@ open class TVVideoController @JvmOverloads constructor(
         /**
          * 最少seek多少次seek完整个时长，默认500次，一次事件大概需要50毫秒，所以大致需要25s事件，也就是说一个很长的视频，最快25s seek完，但是由于是采用不断加速的形式，因此实际时间远大于25s
          */
-        private val leastSeekCount = 500
+        private val leastSeekCount = 400
 
         override fun reset() {
             //假设一个场景：设定两个变量 s = 面条的长度（很长很长）  c = 一个人最快吃多少口可以吃完。

@@ -171,7 +171,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
     }
 
     override fun setDisplay(holder: SurfaceHolder?) {
-        kernel!!.setDisplay(holder)
+        kernel?.setDisplay(holder)
     }
 
     override fun setVolume(v1: Float, v2: Float) {
@@ -245,9 +245,11 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
     ) {
         val videoWidth = mp.videoWidth
         val videoHeight = mp.videoHeight
-        if (videoWidth != 0 && videoHeight != 0) {
-            eventListener!!.onVideoSizeChanged(videoWidth, videoHeight)
-        }
+        //todo 发现某些视频回调为0
+//        if (videoWidth != 0 && videoHeight != 0) {
+        eventListener!!.onVideoSizeChanged(videoWidth, videoHeight)
+//        }
+
     }
 
     override fun onNativeInvoke(what: Int, args: Bundle): Boolean {

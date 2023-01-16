@@ -295,6 +295,7 @@ class SysDKPlayer(context: Context) : AbstractDKPlayer(),
             if (videoWidth != 0 && videoHeight != 0) {
                 it.onVideoSizeChanged(videoWidth, videoHeight)
             }
+
         }
     }
 }

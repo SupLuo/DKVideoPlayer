@@ -89,9 +89,11 @@ class RenderMeasure {
             relateWidthMeasureSpec = widthMeasureSpec
             relateHeightMeasureSpec = heightMeasureSpec
         }
-        if (mVideoHeight == 0 || mVideoWidth == 0) { //当前视频没有宽高返回看，则直接返回测量结果
-            measuredWidth = 1 // View.MeasureSpec.getSize(relateWidthMeasureSpec);
-            measuredHeight = 1 //View.MeasureSpec.getSize(relateHeightMeasureSpec);
+        if (mVideoHeight == 0 || mVideoWidth == 0) {
+            //还没获取到正确的视频宽高，按照测量大小进行设置
+            //遇到个问题，使用系统播放器作为内核，播放某些地址的时候，回调的videosize就是0，而用ijk则能正常返回视频宽高,不知道原因
+            measuredWidth = View.getDefaultSize(mVideoWidth, relateWidthMeasureSpec)
+            measuredHeight = View.getDefaultSize(mVideoHeight, relateHeightMeasureSpec)
             return
         }
         val aspectType = aspectRatioType

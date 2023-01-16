@@ -24,10 +24,8 @@ class RenderViewProxy(private val view: View) {
     val measuredHeight: Int get() = mMeasureHelper.measuredHeight
 
     fun setVideoSize(videoWidth: Int, videoHeight: Int) {
-        if (videoWidth > 0 && videoHeight > 0) {
-            mMeasureHelper.setVideoSize(videoWidth, videoHeight)
-            view.requestLayout()
-        }
+        mMeasureHelper.setVideoSize(videoWidth, videoHeight)
+        view.requestLayout()
     }
 
     fun setAspectRatioType(aspectRatioType: Int) {

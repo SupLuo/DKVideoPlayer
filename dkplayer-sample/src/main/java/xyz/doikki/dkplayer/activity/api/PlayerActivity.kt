@@ -124,7 +124,7 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
                 url = Utils.getFileFromContentUri(this, it.data)
             }
 //            val header = hashMapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
-            mVideoView.setDataSource("http://uxclass.ucuxin.com/ux/209/video/m3u8/22/8/12/d1beeea108214e5f958132f1df82fe25.m3u8?Expires=1667883459&OSSAccessKeyId=LTAI4MoXZ37SNZPw&Signature=cfe5gjsmHaQ0KtYF4jLycHfehPU%3D&x-oss-process=hls%2Fsign")//url!!)
+            mVideoView.setDataSource(url!!)
 
             //保存播放进度
 //            mVideoView.setProgressManager(ProgressManagerImpl())
@@ -168,7 +168,7 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
 
         //播放其他视频
         val etOtherVideo = findViewById<EditText>(R.id.et_other_video)
-        etOtherVideo.setText("http://uxclass.ucuxin.com/ux/209/video/m3u8/22/8/12/d1beeea108214e5f958132f1df82fe25.m3u8?Expires=1667733068&OSSAccessKeyId=LTAI4MoXZ37SNZPw&Signature=7ZgYYCm0I09fDK%2BoAfiYjKMXFiA%3D&x-oss-process=hls%2Fsign")
+        etOtherVideo.setText("http://pili-media.ucuxin.com/uxdev2023010990b772fb.m3u8?sign=f3ad154c15ef5d63293658ae9e51e5d4&t=63C21565&videoResID=2953021890800010115")
         findViewById<View>(R.id.btn_start_play).setOnClickListener {
             mVideoView.release()
             mVideoView.setDataSource(etOtherVideo.text.toString())
