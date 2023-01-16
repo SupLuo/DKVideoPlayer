@@ -298,16 +298,19 @@ open class DKVideoView @JvmOverloads constructor(
         mUrl = path
         mHeaders = headers
         mSeekWhenPrepared = getSavedPlayedProgress(path)
-        openVideo()
+        prepareAsync()
     }
 
     override fun setDataSource(fd: AssetFileDescriptor) {
         mUrl = null
         mAssetFileDescriptor = fd
         mSeekWhenPrepared = 0
-        openVideo()
+        prepareAsync()
     }
 
+    /**
+     * 开始准备：缓冲数据源
+     */
     private fun prepareAsync() {
         try {
             val asset = mAssetFileDescriptor
@@ -316,9 +319,8 @@ open class DKVideoView @JvmOverloads constructor(
             require(asset != null || !url.isNullOrEmpty()) {
                 "data source is null,please set first."
             }
-            
+            //确保播放器内核
             ensurePlayer()
-            attachMediaController()
             prepareKernelDataSource()
         } catch (e: Throwable) {
             currentState = STATE_ERROR
@@ -436,6 +438,8 @@ open class DKVideoView @JvmOverloads constructor(
      * 开始播放，注意：调用此方法后必须调用[.release]释放播放器，否则会导致内存泄漏
      */
     override fun start() {
+        attachMediaController()
+
         //已就绪，准备开始播放
         if (isInPlaybackState()) {
             //移动网络不允许播放
@@ -450,9 +454,9 @@ open class DKVideoView @JvmOverloads constructor(
             }
             startInPlaybackState()
         } else {
-            if (currentState == STATE_IDLE || player == null) {
-                openVideo()
-            }
+//            if (currentState == STATE_IDLE || player == null) {
+//                openVideo()
+//            }
             mTargetState = STATE_PLAYING
         }
     }

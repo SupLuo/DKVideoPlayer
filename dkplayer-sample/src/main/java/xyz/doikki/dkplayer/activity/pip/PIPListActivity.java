@@ -164,15 +164,20 @@ public class PIPListActivity extends BaseActivity implements OnItemChildClickLis
         if (mPIPManager.getPlayingPosition() != -1 && isRelease) {
             releaseVideoView();
         }
-        VideoBean videoBean = mVideos.get(position);
-        mVideoView.setDataSource(videoBean.getUrl());
-        mTitleView.setTitle(videoBean.getTitle());
+
+        if(!isRelease){
+
+        }else{
+            VideoBean videoBean = mVideos.get(position);
+            mVideoView.setDataSource(videoBean.getUrl());
+            mTitleView.setTitle(videoBean.getTitle());
+        }
+
         View itemView = mLinearLayoutManager.findViewByPosition(position);
         if (itemView == null) return;
         //注意：要先设置控制才能去设置控制器的状态。
         mVideoView.setVideoController(mController);
         mController.setPlayerState(mVideoView.getCurrentState());
-
         VideoRecyclerViewAdapter.VideoHolder viewHolder = (VideoRecyclerViewAdapter.VideoHolder) itemView.getTag();
         //把列表中预置的PrepareView添加到控制器中，注意isDissociate此处只能为true。请点进去看isDissociate的解释
         mController.addControlComponent(viewHolder.mPrepareView, true);

@@ -30,14 +30,14 @@ class SurfaceRenderView @JvmOverloads constructor(
     private val mSHCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
 
         override fun surfaceCreated(holder: SurfaceHolder) {
-            Log.d("SurfaceViewRender", "surfaceCreated($holder)")
+            Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceCreated($holder)")
             mSurfaceHolder = holder
             player?.setDisplay(holder)
             mSurfaceListener?.onSurfaceAvailable(holder.surface)
         }
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
-            Log.d("SurfaceViewRender", "surfaceChanged($holder,$format,$w,$h)")
+            Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceChanged($holder,$format,$w,$h)")
             if (holder != mSurfaceHolder) {
                 mSurfaceHolder = holder
                 player?.setDisplay(holder)
@@ -48,7 +48,7 @@ class SurfaceRenderView @JvmOverloads constructor(
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder) {
-            Log.d("SurfaceViewRender", "surfaceDestroyed($holder)")
+            Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceDestroyed($holder)")
             // after we return from this we can't use the surface any more
             mSurfaceHolder = null
             player?.setDisplay(null)
