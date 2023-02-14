@@ -133,7 +133,6 @@ open class TVVideoController @JvmOverloads constructor(
         }
     }
 
-
     init {
         //设置可以获取焦点
         isFocusable = true

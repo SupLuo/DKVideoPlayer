@@ -21,21 +21,24 @@ import xyz.doikki.videoplayer.util.PlayerUtils
 class JustFullscreenPlayScene private constructor(
     val activity: ComponentActivity,
     private val videoView: DKVideoView,
+    autoRequestOrientation: Boolean
 ) : BasePlayScene() {
 
     private lateinit var controller: MediaController
     private lateinit var titleView: TitleView
 
     init {
-        CutoutUtil.adaptCutout(activity, true)
-        val activityOrientation = activity.requestedOrientation
-        //设置view全屏
-        if (activityOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || activityOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-            videoView.startVideoViewFullScreen()
-        } else {
-            videoView.startFullScreen()
-        }
+        if (autoRequestOrientation) {
+            CutoutUtil.adaptCutout(activity, true)
+            val activityOrientation = activity.requestedOrientation
+            //设置view全屏
+            if (activityOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || activityOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                videoView.startVideoViewFullScreen()
+            } else {
+                videoView.startFullScreen()
+            }
 //        videoView.requestFocus()
+        }
     }
 
     /**
@@ -122,7 +125,10 @@ class JustFullscreenPlayScene private constructor(
          * 必须在[Activity.onCreate]方法或之后调用
          */
         @JvmStatic
-        fun create(activity: ComponentActivity): JustFullscreenPlayScene {
+        fun create(
+            activity: ComponentActivity,
+            autoRequestOrientation: Boolean = true
+        ): JustFullscreenPlayScene {
             val currentState = activity.lifecycle.currentState
             println("LifecycleObserver:isAtLeast2-2 $currentState")
             val videoView = DKVideoView(activity).also {
@@ -132,13 +138,17 @@ class JustFullscreenPlayScene private constructor(
                 )
             }
             activity.setContentView(videoView)
-            return create(activity, videoView)
+            return create(activity, videoView, autoRequestOrientation)
         }
 
 
         @JvmStatic
-        fun create(activity: ComponentActivity, videoView: DKVideoView): JustFullscreenPlayScene {
-            return JustFullscreenPlayScene(activity, videoView)
+        fun create(
+            activity: ComponentActivity,
+            videoView: DKVideoView,
+            autoRequestOrientation: Boolean = true
+        ): JustFullscreenPlayScene {
+            return JustFullscreenPlayScene(activity, videoView, autoRequestOrientation)
         }
     }
 

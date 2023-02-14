@@ -167,8 +167,10 @@ open class DKVideoView @JvmOverloads constructor(
     @PlayState
     var currentState: Int = STATE_IDLE
         protected set(@PlayState state) {
-            field = state
-            notifyPlayerStateChanged()
+            if (field != state) {
+                field = state
+                notifyPlayerStateChanged()
+            }
         }
     private var mTargetState: Int = STATE_IDLE
 
@@ -693,6 +695,8 @@ open class DKVideoView @JvmOverloads constructor(
     fun setVideoController(mediaController: MediaController?) {
         mediaController?.setMediaPlayer(this)
         playerContainer.setVideoController(mediaController)
+        //fix：videoview先调用全屏方法后调用setController的情况下，controller的screenmode与videoview的模式不一致问题（比如引起手势无效等）
+        mediaController?.setScreenMode(screenMode)
     }
 
 
