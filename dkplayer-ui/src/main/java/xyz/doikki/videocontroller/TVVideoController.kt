@@ -12,7 +12,7 @@ import androidx.annotation.LayoutRes
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
-import xyz.doikki.videoplayer.util.loopKeyWhen
+import droid.unicstar.videoplayer.loopKeyWhen
 import kotlin.math.ceil
 
 @TVCompatible(message = "内部适配了在tv上拖动、播放完成重播、播放失败等逻辑")

@@ -9,9 +9,9 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.Px
 import xyz.doikki.videoplayer.R
-import xyz.doikki.videoplayer.util.contentView
-import xyz.doikki.videoplayer.util.decorView
-import xyz.doikki.videoplayer.util.removeFromParent
+import droid.unicstar.videoplayer.contentView
+import droid.unicstar.videoplayer.decorView
+import droid.unicstar.videoplayer.removeFromParent
 
 /**
  * 处理播放器屏幕切换

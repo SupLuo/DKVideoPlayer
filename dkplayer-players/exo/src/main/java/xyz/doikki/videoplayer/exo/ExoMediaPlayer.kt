@@ -2,6 +2,7 @@ package xyz.doikki.videoplayer.exo
 
 import android.content.Context
 import android.content.res.AssetFileDescriptor
+import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
 import com.google.android.exoplayer2.*
@@ -15,12 +16,12 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.util.Clock
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.video.VideoSize
-import xyz.doikki.videoplayer.AbstractDKPlayer
+import droid.unicstar.videoplayer.player.AbstractCSPlayer
 import xyz.doikki.videoplayer.DKManager.isDebuggable
-import xyz.doikki.videoplayer.DKPlayer
-import xyz.doikki.videoplayer.internal.DKPlayerException
+import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.CSPlayerException
 
-open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listener {
+open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listener {
     protected var mAppContext: Context
     protected var mInternalPlayer: ExoPlayer? = null
     @JvmField
@@ -74,8 +75,8 @@ open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listene
         mLoadControl = loadControl
     }
 
-    override fun setDataSource(path: String, headers: Map<String, String>?) {
-        mMediaSource = mMediaSourceHelper.getMediaSource(path, headers)
+    override fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>?) {
+        mMediaSource = mMediaSourceHelper.getMediaSource(uri, headers)
     }
 
     override fun setDataSource(fd: AssetFileDescriptor) {
@@ -197,18 +198,18 @@ open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listene
         if (mIsPreparing) {
             if (playbackState == Player.STATE_READY) {
                 eventListener!!.onPrepared()
-                eventListener!!.onInfo(DKPlayer.MEDIA_INFO_RENDERING_START, 0)
+                eventListener!!.onInfo(CSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
                 mIsPreparing = false
             }
             return
         }
         when (playbackState) {
             Player.STATE_BUFFERING -> eventListener!!.onInfo(
-                DKPlayer.MEDIA_INFO_BUFFERING_START,
+                CSPlayer.MEDIA_INFO_BUFFERING_START,
                 getBufferedPercentage()
             )
             Player.STATE_READY -> eventListener!!.onInfo(
-                DKPlayer.MEDIA_INFO_BUFFERING_END,
+                CSPlayer.MEDIA_INFO_BUFFERING_END,
                 getBufferedPercentage()
             )
             Player.STATE_ENDED -> eventListener!!.onCompletion()
@@ -219,7 +220,7 @@ open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listene
     override fun onPlayerError(error: PlaybackException) {
         if (eventListener != null) {
             eventListener!!.onError(
-                DKPlayerException(
+                CSPlayerException(
                     error
                 )
             )
@@ -231,7 +232,7 @@ open class ExoMediaPlayer(context: Context) : AbstractDKPlayer(), Player.Listene
             eventListener!!.onVideoSizeChanged(videoSize.width, videoSize.height)
             if (videoSize.unappliedRotationDegrees > 0) {
                 eventListener!!.onInfo(
-                    DKPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED,
+                    CSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED,
                     videoSize.unappliedRotationDegrees
                 )
             }

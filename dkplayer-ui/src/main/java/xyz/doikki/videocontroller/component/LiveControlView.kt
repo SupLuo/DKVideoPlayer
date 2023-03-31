@@ -9,9 +9,9 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import xyz.doikki.videocontroller.R
-import xyz.doikki.videoplayer.DKVideoView
+import droid.unicstar.videoplayer.CSVideoView
 import xyz.doikki.videoplayer.util.PlayerUtils
-import xyz.doikki.videoplayer.util.orDefault
+import droid.unicstar.videoplayer.orDefault
 
 /**
  * 直播底部控制栏
@@ -43,11 +43,11 @@ class LiveControlView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            DKVideoView.STATE_IDLE, DKVideoView.STATE_PREPARED_BUT_ABORT, DKVideoView.STATE_PREPARING, DKVideoView.STATE_PREPARED, DKVideoView.STATE_ERROR, DKVideoView.STATE_PLAYBACK_COMPLETED -> visibility =
+            CSVideoView.STATE_IDLE, CSVideoView.STATE_PREPARED_BUT_ABORT, CSVideoView.STATE_PREPARING, CSVideoView.STATE_PREPARED, CSVideoView.STATE_ERROR, CSVideoView.STATE_PLAYBACK_COMPLETED -> visibility =
                 GONE
-            DKVideoView.STATE_PLAYING -> mPlayButton.isSelected = true
-            DKVideoView.STATE_PAUSED -> mPlayButton.isSelected = false
-            DKVideoView.STATE_BUFFERING, DKVideoView.STATE_BUFFERED -> mPlayButton.isSelected =
+            CSVideoView.STATE_PLAYING -> mPlayButton.isSelected = true
+            CSVideoView.STATE_PAUSED -> mPlayButton.isSelected = false
+            CSVideoView.STATE_BUFFERING, CSVideoView.STATE_BUFFERED -> mPlayButton.isSelected =
                 mController?.playerControl?.isPlaying().orDefault()
         }
     }
@@ -55,8 +55,8 @@ class LiveControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            DKVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
-            DKVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
+            CSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
+            CSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
         }
         val activity = PlayerUtils.scanForActivity(context)
         val controller = mController

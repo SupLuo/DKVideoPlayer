@@ -23,7 +23,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import xyz.doikki.videoplayer.DKVideoView;
+import droid.unicstar.videoplayer.CSVideoView;
 
 /**
  * ListView demo，不推荐，建议使用{@link RecyclerViewFragment}
@@ -33,7 +33,7 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
     private List<VideoBean> mVideos = new ArrayList<>();
     private VideoListViewAdapter mAdapter;
 
-    private DKVideoView mVideoView;
+    private CSVideoView mVideoView;
     private StandardVideoController mController;
     private int mCurPosition = -1;
     private TitleView mTitleView;
@@ -46,11 +46,11 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
     @Override
     protected void initView() {
         super.initView();
-        mVideoView = new DKVideoView(getActivity());
-        mVideoView.addOnStateChangeListener(new DKVideoView.OnStateChangeListener() {
+        mVideoView = new CSVideoView(getActivity());
+        mVideoView.addOnStateChangeListener(new CSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == DKVideoView.STATE_IDLE) {
+                if (playState == CSVideoView.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mCurPosition = -1;
                 }

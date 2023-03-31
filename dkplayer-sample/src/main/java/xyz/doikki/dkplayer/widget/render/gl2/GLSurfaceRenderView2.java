@@ -10,9 +10,9 @@ import androidx.annotation.NonNull;
 import xyz.doikki.dkplayer.widget.render.gl2.chooser.GLConfigChooser;
 import xyz.doikki.dkplayer.widget.render.gl2.contextfactory.GLContextFactory;
 import xyz.doikki.dkplayer.widget.render.gl2.filter.GlFilter;
-import xyz.doikki.videoplayer.DKPlayer;
-import xyz.doikki.videoplayer.render.Render;
-import xyz.doikki.videoplayer.render.RenderMeasure;
+import droid.unicstar.videoplayer.player.CSPlayer;
+import droid.unicstar.videoplayer.render.Render;
+import droid.unicstar.videoplayer.render.internal.RenderMeasureHelper;
 
 public class GLSurfaceRenderView2 extends GLSurfaceView implements Render {
 
@@ -30,10 +30,10 @@ public class GLSurfaceRenderView2 extends GLSurfaceView implements Render {
         setRenderer(renderer);
     }
 
-    private final RenderMeasure mMeasureHelper = new RenderMeasure();
+    private final RenderMeasureHelper mMeasureHelper = new RenderMeasureHelper();
 
     @Override
-    public void attachPlayer(@NonNull DKPlayer player) {
+    public void bindPlayer(@NonNull CSPlayer player) {
         this.renderer.setPlayer(player);
     }
 

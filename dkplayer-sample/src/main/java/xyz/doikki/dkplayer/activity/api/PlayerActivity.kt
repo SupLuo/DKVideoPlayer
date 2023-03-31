@@ -8,7 +8,6 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
-import androidx.core.os.HandlerCompat.postDelayed
 import com.bumptech.glide.Glide
 import xyz.doikki.dkplayer.R
 import xyz.doikki.dkplayer.activity.BaseActivity
@@ -24,16 +23,16 @@ import xyz.doikki.dkplayer.widget.render.gl2.filter.GlWatermarkFilter
 import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
-import xyz.doikki.videoplayer.DKVideoView
-import xyz.doikki.videoplayer.render.AspectRatioType
-import xyz.doikki.videoplayer.render.RenderFactory
+import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.render.AspectRatioType
+import droid.unicstar.videoplayer.render.RenderFactory
 import xyz.doikki.videoplayer.util.L
 
 /**
  * 播放器演示
  * Created by Doikki on 2017/4/7.
  */
-class PlayerActivity : BaseActivity<DKVideoView>() {
+class PlayerActivity : BaseActivity<CSVideoView>() {
 
     private lateinit var controller: StandardVideoController
     private val renderView by lazy {
@@ -198,35 +197,35 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
         }
     }
 
-    private val mOnStateChangeListener: DKVideoView.OnStateChangeListener =
-        object : DKVideoView.OnStateChangeListener {
+    private val mOnStateChangeListener: CSVideoView.OnStateChangeListener =
+        object : CSVideoView.OnStateChangeListener {
 
             override fun onPlayerStateChanged(playState: Int) {
                 when (playState) {
-                    DKVideoView.STATE_IDLE -> {
+                    CSVideoView.STATE_IDLE -> {
                     }
-                    DKVideoView.STATE_PREPARING -> {
+                    CSVideoView.STATE_PREPARING -> {
                     }
-                    DKVideoView.STATE_PREPARED -> {
+                    CSVideoView.STATE_PREPARED -> {
                     }
-                    DKVideoView.STATE_PLAYING -> {
+                    CSVideoView.STATE_PLAYING -> {
                         //需在此时获取视频宽高
                         val videoSize = mVideoView!!.videoSize
                         L.d("视频宽：" + videoSize[0])
                         L.d("视频高：" + videoSize[1])
                     }
-                    DKVideoView.STATE_PAUSED -> {
+                    CSVideoView.STATE_PAUSED -> {
                     }
-                    DKVideoView.STATE_BUFFERING -> {
+                    CSVideoView.STATE_BUFFERING -> {
                         isBuff = true
                         lastBTime = System.currentTimeMillis()
                     }
-                    DKVideoView.STATE_BUFFERED -> {
+                    CSVideoView.STATE_BUFFERED -> {
                         isBuff = false
                     }
-                    DKVideoView.STATE_PLAYBACK_COMPLETED -> {
+                    CSVideoView.STATE_PLAYBACK_COMPLETED -> {
                     }
-                    DKVideoView.STATE_ERROR -> {
+                    CSVideoView.STATE_ERROR -> {
                     }
                 }
             }
@@ -276,7 +275,7 @@ class PlayerActivity : BaseActivity<DKVideoView>() {
         super.onPause()
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView!!.currentState == DKVideoView.STATE_PREPARING) {
+        if (mVideoView!!.currentState == CSVideoView.STATE_PREPARING) {
             mVideoView!!.release()
         }
     }

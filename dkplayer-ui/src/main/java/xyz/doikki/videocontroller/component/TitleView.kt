@@ -14,9 +14,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import xyz.doikki.videoplayer.DKVideoView
+import droid.unicstar.videoplayer.CSVideoView
 import xyz.doikki.videoplayer.TVCompatible
-import xyz.doikki.videoplayer.util.orDefault
+import droid.unicstar.videoplayer.orDefault
 
 /**
  * 播放器顶部标题栏
@@ -84,16 +84,16 @@ class TitleView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            DKVideoView.STATE_IDLE, DKVideoView.STATE_PREPARED_BUT_ABORT,
-            DKVideoView.STATE_PREPARING, DKVideoView.STATE_PREPARED,
-            DKVideoView.STATE_ERROR, DKVideoView.STATE_PLAYBACK_COMPLETED -> visibility = GONE
+            CSVideoView.STATE_IDLE, CSVideoView.STATE_PREPARED_BUT_ABORT,
+            CSVideoView.STATE_PREPARING, CSVideoView.STATE_PREPARED,
+            CSVideoView.STATE_ERROR, CSVideoView.STATE_PLAYBACK_COMPLETED -> visibility = GONE
         }
     }
 
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         val controller = this.mController
-        if (screenMode == DKVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == CSVideoView.SCREEN_MODE_FULL) {
             if (controller != null && controller.isShowing && !controller.isLocked) {
                 visibility = VISIBLE
 //                mSysTime.text = PlayerUtils.getCurrentSystemTime()

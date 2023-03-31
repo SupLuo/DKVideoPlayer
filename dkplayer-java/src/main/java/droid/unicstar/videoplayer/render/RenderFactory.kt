@@ -1,16 +1,16 @@
-package xyz.doikki.videoplayer.render
+package droid.unicstar.videoplayer.render
 
 import android.content.Context
 import android.os.Build
+import droid.unicstar.videoplayer.render.RenderFactory.Companion.textureViewRenderFactory
 import xyz.doikki.videoplayer.DKManager
-import xyz.doikki.videoplayer.render.RenderFactory.Companion.textureViewRenderFactory
 
 /**
  * 此接口用于扩展自己的渲染View。使用方法如下：
  * 1.继承IRenderView实现自己的渲染View。
  * 2.重写createRenderView返回步骤1的渲染View。
  * 3.通过[DKManager.renderFactory] 设置步骤2的实例
- * 可参考[TextureRenderView]和[textureViewRenderFactory]的实现。
+ * 可参考[TextureViewRenderFactory]和[textureViewRenderFactory]的实现。
  */
 fun interface RenderFactory {
 
@@ -24,12 +24,12 @@ fun interface RenderFactory {
 
         @JvmStatic
         fun textureViewRenderFactory(): RenderFactory {
-            return TextureRenderViewFactory()
+            return TextureViewRenderFactory()
         }
 
         @JvmStatic
         fun surfaceViewRenderFactory(): RenderFactory {
-            return SurfaceRenderViewFactory()
+            return SurfaceViewRenderFactory()
         }
     }
 }

@@ -5,7 +5,7 @@ import android.view.View;
 import xyz.doikki.dkplayer.app.MyApplication;
 import xyz.doikki.dkplayer.widget.FloatView;
 import xyz.doikki.dkplayer.widget.controller.FloatController;
-import xyz.doikki.videoplayer.DKVideoView;
+import droid.unicstar.videoplayer.CSVideoView;
 import xyz.doikki.videoplayer.DKManager;
 
 /**
@@ -16,7 +16,7 @@ import xyz.doikki.videoplayer.DKManager;
 public class PIPManager {
 
     private static PIPManager instance;
-    private final DKVideoView mVideoView;
+    private final CSVideoView mVideoView;
     private final FloatView mFloatView;
     private final FloatController mFloatController;
     private boolean mIsShowing;
@@ -25,7 +25,7 @@ public class PIPManager {
 
 
     private PIPManager() {
-        mVideoView = new DKVideoView(MyApplication.getInstance());
+        mVideoView = new CSVideoView(MyApplication.getInstance());
         DKManager.add(mVideoView, Tag.PIP);
         mFloatController = new FloatController(MyApplication.getInstance());
         mFloatView = new FloatView(MyApplication.getInstance(), 0, 0);

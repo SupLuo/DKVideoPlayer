@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import xyz.doikki.dkplayer.widget.player.CustomIjkMediaPlayer;
-import xyz.doikki.videoplayer.DKVideoView;
-import xyz.doikki.videoplayer.DKPlayerFactory;
+import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.player.CSPlayerFactory;
 
-public class IjkVideoView extends DKVideoView {
+public class IjkVideoView extends CSVideoView {
 
     private final HashMap<String, Object> mPlayerOptions = new HashMap<>();
     private final HashMap<String, Object> mFormatOptions = new HashMap<>();
@@ -33,7 +33,7 @@ public class IjkVideoView extends DKVideoView {
     }
 
     {
-        setPlayerFactory((DKPlayerFactory<CustomIjkMediaPlayer>) context -> new CustomIjkMediaPlayer(context));
+        setPlayerFactory((CSPlayerFactory<CustomIjkMediaPlayer>) context -> new CustomIjkMediaPlayer(context));
     }
 
     private CustomIjkMediaPlayer mediaPlayer(){

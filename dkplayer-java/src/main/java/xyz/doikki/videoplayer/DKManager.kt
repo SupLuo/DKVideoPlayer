@@ -2,10 +2,13 @@ package xyz.doikki.videoplayer
 
 import android.app.Application
 import android.content.Context
-import xyz.doikki.videoplayer.render.AspectRatioType
-import xyz.doikki.videoplayer.render.RenderFactory
+import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.CSPlayerFactory
+import droid.unicstar.videoplayer.render.AspectRatioType
+import droid.unicstar.videoplayer.render.RenderFactory
 import xyz.doikki.videoplayer.util.L
-import xyz.doikki.videoplayer.util.orDefault
+import droid.unicstar.videoplayer.orDefault
 
 /**
  * 视频播放器管理器，管理当前正在播放的VideoView，以及播放器配置
@@ -27,7 +30,7 @@ object DKManager {
      * 播放器内核工厂
      */
     @JvmStatic
-    var playerFactory: DKPlayerFactory<*> = DKPlayerFactory.systemMediaPlayerFactory()
+    var playerFactory: CSPlayerFactory<*> = CSPlayerFactory.systemMediaPlayerFactory()
 
     /**
      * Render工厂
@@ -45,12 +48,12 @@ object DKManager {
     /**
      * 用于共享的VideoView（无缝）
      */
-    private val mSharedVideoViews = LinkedHashMap<String, DKVideoView>()
+    private val mSharedVideoViews = LinkedHashMap<String, CSVideoView>()
 
     /**
      * 用于共享的Player（无缝）
      */
-    private val mSharedPlayers = LinkedHashMap<String, DKPlayer?>()
+    private val mSharedPlayers = LinkedHashMap<String, CSPlayer?>()
 
     /**
      * 是否采用焦点模式：用于TV项目采用按键操作,开启此选项会改变部分Controller&controlComponent的操作方式
@@ -115,7 +118,7 @@ object DKManager {
      * @return
      */
     @JvmStatic
-    fun createMediaPlayer(context: Context, customFactory: DKPlayerFactory<*>?): DKPlayer {
+    fun createMediaPlayer(context: Context, customFactory: CSPlayerFactory<*>?): CSPlayer {
         return customFactory.orDefault(playerFactory).create(context)
     }
 
@@ -130,8 +133,8 @@ object DKManager {
     fun getOrCreateSharedMediaPlayer(
         context: Context,
         tag: String,
-        customFactory: DKPlayerFactory<*>?
-    ): DKPlayer? {
+        customFactory: CSPlayerFactory<*>?
+    ): CSPlayer? {
         return mSharedPlayers.getOrPut(tag) {
             createMediaPlayer(context, customFactory)
         }
@@ -152,7 +155,7 @@ object DKManager {
      * @param tag 相同tag的VideoView只会保存一个，如果tag相同则会release并移除前一个
      */
     @JvmStatic
-    fun add(videoView: DKVideoView, tag: String) {
+    fun add(videoView: CSVideoView, tag: String) {
         if (videoView.context !is Application) {
             L.w(
                 "The Context of this VideoView is not an Application Context," +
@@ -167,7 +170,7 @@ object DKManager {
         mSharedVideoViews[tag] = videoView
     }
 
-    fun get(tag: String): DKVideoView? {
+    fun get(tag: String): CSVideoView? {
         return mSharedVideoViews[tag]
     }
 

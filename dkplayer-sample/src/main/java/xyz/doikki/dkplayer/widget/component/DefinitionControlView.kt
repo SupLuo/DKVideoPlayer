@@ -15,7 +15,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import xyz.doikki.dkplayer.R
 import xyz.doikki.videocontroller.component.VodControlView
-import xyz.doikki.videoplayer.DKVideoView
+import droid.unicstar.videoplayer.CSVideoView
 import xyz.doikki.videoplayer.util.L
 import xyz.doikki.videoplayer.util.PlayerUtils
 
@@ -55,7 +55,7 @@ class DefinitionControlView @JvmOverloads constructor(
 
     override fun onScreenModeChanged(screenMode: Int) {
         super.onScreenModeChanged(screenMode)
-        if (screenMode == DKVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == CSVideoView.SCREEN_MODE_FULL) {
             mDefinition.visibility = VISIBLE
         } else {
             mDefinition.visibility = GONE

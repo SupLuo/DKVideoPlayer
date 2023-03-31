@@ -2,8 +2,8 @@ package xyz.doikki.dkplayer.widget.render.gl;
 
 import android.content.Context;
 
-import xyz.doikki.videoplayer.render.Render;
-import xyz.doikki.videoplayer.render.RenderFactory;
+import droid.unicstar.videoplayer.render.Render;
+import droid.unicstar.videoplayer.render.RenderFactory;
 
 public class GLSurfaceRenderViewFactory implements RenderFactory {
 

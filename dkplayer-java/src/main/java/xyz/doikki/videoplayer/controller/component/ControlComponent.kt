@@ -3,7 +3,7 @@ package xyz.doikki.videoplayer.controller.component
 import android.view.View
 import android.view.animation.Animation
 import xyz.doikki.videoplayer.DKManager
-import xyz.doikki.videoplayer.DKVideoView.ScreenMode
+import droid.unicstar.videoplayer.CSVideoView.ScreenMode
 import xyz.doikki.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.controller.VideoViewControl
 

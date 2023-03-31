@@ -6,9 +6,9 @@ import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.dkplayer.util.cache.ProxyVideoCacheManager;
 import xyz.doikki.videocontroller.StandardVideoController;
-import xyz.doikki.videoplayer.DKVideoView;
+import droid.unicstar.videoplayer.CSVideoView;
 
-public class CacheActivity extends BaseActivity<DKVideoView> {
+public class CacheActivity extends BaseActivity<CSVideoView> {
 
     @Override
     protected int getLayoutResId() {

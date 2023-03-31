@@ -93,6 +93,38 @@ public final class ExoMediaSourceHelper {
         }
     }
 
+    public MediaSource getMediaSource(Uri uri, Map<String, String> headers) {
+        return getMediaSource(uri, headers, false);
+    }
+
+    public MediaSource getMediaSource(Uri uri, Map<String, String> headers, boolean isCache) {
+        if ("rtmp".equals(uri.getScheme())) {
+            return new ProgressiveMediaSource.Factory(new RtmpDataSource.Factory())
+                    .createMediaSource(MediaItem.fromUri(uri));
+        } else if ("rtsp".equals(uri.getScheme())) {
+            return new RtspMediaSource.Factory().createMediaSource(MediaItem.fromUri(uri));
+        }
+        int contentType = inferContentType(uri.toString());
+        DataSource.Factory factory;
+        if (isCache) {
+            factory = getCacheDataSourceFactory();
+        } else {
+            factory = getDataSourceFactory();
+        }
+        if (mHttpDataSourceFactory != null) {
+            setHeaders(headers);
+        }
+        switch (contentType) {
+            case C.CONTENT_TYPE_DASH:
+                return new DashMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(uri));
+            case C.CONTENT_TYPE_HLS:
+                return new HlsMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(uri));
+            default:
+            case C.CONTENT_TYPE_OTHER:
+                return new ProgressiveMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(uri));
+        }
+    }
+
     private int inferContentType(String fileName) {
         fileName = fileName.toLowerCase();
         if (fileName.contains(".mpd")) {

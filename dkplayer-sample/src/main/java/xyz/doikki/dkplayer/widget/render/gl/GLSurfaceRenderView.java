@@ -38,9 +38,9 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 import javax.microedition.khronos.opengles.GL10;
 
-import xyz.doikki.videoplayer.DKPlayer;
-import xyz.doikki.videoplayer.render.Render;
-import xyz.doikki.videoplayer.render.RenderMeasure;
+import droid.unicstar.videoplayer.player.CSPlayer;
+import droid.unicstar.videoplayer.render.Render;
+import droid.unicstar.videoplayer.render.internal.RenderMeasureHelper;
 
 /**
  * {@link GLSurfaceView} that creates a GL context (optionally for protected content) and passes
@@ -56,12 +56,12 @@ import xyz.doikki.videoplayer.render.RenderMeasure;
  */
 public final class GLSurfaceRenderView extends GLSurfaceView implements Render {
 
-    private final RenderMeasure mMeasureHelper = new RenderMeasure();
+    private final RenderMeasureHelper mMeasureHelper = new RenderMeasureHelper();
 
-    private DKPlayer player;
+    private CSPlayer player;
 
     @Override
-    public void attachPlayer(@NonNull DKPlayer player) {
+    public void bindPlayer(@NonNull CSPlayer player) {
         this.player = player;
         setVideoRenderer(new BitmapOverlayVideoProcessor(getContext()), false);
     }

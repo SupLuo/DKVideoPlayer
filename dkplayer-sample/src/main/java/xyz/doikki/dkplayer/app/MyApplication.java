@@ -1,7 +1,5 @@
 package xyz.doikki.dkplayer.app;
 
-import android.os.Build;
-
 import androidx.multidex.MultiDexApplication;
 
 import com.danikula.videocache.Logger;
@@ -9,7 +7,7 @@ import com.danikula.videocache.Logger;
 import xyz.doikki.videoplayer.BuildConfig;
 import xyz.doikki.videoplayer.DKManager;
 import xyz.doikki.videoplayer.ijk.IjkPlayerFactory;
-import xyz.doikki.videoplayer.render.RenderFactory;
+import droid.unicstar.videoplayer.render.RenderFactory;
 
 /**
  * app

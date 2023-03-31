@@ -9,7 +9,7 @@ import android.widget.ProgressBar
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKManager
-import xyz.doikki.videoplayer.DKVideoView
+import droid.unicstar.videoplayer.CSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 
 /**
@@ -42,16 +42,16 @@ class PrepareView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            DKVideoView.STATE_PREPARING -> {
+            CSVideoView.STATE_PREPARING -> {
                 bringToFront()
                 visibility = VISIBLE
                 mStartPlay.visibility = GONE
                 mNetWarning.visibility = GONE
                 mLoading.visibility = VISIBLE
             }
-            DKVideoView.STATE_PLAYING, DKVideoView.STATE_PAUSED, DKVideoView.STATE_ERROR, DKVideoView.STATE_BUFFERING, DKVideoView.STATE_BUFFERED, DKVideoView.STATE_PLAYBACK_COMPLETED ->
+            CSVideoView.STATE_PLAYING, CSVideoView.STATE_PAUSED, CSVideoView.STATE_ERROR, CSVideoView.STATE_BUFFERING, CSVideoView.STATE_BUFFERED, CSVideoView.STATE_PLAYBACK_COMPLETED ->
                 visibility = GONE
-            DKVideoView.STATE_IDLE -> {
+            CSVideoView.STATE_IDLE -> {
                 visibility = VISIBLE
                 bringToFront()
                 mLoading.visibility = GONE
@@ -59,7 +59,7 @@ class PrepareView @JvmOverloads constructor(
                 mStartPlay.visibility = VISIBLE
                 mThumb.visibility = VISIBLE
             }
-            DKVideoView.STATE_PREPARED_BUT_ABORT -> {
+            CSVideoView.STATE_PREPARED_BUT_ABORT -> {
                 visibility = VISIBLE
                 mNetWarning.visibility = VISIBLE
                 mNetWarning.bringToFront()

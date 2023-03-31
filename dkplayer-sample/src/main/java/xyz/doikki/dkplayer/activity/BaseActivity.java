@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
 import xyz.doikki.dkplayer.R;
-import xyz.doikki.videoplayer.DKVideoView;
+import droid.unicstar.videoplayer.CSVideoView;
 import xyz.doikki.videoplayer.DKManager;
 
 /**
@@ -22,7 +22,7 @@ import xyz.doikki.videoplayer.DKManager;
  * @param <T>
  */
 @SuppressLint("Registered")
-public class BaseActivity<T extends DKVideoView> extends AppCompatActivity {
+public class BaseActivity<T extends CSVideoView> extends AppCompatActivity {
 
     protected T mVideoView;
 

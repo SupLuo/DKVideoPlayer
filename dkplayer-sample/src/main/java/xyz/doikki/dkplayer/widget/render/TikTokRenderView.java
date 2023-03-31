@@ -4,9 +4,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import xyz.doikki.videoplayer.DKPlayer;
-import xyz.doikki.videoplayer.render.AspectRatioType;
-import xyz.doikki.videoplayer.render.Render;
+import droid.unicstar.videoplayer.player.CSPlayer;
+import droid.unicstar.videoplayer.render.AspectRatioType;
+import droid.unicstar.videoplayer.render.Render;
 
 /**
  * TikTok专用RenderView，横屏视频默认显示，竖屏视频居中裁剪
@@ -21,8 +21,8 @@ public class TikTokRenderView implements Render {
     }
 
     @Override
-    public void attachPlayer(@NonNull DKPlayer player) {
-        mProxyRenderView.attachPlayer(player);
+    public void bindPlayer(@NonNull CSPlayer player) {
+        mProxyRenderView.bindPlayer(player);
     }
 
     @Override

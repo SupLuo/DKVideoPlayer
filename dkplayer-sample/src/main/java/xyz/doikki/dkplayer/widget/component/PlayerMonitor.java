@@ -5,10 +5,10 @@ import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
 
+import droid.unicstar.videoplayer.UtilsKt;
 import xyz.doikki.videoplayer.controller.MediaController;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
 import xyz.doikki.videoplayer.util.L;
-import xyz.doikki.videoplayer.util.UtilsKt;
 
 public class PlayerMonitor implements ControlComponent {
 

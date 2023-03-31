@@ -3,9 +3,9 @@ package xyz.doikki.videoplayer.controller;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import xyz.doikki.videoplayer.DKVideoView;
-import xyz.doikki.videoplayer.render.AspectRatioType;
-import xyz.doikki.videoplayer.render.Render;
+import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.render.AspectRatioType;
+import droid.unicstar.videoplayer.render.Render;
 
 /**
  * 播放控制类：用于提供给Controller控制播放器（VideoView）
@@ -39,15 +39,15 @@ public interface VideoViewControl extends PlayerControl {
 
     /**
      * 开始全屏;
-     * 屏幕切换之后会回调{@link DKVideoView.OnStateChangeListener#onScreenModeChanged(int)}
+     * 屏幕切换之后会回调{@link CSVideoView.OnStateChangeListener#onScreenModeChanged(int)}
      * @param isLandscapeReversed 是否是反向横屏
-     * @see DKVideoView#addOnStateChangeListener(DKVideoView.OnStateChangeListener)
+     * @see CSVideoView#addOnStateChangeListener(CSVideoView.OnStateChangeListener)
      */
     boolean startFullScreen(boolean isLandscapeReversed);
 
     /**
      * 结束全屏
-     * 屏幕切换之后会回调{@link DKVideoView.OnStateChangeListener#onScreenModeChanged(int)}
+     * 屏幕切换之后会回调{@link CSVideoView.OnStateChangeListener#onScreenModeChanged(int)}
      */
     boolean stopFullScreen();
 
@@ -69,13 +69,13 @@ public interface VideoViewControl extends PlayerControl {
 
     /**
      * 开始小窗播放
-     * 屏幕切换之后会回调{@link DKVideoView.OnStateChangeListener#onScreenModeChanged(int)}
+     * 屏幕切换之后会回调{@link CSVideoView.OnStateChangeListener#onScreenModeChanged(int)}
      */
     void startTinyScreen();
 
     /**
      * 结束小窗播放
-     * 屏幕切换之后会回调{@link DKVideoView.OnStateChangeListener#onScreenModeChanged(int)}
+     * 屏幕切换之后会回调{@link CSVideoView.OnStateChangeListener#onScreenModeChanged(int)}
      */
     void stopTinyScreen();
 

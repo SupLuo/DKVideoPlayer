@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
-import xyz.doikki.videoplayer.DKVideoView
+import droid.unicstar.videoplayer.CSVideoView
 import xyz.doikki.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
@@ -29,10 +29,10 @@ class CoverImageView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == DKVideoView.STATE_ERROR) {
+        if (playState == CSVideoView.STATE_ERROR) {
             bringToFront()
             visibility = VISIBLE
-        } else if (playState == DKVideoView.STATE_IDLE) {
+        } else if (playState == CSVideoView.STATE_IDLE) {
             visibility = GONE
         }
     }

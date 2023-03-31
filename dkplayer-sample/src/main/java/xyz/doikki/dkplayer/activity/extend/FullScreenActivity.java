@@ -6,7 +6,7 @@ import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.dkplayer.ui.scene.JustFullscreenPlayScene;
-import xyz.doikki.videoplayer.DKVideoView;
+import droid.unicstar.videoplayer.CSVideoView;
 
 /**
  * 全屏播放
@@ -14,7 +14,7 @@ import xyz.doikki.videoplayer.DKVideoView;
  *
  */
 
-public class FullScreenActivity extends BaseActivity<DKVideoView> {
+public class FullScreenActivity extends BaseActivity<CSVideoView> {
 
     private JustFullscreenPlayScene mScene ;
 

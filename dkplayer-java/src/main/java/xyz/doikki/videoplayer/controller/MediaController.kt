@@ -10,8 +10,12 @@ import android.widget.FrameLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
+import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.removeAllByValue
+import droid.unicstar.videoplayer.toast
 import xyz.doikki.videoplayer.*
-import xyz.doikki.videoplayer.DKVideoView.PlayState
+import droid.unicstar.videoplayer.CSVideoView.PlayState
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper
 import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper.DeviceDirection
@@ -166,19 +170,19 @@ open class MediaController @JvmOverloads constructor(
      */
     protected val isInPlaybackState: Boolean
         get() = mPlayer != null
-                && mPlayerState != DKVideoView.STATE_ERROR
-                && mPlayerState != DKVideoView.STATE_IDLE
-                && mPlayerState != DKVideoView.STATE_PREPARING
-                && mPlayerState != DKVideoView.STATE_PREPARED
-                && mPlayerState != DKVideoView.STATE_PREPARED_BUT_ABORT
-                && mPlayerState != DKVideoView.STATE_PLAYBACK_COMPLETED
+                && mPlayerState != CSVideoView.STATE_ERROR
+                && mPlayerState != CSVideoView.STATE_IDLE
+                && mPlayerState != CSVideoView.STATE_PREPARING
+                && mPlayerState != CSVideoView.STATE_PREPARED
+                && mPlayerState != CSVideoView.STATE_PREPARED_BUT_ABORT
+                && mPlayerState != CSVideoView.STATE_PLAYBACK_COMPLETED
 
-    protected val isInCompleteState: Boolean get() = mPlayerState == DKVideoView.STATE_PLAYBACK_COMPLETED
+    protected val isInCompleteState: Boolean get() = mPlayerState == CSVideoView.STATE_PLAYBACK_COMPLETED
 
-    protected val isInErrorState: Boolean get() = mPlayerState == DKVideoView.STATE_ERROR
+    protected val isInErrorState: Boolean get() = mPlayerState == CSVideoView.STATE_ERROR
 
     /**
-     * 重要：此方法用于将[DKVideoView] 和控制器绑定
+     * 重要：此方法用于将[CSVideoView] 和控制器绑定
      */
     @CallSuper
     open fun setMediaPlayer(mediaPlayer: VideoViewControl) {
@@ -326,16 +330,16 @@ open class MediaController @JvmOverloads constructor(
     }
 
     /**
-     * 设置当前[DKVideoView]界面模式：竖屏、全屏、小窗模式等
-     * 是当[DKVideoView]修改视图之后，调用此方法向控制器同步状态
+     * 设置当前[CSVideoView]界面模式：竖屏、全屏、小窗模式等
+     * 是当[CSVideoView]修改视图之后，调用此方法向控制器同步状态
      */
     @CallSuper
-    open fun setScreenMode(@DKVideoView.ScreenMode screenMode: Int) {
+    open fun setScreenMode(@CSVideoView.ScreenMode screenMode: Int) {
         notifyScreenModeChanged(screenMode)
     }
 
     /**
-     * call by [DKVideoView],设置播放器当前播放状态
+     * call by [CSVideoView],设置播放器当前播放状态
      */
     @SuppressLint("SwitchIntDef")
     @CallSuper
@@ -345,7 +349,7 @@ open class MediaController @JvmOverloads constructor(
             key.onPlayStateChanged(playState)
         }
         when (playState) {
-            DKVideoView.STATE_IDLE -> {
+            CSVideoView.STATE_IDLE -> {
                 mOrientationSensorHelper.disable()
                 mLocked = false
                 mShowing = false
@@ -353,11 +357,11 @@ open class MediaController @JvmOverloads constructor(
                 //所以在播放器release的时候需要移除
                 removeAllDissociateComponents()
             }
-            DKVideoView.STATE_PLAYBACK_COMPLETED -> {
+            CSVideoView.STATE_PLAYBACK_COMPLETED -> {
                 mLocked = false
                 mShowing = false
             }
-            DKVideoView.STATE_ERROR -> mShowing = false
+            CSVideoView.STATE_ERROR -> mShowing = false
         }
         onPlayerStateChanged(playState)
     }
@@ -576,7 +580,7 @@ open class MediaController @JvmOverloads constructor(
      *
      * @param screenMode
      */
-    private fun notifyScreenModeChanged(@DKVideoView.ScreenMode screenMode: Int) {
+    private fun notifyScreenModeChanged(@CSVideoView.ScreenMode screenMode: Int) {
         for ((component) in mControlComponents) {
             component.onScreenModeChanged(screenMode)
         }
@@ -589,10 +593,10 @@ open class MediaController @JvmOverloads constructor(
      *
      * @param screenMode
      */
-    private fun setupOrientationSensorAndCutoutOnScreenModeChanged(@DKVideoView.ScreenMode screenMode: Int) {
+    private fun setupOrientationSensorAndCutoutOnScreenModeChanged(@CSVideoView.ScreenMode screenMode: Int) {
         //修改传感器
         when (screenMode) {
-            DKVideoView.SCREEN_MODE_NORMAL -> {
+            CSVideoView.SCREEN_MODE_NORMAL -> {
                 if (mEnableOrientationSensor) {
                     mOrientationSensorHelper.enable()
                 } else {
@@ -602,14 +606,14 @@ open class MediaController @JvmOverloads constructor(
                     CutoutUtil.adaptCutout(context, false)
                 }
             }
-            DKVideoView.SCREEN_MODE_FULL -> {
+            CSVideoView.SCREEN_MODE_FULL -> {
                 //在全屏时强制监听设备方向
                 mOrientationSensorHelper.enable()
                 if (hasCutout()) {
                     CutoutUtil.adaptCutout(context, true)
                 }
             }
-            DKVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()
+            CSVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()
         }
     }
 

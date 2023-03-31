@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.render
+package droid.unicstar.videoplayer.render
 
 import android.content.Context
 import android.graphics.PixelFormat
@@ -6,41 +6,55 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.AttributeSet
-import android.util.Log
 import android.view.PixelCopy
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import xyz.doikki.videoplayer.DKPlayer
-import xyz.doikki.videoplayer.render.Render.Companion.createShotBitmap
-import xyz.doikki.videoplayer.render.Render.ScreenShotCallback
-import xyz.doikki.videoplayer.render.Render.SurfaceListener
-import xyz.doikki.videoplayer.util.L
+import droid.unicstar.videoplayer.logd
+import droid.unicstar.videoplayer.logw
+import droid.unicstar.videoplayer.render.Render.Companion.createShotBitmap
+import droid.unicstar.videoplayer.render.Render.ScreenShotCallback
+import droid.unicstar.videoplayer.render.Render.SurfaceListener
+import droid.unicstar.videoplayer.render.internal.RenderViewProxy
+import droid.unicstar.videoplayer.player.CSPlayer
 import java.lang.ref.WeakReference
 
-class SurfaceRenderView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyle: Int = 0
-) : SurfaceView(context, attrs, defStyle), Render {
+/**
+ * 基于[SurfaceView]实现的[Render]
+ *
+ * @note 关于[SurfaceView]动态隐藏和显示：经过自己不完全测试，[SurfaceView.setVisibility]在[View.INVISIBLE]和[View.VISIBLE]之间切换没什么问题，
+ * 而且某些设备必须直接设置[SurfaceView]该属性才行，通过设置其Parent view group 不可见无法达到效果。使用[View.GONE]总是不符合预期，不知道具体原因
+ */
+class SurfaceViewRender @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : SurfaceView(context, attrs), Render {
 
     private val mProxy: RenderViewProxy = RenderViewProxy.new(this)
     private var mSurfaceListener: SurfaceListener? = null
     private var mSurfaceHolder: SurfaceHolder? = null
-    private var mPlayerRef: WeakReference<DKPlayer>? = null
-    private val player: DKPlayer? get() = mPlayerRef?.get()
-    private val mSHCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
+    private var mPlayerRef: WeakReference<CSPlayer>? = null
+    private val mPlayer: CSPlayer? get() = mPlayerRef?.get()
+    private val mSurfaceHolderCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
 
         override fun surfaceCreated(holder: SurfaceHolder) {
-            Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceCreated($holder)")
+            logd(
+                "SurfaceViewRender",
+                "player=${mPlayer} ${this@SurfaceViewRender.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceCreated($holder)"
+            )
             mSurfaceHolder = holder
-            player?.setDisplay(holder)
+            mPlayer?.setDisplay(holder)
             mSurfaceListener?.onSurfaceAvailable(holder.surface)
         }
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
-            Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceChanged($holder,$format,$w,$h)")
+            logd(
+                "SurfaceViewRender",
+                "player=${mPlayer} ${this@SurfaceViewRender.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceChanged($holder,$format,$w,$h)"
+            )
+            mPlayer?.setDisplay(holder)
             if (holder != mSurfaceHolder) {
                 mSurfaceHolder = holder
-                player?.setDisplay(holder)
+                mPlayer?.setDisplay(holder)
                 mSurfaceListener?.onSurfaceUpdated(holder.surface)
             } else {
                 mSurfaceListener?.onSurfaceSizeChanged(holder.surface, width, height)
@@ -48,15 +62,22 @@ class SurfaceRenderView @JvmOverloads constructor(
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder) {
-            Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceDestroyed($holder)")
+            logd(
+                "SurfaceViewRender",
+                "player=${mPlayer}  ${this@SurfaceViewRender.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceDestroyed($holder)"
+            )
             // after we return from this we can't use the surface any more
             mSurfaceHolder = null
-            player?.setDisplay(null)
+            mPlayer?.setDisplay(null)
             mSurfaceListener?.onSurfaceDestroyed(holder.surface)
         }
     }
 
-    override fun attachPlayer(player: DKPlayer) {
+    override fun bindPlayer(player: CSPlayer?) {
+        if (player == null) {
+            mPlayerRef = null
+            return
+        }
         mPlayerRef = WeakReference(player)
         //当前SurfaceHolder不为空，则说明是重用render
         mSurfaceHolder?.let {
@@ -95,13 +116,17 @@ class SurfaceRenderView @JvmOverloads constructor(
             }, Handler())
         } else {
             callback.onScreenShotResult(null)
-            L.w("SurfaceView not support screenshot when Build.VERSION.SDK_INT < Build.VERSION_CODES.N")
+            logw(
+                "SurfaceViewRender",
+                "SurfaceView not support screenshot when Build.VERSION.SDK_INT < Build.VERSION_CODES.N"
+            )
         }
     }
 
     override val view: View = this
 
     override fun release() {
+        holder.removeCallback(mSurfaceHolderCallback)
         mPlayerRef = null
     }
 
@@ -112,7 +137,7 @@ class SurfaceRenderView @JvmOverloads constructor(
 
     init {
         val surfaceHolder = holder
-        surfaceHolder.addCallback(mSHCallback)
+        surfaceHolder.addCallback(mSurfaceHolderCallback)
         surfaceHolder.setFormat(PixelFormat.RGBA_8888)
     }
 }

@@ -7,13 +7,15 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.player.CSPlayer
 import xyz.doikki.videoplayer.*
 import xyz.doikki.videoplayer.controller.MediaController
-import xyz.doikki.videoplayer.render.AspectRatioType
-import xyz.doikki.videoplayer.render.Render
-import xyz.doikki.videoplayer.render.RenderFactory
-import xyz.doikki.videoplayer.util.canTakeFocus
-import xyz.doikki.videoplayer.util.orDefault
+import droid.unicstar.videoplayer.render.AspectRatioType
+import droid.unicstar.videoplayer.render.Render
+import droid.unicstar.videoplayer.render.RenderFactory
+import droid.unicstar.videoplayer.canTakeFocus
+import droid.unicstar.videoplayer.orDefault
 
 /**
  * 真正的容器：内部包含了Render
@@ -47,7 +49,7 @@ internal class DKVideoViewContainer @JvmOverloads constructor(
      * 渲染视图纵横比
      */
     @AspectRatioType
-    private var mScreenAspectRatioType = DKVideoView.SCREEN_ASPECT_RATIO_DEFAULT
+    private var mScreenAspectRatioType = CSVideoView.SCREEN_ASPECT_RATIO_DEFAULT
 
     /**
      * 视频画面大小
@@ -75,7 +77,7 @@ internal class DKVideoViewContainer @JvmOverloads constructor(
      */
     val videoSize: IntArray = mVideoSize
 
-    private var mAttachedPlayer: DKPlayer? = null
+    private var mAttachedPlayer: CSPlayer? = null
 
     /**
      * 设置控制器，传null表示移除控制器
@@ -98,12 +100,12 @@ internal class DKVideoViewContainer @JvmOverloads constructor(
     /**
      * 初始化视频渲染View
      */
-    fun attachPlayer(player: DKPlayer) {
+    fun attachPlayer(player: CSPlayer) {
         if (mRender == null || !mRenderReusable) {
             setupRender()
         }
         mAttachedPlayer = player
-        mRender!!.attachPlayer(player)
+        mRender!!.bindPlayer(player)
     }
 
     /**
@@ -148,7 +150,7 @@ internal class DKVideoViewContainer @JvmOverloads constructor(
 
             //播放器不为空说明是中途切换的renderFactory
             mAttachedPlayer?.let { player ->
-                render.attachPlayer(player)
+                render.bindPlayer(player)
             }
         }
     }
@@ -185,7 +187,7 @@ internal class DKVideoViewContainer @JvmOverloads constructor(
     }
 
     /**
-     * 视频大小发生变化：用于[DKVideoView]或者持有播放器[DKPlayer]的对象在[DKPlayer.EventListener.onVideoSizeChanged]回调时进行调用
+     * 视频大小发生变化：用于[CSVideoView]或者持有播放器[CSPlayer]的对象在[CSPlayer.EventListener.onVideoSizeChanged]回调时进行调用
      */
     fun onVideoSizeChanged(videoWidth: Int, videoHeight: Int) {
         mVideoSize[0] = videoWidth

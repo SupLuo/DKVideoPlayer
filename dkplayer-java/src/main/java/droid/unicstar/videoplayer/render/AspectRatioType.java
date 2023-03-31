@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.render;
+package droid.unicstar.videoplayer.render;
 
 import androidx.annotation.IntDef;
 

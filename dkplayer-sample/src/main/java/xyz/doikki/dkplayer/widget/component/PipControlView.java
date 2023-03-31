@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.util.PIPManager;
 import xyz.doikki.videocontroller.component.BaseControlComponent;
-import xyz.doikki.videoplayer.DKVideoView;
+import droid.unicstar.videoplayer.CSVideoView;
 
 public class PipControlView extends BaseControlComponent implements View.OnClickListener {
 
@@ -79,37 +79,37 @@ public class PipControlView extends BaseControlComponent implements View.OnClick
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case DKVideoView.STATE_IDLE:
-            case DKVideoView.STATE_PAUSED:
+            case CSVideoView.STATE_IDLE:
+            case CSVideoView.STATE_PAUSED:
                 mPlay.setSelected(false);
                 mPlay.setVisibility(VISIBLE);
                 mLoading.setVisibility(GONE);
                 break;
-            case DKVideoView.STATE_PLAYING:
+            case CSVideoView.STATE_PLAYING:
                 mPlay.setSelected(true);
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 break;
-            case DKVideoView.STATE_PREPARING:
-            case DKVideoView.STATE_BUFFERING:
+            case CSVideoView.STATE_PREPARING:
+            case CSVideoView.STATE_BUFFERING:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(VISIBLE);
                 break;
-            case DKVideoView.STATE_PREPARED:
+            case CSVideoView.STATE_PREPARED:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 break;
-            case DKVideoView.STATE_ERROR:
+            case CSVideoView.STATE_ERROR:
                 mLoading.setVisibility(GONE);
                 mPlay.setVisibility(GONE);
                 bringToFront();
                 break;
-            case DKVideoView.STATE_BUFFERED:
+            case CSVideoView.STATE_BUFFERED:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 mPlay.setSelected(getPlayer().isPlaying());
                 break;
-            case DKVideoView.STATE_PLAYBACK_COMPLETED:
+            case CSVideoView.STATE_PLAYBACK_COMPLETED:
                 bringToFront();
                 break;
         }

@@ -5,7 +5,7 @@ import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
 import android.os.Handler
 import android.os.Looper
-import xyz.doikki.videoplayer.DKVideoView
+import droid.unicstar.videoplayer.CSVideoView
 import java.lang.ref.WeakReference
 
 /**
@@ -13,10 +13,10 @@ import java.lang.ref.WeakReference
  * @see .requestFocus
  * @see .abandonFocus
  */
-class AudioFocusHelper(videoView: DKVideoView) {
+class AudioFocusHelper(videoView: CSVideoView) {
 
     private val mHandler = Handler(Looper.getMainLooper())
-    private val mWeakVideoView: WeakReference<DKVideoView>
+    private val mWeakVideoView: WeakReference<CSVideoView>
     private val mAudioManager: AudioManager?
     private var mStartRequested = false
     private var mPausedForLoss = false

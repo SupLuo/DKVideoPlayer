@@ -26,9 +26,9 @@ import xyz.doikki.videocontroller.component.LiveControlView;
 import xyz.doikki.videocontroller.component.PrepareView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import xyz.doikki.videoplayer.DKVideoView;
-import xyz.doikki.videoplayer.render.AspectRatioType;
-import xyz.doikki.videoplayer.render.Render;
+import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.render.AspectRatioType;
+import droid.unicstar.videoplayer.render.Render;
 import xyz.doikki.videoplayer.util.L;
 
 /**
@@ -36,7 +36,7 @@ import xyz.doikki.videoplayer.util.L;
  * Created by Doikki on 2017/4/7.
  */
 
-public class PlayerActivityJava extends BaseActivity<DKVideoView> {
+public class PlayerActivityJava extends BaseActivity<CSVideoView> {
 
     private static final String THUMB = "https://cms-bucket.nosdn.127.net/eb411c2810f04ffa8aaafc42052b233820180418095416.jpeg";
 
@@ -166,33 +166,33 @@ public class PlayerActivityJava extends BaseActivity<DKVideoView> {
         });
     }
 
-    private DKVideoView.OnStateChangeListener mOnStateChangeListener = new DKVideoView.OnStateChangeListener() {
+    private CSVideoView.OnStateChangeListener mOnStateChangeListener = new CSVideoView.OnStateChangeListener() {
 
 
         @Override
         public void onPlayerStateChanged(int playState) {
             switch (playState) {
-                case DKVideoView.STATE_IDLE:
+                case CSVideoView.STATE_IDLE:
                     break;
-                case DKVideoView.STATE_PREPARING:
+                case CSVideoView.STATE_PREPARING:
                     break;
-                case DKVideoView.STATE_PREPARED:
+                case CSVideoView.STATE_PREPARED:
                     break;
-                case DKVideoView.STATE_PLAYING:
+                case CSVideoView.STATE_PLAYING:
                     //需在此时获取视频宽高
                     int[] videoSize = mVideoView.getVideoSize();
                     L.d("视频宽：" + videoSize[0]);
                     L.d("视频高：" + videoSize[1]);
                     break;
-                case DKVideoView.STATE_PAUSED:
+                case CSVideoView.STATE_PAUSED:
                     break;
-                case DKVideoView.STATE_BUFFERING:
+                case CSVideoView.STATE_BUFFERING:
                     break;
-                case DKVideoView.STATE_BUFFERED:
+                case CSVideoView.STATE_BUFFERED:
                     break;
-                case DKVideoView.STATE_PLAYBACK_COMPLETED:
+                case CSVideoView.STATE_PLAYBACK_COMPLETED:
                     break;
-                case DKVideoView.STATE_ERROR:
+                case CSVideoView.STATE_ERROR:
                     break;
             }
         }
@@ -264,7 +264,7 @@ public class PlayerActivityJava extends BaseActivity<DKVideoView> {
         super.onPause();
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView.getCurrentState() == DKVideoView.STATE_PREPARING) {
+        if (mVideoView.getCurrentState() == CSVideoView.STATE_PREPARING) {
             mVideoView.release();
         }
     }

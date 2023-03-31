@@ -11,12 +11,12 @@ import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer.OnNativeInvokeListener
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
-import xyz.doikki.videoplayer.AbstractDKPlayer
-import xyz.doikki.videoplayer.DKPlayer
-import xyz.doikki.videoplayer.internal.DKPlayerException
-import xyz.doikki.videoplayer.util.orDefault
+import droid.unicstar.videoplayer.player.AbstractCSPlayer
+import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.CSPlayerException
+import droid.unicstar.videoplayer.orDefault
 
-open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
+open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnInfoListener,
     IMediaPlayer.OnBufferingUpdateListener, IMediaPlayer.OnPreparedListener,
     IMediaPlayer.OnVideoSizeChangedListener, OnNativeInvokeListener {
@@ -45,9 +45,8 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN)
     }
 
-    override fun setDataSource(path: String, headers: Map<String, String>?) {
+    override fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>?) {
         try {
-            val uri = Uri.parse(path)
             if (ContentResolver.SCHEME_ANDROID_RESOURCE == uri.scheme) {
                 val rawDataSourceProvider = RawDataSourceProvider.create(appContext, uri)
                 kernel!!.setDataSource(rawDataSourceProvider)
@@ -199,7 +198,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
 
     override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
         eventListener!!.onError(
-            DKPlayerException(
+            CSPlayerException(
                 what,
                 extra
             )
@@ -224,7 +223,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractDKPlayer(),
         eventListener!!.onPrepared()
         // 修复播放纯音频时状态出错问题
         if (!isVideo) {
-            eventListener!!.onInfo(DKPlayer.MEDIA_INFO_RENDERING_START, 0)
+            eventListener!!.onInfo(CSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
         }
     }
 

@@ -1,14 +1,15 @@
-package xyz.doikki.videoplayer.render
+package droid.unicstar.videoplayer.render.internal
 
 import android.view.View
 import androidx.annotation.IntRange
+import droid.unicstar.videoplayer.render.AspectRatioType
 import xyz.doikki.videoplayer.util.L
 import kotlin.math.min
 
 /**
  * 测量工具类
  */
-class RenderMeasure {
+internal class RenderMeasureHelper {
 
     /**
      * 视频旋转角度

@@ -1,17 +1,18 @@
-package xyz.doikki.videoplayer.render
+package droid.unicstar.videoplayer.render
 
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
+import droid.unicstar.videoplayer.logd
 import xyz.doikki.videoplayer.DKManager
-import xyz.doikki.videoplayer.DKPlayer
-import xyz.doikki.videoplayer.render.Render.Companion.createShotBitmap
-import xyz.doikki.videoplayer.render.Render.ScreenShotCallback
-import xyz.doikki.videoplayer.render.Render.SurfaceListener
+import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.render.Render.Companion.createShotBitmap
+import droid.unicstar.videoplayer.render.Render.ScreenShotCallback
+import droid.unicstar.videoplayer.render.Render.SurfaceListener
+import droid.unicstar.videoplayer.render.internal.RenderViewProxy
 import java.lang.ref.WeakReference
 
 /**
@@ -21,36 +22,28 @@ import java.lang.ref.WeakReference
  *
  * @see Render 具体可调用的方法请查看Render
  */
-class TextureRenderView : TextureView, Render {
-
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
+class TextureViewRender @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : TextureView(context, attrs), Render {
 
     private val mProxy: RenderViewProxy = RenderViewProxy.new(this)
-    private var mPlayerRef: WeakReference<DKPlayer>? = null
+    private var mPlayerRef: WeakReference<CSPlayer>? = null
     private var mSurfaceTexture: SurfaceTexture? = null
     private var mSurface: Surface? = null
     private var mSurfaceListener: SurfaceListener? = null
-
-    private val isEnableRenderOptimization: Boolean = DKManager.isTextureViewRenderOptimizationEnabled
-
-    private val mSTCallback: SurfaceTextureListener = object : SurfaceTextureListener {
+    private val mEnableRenderOptimization: Boolean = DKManager.isTextureViewRenderOptimizationEnabled
+    private val mSurfaceTextureListener: SurfaceTextureListener = object : SurfaceTextureListener {
 
         override fun onSurfaceTextureAvailable(
             surface: SurfaceTexture,
             width: Int,
             height: Int
         ) {
-            Log.d(
-                "TextureView",
+            logd(
+                "TextureViewRender",
                 "onSurfaceTextureAvailable $surfaceTexture $width $height ${mPlayerRef?.get()}"
             )
-            if (isEnableRenderOptimization) {
+            if (mEnableRenderOptimization) {
                 //开启渲染优化
                 if (mSurfaceTexture == null) {
                     mSurfaceTexture = surfaceTexture
@@ -72,15 +65,15 @@ class TextureRenderView : TextureView, Render {
             width: Int,
             height: Int
         ) {
-            Log.d("TextureView", "onSurfaceTextureSizeChanged $surfaceTexture $width $height")
+            logd("TextureViewRender", "onSurfaceTextureSizeChanged $surfaceTexture $width $height")
             mSurfaceListener?.onSurfaceSizeChanged(mSurface, width, height)
         }
 
         override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-            Log.d("TextureView", "onSurfaceTextureDestroyed $surfaceTexture")
+            logd("TextureViewRender", "onSurfaceTextureDestroyed $surfaceTexture")
             //清空释放
             mSurfaceListener?.onSurfaceDestroyed(mSurface)
-            return if (isEnableRenderOptimization) {
+            return if (mEnableRenderOptimization) {
                 //如果开启了渲染优化，那mSurfaceTexture通常情况不可能为null（在onSurfaceTextureAvailable初次回调的时候被赋值了），
                 // 所以这里通常返回的是false，返回值false会告诉父类不要释放SurfaceTexture
                 mSurfaceTexture == null
@@ -90,7 +83,7 @@ class TextureRenderView : TextureView, Render {
         }
 
         override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-            if (isEnableRenderOptimization && mSurfaceTexture == null) {
+            if (mEnableRenderOptimization && mSurfaceTexture == null) {
                 //用于修正开启渲染优化的情况下，mSurfaceTexture为空的异常情况：据说是因为存在机型不回调onSurfaceTextureAvailable而只回调此方法
                 mSurfaceTexture = surface
                 mSurface = Surface(surface)
@@ -122,7 +115,11 @@ class TextureRenderView : TextureView, Render {
      *
      * @param player
      */
-    override fun attachPlayer(player: DKPlayer) {
+    override fun bindPlayer(player: CSPlayer?) {
+        if(player == null){
+            mPlayerRef = null
+            return
+        }
         mPlayerRef = WeakReference(player)
         //当前surface不为空，则说明是surface重用
         mSurface?.let {
@@ -180,6 +177,7 @@ class TextureRenderView : TextureView, Render {
     }
 
     init {
-        surfaceTextureListener = mSTCallback
+        surfaceTextureListener = mSurfaceTextureListener
     }
+
 }
