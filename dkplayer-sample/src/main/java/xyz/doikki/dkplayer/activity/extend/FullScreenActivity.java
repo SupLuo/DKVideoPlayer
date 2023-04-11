@@ -20,7 +20,7 @@ public class FullScreenActivity extends BaseActivity<DKVideoView> {
 
     @Override
     protected View getContentView() {
-        mScene = JustFullscreenPlayScene.create(this);
+        mScene = JustFullscreenPlayScene.create(this,true);
         mScene.setControllerDefault(getString(R.string.str_fullscreen_directly));
         mVideoView = mScene.getVideoView();
         return null;
