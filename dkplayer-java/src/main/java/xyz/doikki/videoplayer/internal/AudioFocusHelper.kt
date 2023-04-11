@@ -3,9 +3,10 @@ package xyz.doikki.videoplayer.internal
 import android.content.Context
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.player.UNSPlayer
 import java.lang.ref.WeakReference
 
 /**
@@ -13,20 +14,31 @@ import java.lang.ref.WeakReference
  * @see .requestFocus
  * @see .abandonFocus
  */
-class AudioFocusHelper(videoView: CSVideoView) {
+class AudioFocusHelper(context: Context) {
 
-    private val mHandler = Handler(Looper.getMainLooper())
-    private val mWeakVideoView: WeakReference<CSVideoView>
-    private val mAudioManager: AudioManager?
+    private var mHandler: Handler? = null
+
+    private var mPlayerRef: WeakReference<UNSPlayer>? = null
+    private val mAudioManager: AudioManager? =
+        context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
     private var mStartRequested = false
     private var mPausedForLoss = false
-    private var mCurrentFocus = 0
+    private var mCurrentFocus = if (Build.VERSION.SDK_INT >= 26) AudioManager.AUDIOFOCUS_NONE else 0
 
     /**
      * 是否启用
      */
     var isEnable: Boolean = true
 
+    /**
+     * 播放器是否静音：如果播放器设置静音，那么音频焦点变化则不会改变播放器的音量
+     */
+    var isPlayerMute:Boolean = false
+
+    /**
+     * 不排除在子线程中回调：https://blog.csdn.net/baidu_27419681/article/details/113751458
+     * 因此这里最好是规避一下是否是主线程
+     */
     private val mOnAudioFocusChange =
         OnAudioFocusChangeListener { focusChange ->
             if (mCurrentFocus == focusChange) {
@@ -35,37 +47,49 @@ class AudioFocusHelper(videoView: CSVideoView) {
             //这里应该先改变状态，然后在post，否则在极短时间内存在理论上的多次post
             mCurrentFocus = focusChange
 
-            //由于onAudioFocusChange有可能在子线程调用，
-            //故通过此方式切换到主线程去执行
-            mHandler.post {
-                try { //进行异常捕获，避免因为音频焦点导致crash
-                    handleAudioFocusChange(focusChange)
-                } catch (e: Throwable) {
-                    e.printStackTrace()
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                handleAudioFocusChange(focusChange)
+            } else {
+                synchronized(this) {
+                    if (mHandler == null) {
+                        mHandler = Handler(Looper.getMainLooper())
+                    }
+                    //由于onAudioFocusChange有可能在子线程调用，故通过此方式切换到主线程去执行
+                    mHandler!!.post {
+                        handleAudioFocusChange(focusChange)
+                    }
                 }
             }
         }
 
     private fun handleAudioFocusChange(focusChange: Int) {
-        val videoView = mWeakVideoView.get() ?: return
-        when (focusChange) {
-            AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT -> {
-                if (mStartRequested || mPausedForLoss) {
-                    videoView.start()
-                    mStartRequested = false
-                    mPausedForLoss = false
+        try { //进行异常捕获，避免因为音频焦点导致crash
+            val player = mPlayerRef?.get() ?: return
+            when (focusChange) {
+                AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT -> {
+                    if (mStartRequested || mPausedForLoss) {
+                        player.start()
+                        mStartRequested = false
+                        mPausedForLoss = false
+                    }
+                    if (!isPlayerMute) //恢复音量
+                        player.setVolume(1.0f, 1.0f)
                 }
-                if (!videoView.isMute) //恢复音量
-                    videoView.setVolume(1.0f, 1.0f)
+                AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> if (player.isPlaying()) {
+                    mPausedForLoss = true
+                    player.pause()
+                }
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> if (player.isPlaying() && !isPlayerMute) {
+                    player.setVolume(0.1f, 0.1f)
+                }
             }
-            AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> if (videoView.isPlaying()) {
-                mPausedForLoss = true
-                videoView.pause()
-            }
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> if (videoView.isPlaying() && !videoView.isMute) {
-                videoView.setVolume(0.1f, 0.1f)
-            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
+    }
+
+    fun bindPlayer(player: UNSPlayer) {
+        mPlayerRef = WeakReference(player)
     }
 
     /**
@@ -104,9 +128,4 @@ class AudioFocusHelper(videoView: CSVideoView) {
         mAudioManager.abandonAudioFocus(mOnAudioFocusChange)
     }
 
-    init {
-        mWeakVideoView = WeakReference(videoView)
-        mAudioManager =
-            videoView.context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
 }

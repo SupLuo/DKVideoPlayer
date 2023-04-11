@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.videocontroller.component.BaseControlComponent;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 
 public class AdControlView extends BaseControlComponent implements View.OnClickListener {
@@ -61,11 +61,11 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case CSVideoView.STATE_PLAYING:
+            case UNSVideoView.STATE_PLAYING:
                 getMController().startUpdateProgress();
                 mPlayButton.setSelected(true);
                 break;
-            case CSVideoView.STATE_PAUSED:
+            case UNSVideoView.STATE_PAUSED:
                 mPlayButton.setSelected(false);
                 break;
         }
@@ -74,11 +74,11 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
     @Override
     public void onScreenModeChanged(int screenMode) {
         switch (screenMode) {
-            case CSVideoView.SCREEN_MODE_NORMAL:
+            case UNSVideoView.SCREEN_MODE_NORMAL:
                 mBack.setVisibility(GONE);
                 mFullScreen.setSelected(false);
                 break;
-            case CSVideoView.SCREEN_MODE_FULL:
+            case UNSVideoView.SCREEN_MODE_FULL:
                 mBack.setVisibility(VISIBLE);
                 mFullScreen.setSelected(true);
                 break;

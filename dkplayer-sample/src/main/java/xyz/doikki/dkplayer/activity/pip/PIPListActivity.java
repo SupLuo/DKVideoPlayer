@@ -29,7 +29,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 /**
  * 悬浮播放终极版
@@ -39,7 +39,7 @@ import droid.unicstar.videoplayer.CSVideoView;
 public class PIPListActivity extends BaseActivity implements OnItemChildClickListener {
 
     private PIPManager mPIPManager;
-    private CSVideoView mVideoView;
+    private UNSVideoView mVideoView;
     private StandardVideoController mController;
     private List<VideoBean> mVideos;
     private LinearLayoutManager mLinearLayoutManager;
@@ -98,7 +98,7 @@ public class PIPListActivity extends BaseActivity implements OnItemChildClickLis
                 int position = holder.mPosition;
                 if (position == mPIPManager.getPlayingPosition()) {
                     startFloatWindow();
-                    mController.setPlayerState(CSVideoView.STATE_IDLE);
+                    mController.setPlayerState(UNSVideoView.STATE_IDLE);
                 }
             }
         });

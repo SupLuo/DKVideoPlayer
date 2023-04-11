@@ -13,14 +13,14 @@ import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.Utils;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 import xyz.doikki.videoplayer.exo.ExoMediaPlayerFactory;
 
 /**
  * 播放raw/assets视频
  */
 
-public class PlayRawAssetsActivity extends BaseActivity<CSVideoView> {
+public class PlayRawAssetsActivity extends BaseActivity<UNSVideoView> {
 
     @Override
     protected int getLayoutResId() {

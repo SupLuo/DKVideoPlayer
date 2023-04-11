@@ -1,31 +1,18 @@
-package xyz.doikki.videoplayer.controller
+package droid.unicstar.videoplayer.controller
+
 
 import androidx.annotation.IntRange
-import xyz.doikki.videoplayer.PlayerCore
 
 /**
- * 作为一个基本播放器控制器需要持有的功能
+ * 播放器控制
  * 是播放器去实现的接口（类似VideoView），然后再将这个接口的实现传递给Controller
  */
-interface PlayerControl : PlayerCore {
+interface UNSPlayerControl {
+
     /**
      * 开始播放
      */
     fun start()
-
-    /**
-     * 重新播放
-     *
-     * @param resetPosition 是否重置播放位置；通常有以下情况不用应该不重置播放位置：1、播放失败之后重新播放 2、清晰度切换之后重新播放
-     */
-    fun replay(resetPosition: Boolean)
-
-    /**
-     * 是否正在播放
-     *
-     * @return
-     */
-    fun isPlaying(): Boolean
 
     /**
      * 暂停
@@ -36,6 +23,7 @@ interface PlayerControl : PlayerCore {
      * 播放时长
      *
      * @return
+     * @note 毫秒
      */
     fun getDuration(): Long
 
@@ -43,8 +31,16 @@ interface PlayerControl : PlayerCore {
      * 当前播放位置
      *
      * @return
+     * @note 毫秒
      */
     fun getCurrentPosition(): Long
+
+    /**
+     * 是否正在播放
+     *
+     * @return
+     */
+    fun isPlaying(): Boolean
 
     /**
      * 调整播放位置
@@ -58,7 +54,15 @@ interface PlayerControl : PlayerCore {
      */
     @IntRange(from = 0, to = 100)
     fun getBufferedPercentage(): Int
+
     /*以下是扩展的播放器功能代码*/
+
+    /**
+     * 重新播放
+     *
+     * @param resetPosition 是否重置播放位置；通常有以下情况不用应该不重置播放位置：1、播放失败之后重新播放 2、清晰度切换之后重新播放
+     */
+    fun replay(resetPosition: Boolean)
 
     /**
      * 播放速度

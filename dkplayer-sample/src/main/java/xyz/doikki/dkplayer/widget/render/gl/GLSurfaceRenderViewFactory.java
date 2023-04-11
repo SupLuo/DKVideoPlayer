@@ -2,17 +2,17 @@ package xyz.doikki.dkplayer.widget.render.gl;
 
 import android.content.Context;
 
-import droid.unicstar.videoplayer.render.Render;
-import droid.unicstar.videoplayer.render.RenderFactory;
+import droid.unicstar.videoplayer.render.UNSRender;
+import droid.unicstar.videoplayer.render.UNSRenderFactory;
 
-public class GLSurfaceRenderViewFactory implements RenderFactory {
+public class GLSurfaceRenderViewFactory implements UNSRenderFactory {
 
     public static GLSurfaceRenderViewFactory create() {
         return new GLSurfaceRenderViewFactory();
     }
 
     @Override
-    public Render create(Context context) {
+    public UNSRender create(Context context) {
         return new GLSurfaceRenderView(context);
     }
 }

@@ -2,9 +2,9 @@ package xyz.doikki.videoplayer.ijk;
 
 import android.content.Context;
 
-import droid.unicstar.videoplayer.player.CSPlayerFactory;
+import droid.unicstar.videoplayer.player.UNSPlayerFactory;
 
-public class IjkPlayerFactory implements CSPlayerFactory<IjkDKPlayer> {
+public class IjkPlayerFactory implements UNSPlayerFactory<IjkDKPlayer> {
 
     public static IjkPlayerFactory create() {
         return new IjkPlayerFactory();

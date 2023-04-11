@@ -9,7 +9,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.PrepareView;
 import xyz.doikki.videocontroller.component.TitleView;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 import java.util.LinkedHashMap;
 
@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
  * Created by Doikki on 2017/4/7.
  */
 
-public class DefinitionPlayerActivity extends BaseActivity<CSVideoView> implements DefinitionControlView.OnRateSwitchListener {
+public class DefinitionPlayerActivity extends BaseActivity<UNSVideoView> implements DefinitionControlView.OnRateSwitchListener {
 
     private StandardVideoController mController;
     private DefinitionControlView mDefinitionControlView;

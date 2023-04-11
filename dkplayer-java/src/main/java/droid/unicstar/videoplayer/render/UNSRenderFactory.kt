@@ -2,7 +2,7 @@ package droid.unicstar.videoplayer.render
 
 import android.content.Context
 import android.os.Build
-import droid.unicstar.videoplayer.render.RenderFactory.Companion.textureViewRenderFactory
+import droid.unicstar.videoplayer.render.UNSRenderFactory.Companion.textureViewRenderFactory
 import xyz.doikki.videoplayer.DKManager
 
 /**
@@ -12,23 +12,23 @@ import xyz.doikki.videoplayer.DKManager
  * 3.通过[DKManager.renderFactory] 设置步骤2的实例
  * 可参考[TextureViewRenderFactory]和[textureViewRenderFactory]的实现。
  */
-fun interface RenderFactory {
+fun interface UNSRenderFactory {
 
-    fun create(context: Context): Render
+    fun create(context: Context): UNSRender
 
     companion object {
 
         @JvmStatic
-        val DEFAULT: RenderFactory =
+        val DEFAULT: UNSRenderFactory =
             if (Build.VERSION.SDK_INT < 21) surfaceViewRenderFactory() else textureViewRenderFactory()
 
         @JvmStatic
-        fun textureViewRenderFactory(): RenderFactory {
+        fun textureViewRenderFactory(): UNSRenderFactory {
             return TextureViewRenderFactory()
         }
 
         @JvmStatic
-        fun surfaceViewRenderFactory(): RenderFactory {
+        fun surfaceViewRenderFactory(): UNSRenderFactory {
             return SurfaceViewRenderFactory()
         }
     }

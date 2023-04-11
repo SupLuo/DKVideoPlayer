@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import droid.unicstar.videoplayer.isVisible
 import droid.unicstar.videoplayer.orDefault
@@ -39,7 +39,7 @@ class CompleteView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == CSVideoView.STATE_PLAYBACK_COMPLETED) {
+        if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
             visibility = VISIBLE
             mStopFullscreen?.isVisible = mController?.isFullScreen.orDefault()
             bringToFront()
@@ -53,9 +53,9 @@ class CompleteView @JvmOverloads constructor(
         //退出全屏按钮没指定
         mStopFullscreen ?: return
 
-        if (screenMode == CSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == UNSVideoView.SCREEN_MODE_FULL) {
             mStopFullscreen.visibility = VISIBLE
-        } else if (screenMode == CSVideoView.SCREEN_MODE_NORMAL) {
+        } else if (screenMode == UNSVideoView.SCREEN_MODE_NORMAL) {
             mStopFullscreen.visibility = GONE
         }
 

@@ -21,7 +21,7 @@ import xyz.doikki.dkplayer.util.cache.ProxyVideoCacheManager;
 import xyz.doikki.dkplayer.widget.VerticalViewPager;
 import xyz.doikki.dkplayer.widget.controller.TikTokController;
 import xyz.doikki.dkplayer.widget.render.TikTokRenderViewFactory;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 import xyz.doikki.videoplayer.util.L;
 
 
@@ -30,7 +30,7 @@ import xyz.doikki.videoplayer.util.L;
  * Created by Doikki on 2019/12/04.
  */
 
-public class TikTok3Activity extends BaseActivity<CSVideoView> {
+public class TikTok3Activity extends BaseActivity<UNSVideoView> {
 
     /**
      * 当前播放位置
@@ -88,7 +88,7 @@ public class TikTok3Activity extends BaseActivity<CSVideoView> {
     }
 
     private void initVideoView() {
-        mVideoView = new CSVideoView(this);
+        mVideoView = new UNSVideoView(this);
         mVideoView.setLooping(true);
         //以下只能二选一，看你的需求
         mVideoView.setRenderViewFactory(TikTokRenderViewFactory.create());

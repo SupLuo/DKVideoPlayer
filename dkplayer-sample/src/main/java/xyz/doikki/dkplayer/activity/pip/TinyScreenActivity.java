@@ -22,13 +22,13 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 /**
  * 小窗播放
  * Created by Doikki on 2017/5/31.
  */
-public class TinyScreenActivity extends BaseActivity<CSVideoView> implements OnItemChildClickListener {
+public class TinyScreenActivity extends BaseActivity<UNSVideoView> implements OnItemChildClickListener {
 
     private StandardVideoController mController;
     private List<VideoBean> mVideos;
@@ -48,11 +48,11 @@ public class TinyScreenActivity extends BaseActivity<CSVideoView> implements OnI
 
     @Override
     protected void initView() {
-        mVideoView = new CSVideoView(this);
-        mVideoView.addOnStateChangeListener(new CSVideoView.OnStateChangeListener() {
+        mVideoView = new UNSVideoView(this);
+        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == CSVideoView.STATE_PLAYBACK_COMPLETED) {
+                if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
                     if (mVideoView.isTinyScreen()) {
                         mVideoView.stopTinyScreen();
                         releaseVideoView();
@@ -100,7 +100,7 @@ public class TinyScreenActivity extends BaseActivity<CSVideoView> implements OnI
                 if (position == mCurPos && !mVideoView.isFullScreen()) {
                     mVideoView.startTinyScreen();
                     mVideoView.setVideoController(null);
-                    mController.setPlayerState(CSVideoView.STATE_IDLE);
+                    mController.setPlayerState(UNSVideoView.STATE_IDLE);
                 }
             }
         });

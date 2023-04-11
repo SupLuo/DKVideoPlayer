@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.Px
-import xyz.doikki.videoplayer.R
 import droid.unicstar.videoplayer.contentView
 import droid.unicstar.videoplayer.decorView
 import droid.unicstar.videoplayer.removeFromParent
+import xyz.doikki.videoplayer.R
 
 /**
  * 处理播放器屏幕切换
@@ -54,11 +54,14 @@ class ScreenModeHandler {
      * 切换到全屏
      *
      * @param view 用于全屏展示的view
+     * @param hideSystemBar 是否隐藏系统ui（状态栏和虚拟按键栏）
+     * @note [hideSystemBar]用于不需要隐藏状态栏等情况：比如在盒子上开发，在某些盒子上操作状态栏会导致系统弹出一个系统级别的对话框，导致后续操作问题，所以在TV（盒子）上开发不应该去处理状态栏相关的状态。
      */
-    fun startFullScreen(activity: Activity, view: View): Boolean {
+    @JvmOverloads
+    fun startFullScreen(activity: Activity, view: View, hideSystemBar: Boolean = true): Boolean {
         val decorView = activity.decorView ?: return false
-        //隐藏NavigationBar和StatusBar
-        hideSystemBar(activity, decorView)
+        if (hideSystemBar)   //隐藏NavigationBar和StatusBar
+            hideSystemBar(activity, decorView)
         //从parent中移除指定view
         view.removeFromParent()
         //将视图添加到DecorView中即实现了全屏展示该控件
@@ -77,6 +80,14 @@ class ScreenModeHandler {
             //显示状态栏
             showSystemBar(activity, it)
         }
+        return stopFullScreen(container, view)
+    }
+
+    /**
+     * 退出全屏播放（不会修改系统状态栏的状态）
+     * @note 适合TV（盒子）开发调用
+     */
+    fun stopFullScreen( container: ViewGroup, view: View): Boolean {
         view.removeFromParent()
         container.addView(view)
         return true
@@ -148,8 +159,6 @@ class ScreenModeHandler {
         mPreferredTinyScreenWidth = activity.resources.displayMetrics.widthPixels / 2
         mPreferredTinyScreenHeight = mPreferredTinyScreenWidth * 9 / 16
     }
-
-
 
     companion object {
 

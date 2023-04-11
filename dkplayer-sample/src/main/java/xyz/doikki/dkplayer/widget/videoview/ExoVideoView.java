@@ -15,12 +15,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import java.util.Map;
 
 import xyz.doikki.dkplayer.widget.player.CustomExoMediaPlayer;
-import droid.unicstar.videoplayer.player.CSPlayer;
-import droid.unicstar.videoplayer.player.CSPlayerFactory;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.videoplayer.player.UNSPlayerFactory;
+import droid.unicstar.videoplayer.UNSVideoView;
 import xyz.doikki.videoplayer.exo.ExoMediaSourceHelper;
 
-public class ExoVideoView extends CSVideoView {
+public class ExoVideoView extends UNSVideoView {
 
     private MediaSource mMediaSource;
 
@@ -46,7 +46,7 @@ public class ExoVideoView extends CSVideoView {
 
     {
         //由于传递了泛型，必须将CustomExoMediaPlayer设置进来，否者报错
-        setPlayerFactory(new CSPlayerFactory<CustomExoMediaPlayer>() {
+        setPlayerFactory(new UNSPlayerFactory<CustomExoMediaPlayer>() {
             @Override
             public CustomExoMediaPlayer create(Context context) {
                 return new CustomExoMediaPlayer(context);
@@ -61,8 +61,8 @@ public class ExoVideoView extends CSVideoView {
 
     @NonNull
     @Override
-    protected CSPlayer createPlayer() {
-        CSPlayer player =  super.createPlayer();
+    protected UNSPlayer createPlayer() {
+        UNSPlayer player =  super.createPlayer();
         CustomExoMediaPlayer mp = (CustomExoMediaPlayer) player;
         mp.setLoadControl(mLoadControl);
         mp.setRenderersFactory(mRenderersFactory);

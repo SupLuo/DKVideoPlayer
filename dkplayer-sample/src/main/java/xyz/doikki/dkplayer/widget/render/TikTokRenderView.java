@@ -4,24 +4,24 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import droid.unicstar.videoplayer.player.CSPlayer;
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import droid.unicstar.videoplayer.render.AspectRatioType;
-import droid.unicstar.videoplayer.render.Render;
+import droid.unicstar.videoplayer.render.UNSRender;
 
 /**
  * TikTok专用RenderView，横屏视频默认显示，竖屏视频居中裁剪
  * 使用代理模式实现
  */
-public class TikTokRenderView implements Render {
+public class TikTokRenderView implements UNSRender {
 
-    private final Render mProxyRenderView;
+    private final UNSRender mProxyRenderView;
 
-    TikTokRenderView(@NonNull Render renderView) {
+    TikTokRenderView(@NonNull UNSRender renderView) {
         this.mProxyRenderView = renderView;
     }
 
     @Override
-    public void bindPlayer(@NonNull CSPlayer player) {
+    public void bindPlayer(@NonNull UNSPlayer player) {
         mProxyRenderView.bindPlayer(player);
     }
 

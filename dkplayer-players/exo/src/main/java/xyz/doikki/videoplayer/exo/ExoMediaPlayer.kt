@@ -18,7 +18,7 @@ import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.video.VideoSize
 import droid.unicstar.videoplayer.player.AbstractCSPlayer
 import xyz.doikki.videoplayer.DKManager.isDebuggable
-import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
 
 open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listener {
@@ -198,18 +198,18 @@ open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listene
         if (mIsPreparing) {
             if (playbackState == Player.STATE_READY) {
                 eventListener!!.onPrepared()
-                eventListener!!.onInfo(CSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+                eventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
                 mIsPreparing = false
             }
             return
         }
         when (playbackState) {
             Player.STATE_BUFFERING -> eventListener!!.onInfo(
-                CSPlayer.MEDIA_INFO_BUFFERING_START,
+                UNSPlayer.MEDIA_INFO_BUFFERING_START,
                 getBufferedPercentage()
             )
             Player.STATE_READY -> eventListener!!.onInfo(
-                CSPlayer.MEDIA_INFO_BUFFERING_END,
+                UNSPlayer.MEDIA_INFO_BUFFERING_END,
                 getBufferedPercentage()
             )
             Player.STATE_ENDED -> eventListener!!.onCompletion()
@@ -232,7 +232,7 @@ open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listene
             eventListener!!.onVideoSizeChanged(videoSize.width, videoSize.height)
             if (videoSize.unappliedRotationDegrees > 0) {
                 eventListener!!.onInfo(
-                    CSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED,
+                    UNSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED,
                     videoSize.unappliedRotationDegrees
                 )
             }

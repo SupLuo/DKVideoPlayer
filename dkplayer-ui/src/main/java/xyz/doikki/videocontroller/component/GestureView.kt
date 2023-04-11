@@ -11,7 +11,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils
@@ -94,7 +94,7 @@ class GestureView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         visibility =
-            if (playState == CSVideoView.STATE_IDLE || playState == CSVideoView.STATE_PREPARED_BUT_ABORT || playState == CSVideoView.STATE_PREPARING || playState == CSVideoView.STATE_PREPARED || playState == CSVideoView.STATE_ERROR || playState == CSVideoView.STATE_PLAYBACK_COMPLETED) {
+            if (playState == UNSVideoView.STATE_IDLE || playState == UNSVideoView.STATE_PREPARED_BUT_ABORT || playState == UNSVideoView.STATE_PREPARING || playState == UNSVideoView.STATE_PREPARED || playState == UNSVideoView.STATE_ERROR || playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
                 GONE
             } else {
                 VISIBLE

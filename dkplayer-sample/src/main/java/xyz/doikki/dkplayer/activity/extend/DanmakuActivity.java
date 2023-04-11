@@ -8,14 +8,14 @@ import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.dkplayer.widget.component.MyDanmakuView;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 /**
  * 弹幕播放
  * Created by Doikki on 17-6-11.
  */
 
-public class DanmakuActivity extends BaseActivity<CSVideoView> {
+public class DanmakuActivity extends BaseActivity<UNSVideoView> {
 
     private MyDanmakuView mMyDanmakuView;
 
@@ -41,12 +41,12 @@ public class DanmakuActivity extends BaseActivity<CSVideoView> {
         mVideoView.setDataSource(DataUtil.SAMPLE_URL);
         mVideoView.start();
 
-        mVideoView.addOnStateChangeListener(new CSVideoView.OnStateChangeListener() {
+        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == CSVideoView.STATE_PREPARED) {
+                if (playState == UNSVideoView.STATE_PREPARED) {
                     simulateDanmu();
-                } else if (playState == CSVideoView.STATE_PLAYBACK_COMPLETED) {
+                } else if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
                     mHandler.removeCallbacksAndMessages(null);
                 }
             }

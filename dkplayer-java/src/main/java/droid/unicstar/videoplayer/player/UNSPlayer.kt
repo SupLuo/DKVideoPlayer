@@ -18,7 +18,7 @@ import droid.unicstar.videoplayer.PartialFunc
  * update by luochao on 2022/9/16. 调整部分代码及结构
  * @see AbstractCSPlayer
  */
-interface CSPlayer {
+interface UNSPlayer {
 
     companion object {
         /**
@@ -58,7 +58,7 @@ interface CSPlayer {
         const val STATE_IDLE = 0
 
         /**
-         * 准备中：处于已设置了播放数据源，但是播放器还未回调[CSPlayer.EventListener.onPrepared]
+         * 准备中：处于已设置了播放数据源，但是播放器还未回调[UNSPlayer.EventListener.onPrepared]
          */
         const val STATE_PREPARING = 1
 
@@ -155,28 +155,30 @@ interface CSPlayer {
         /**
          * 播放错误
          */
-        fun onError(e: Throwable) {}
+        fun onError(e: Throwable) {
+            println("播放器出错了：${e.message}")
+            e.printStackTrace()
+        }
     }
 
     /**
      * 播放器状态发生变化监听
      */
-    interface OnPlayStateChangeListener {
+    fun interface OnPlayStateChangeListener {
         /**
          * 播放器播放状态发生了变化
          *
          * @param playState
          */
-        fun onPlayStateChanged(@CSPlayer.PlayState playState: Int) {}
+        fun onPlayStateChanged(@UNSPlayer.PlayState playState: Int)
+    }
 
-        /**
-         * 播放出错
-         * 对应[CSPlayer.STATE_ERROR]状态，返回了具体的错误信息
-         */
-        fun onPlayError(e: Throwable) {
-            println("播放器出错了：${e.message}")
-            e.printStackTrace()
-        }
+    /**
+     * 初始化，一个特殊的方法，在[UNSPlayer]创建之后调用，避免
+     * todo 如何规避该方法？
+     */
+    fun onInit(){
+
     }
 
     /**
@@ -216,21 +218,9 @@ interface CSPlayer {
     fun setDataSource(fd: AssetFileDescriptor)
 
     /**
-     * 初始化播放器实例
-     * todo 该方法放在这里不合理，是否是为了懒加载实现？ 是否需要考虑播放器的重用
-     * 此处应该去掉这个方法
-     */
-    fun init()
-
-    /**
      * 异步准备
      */
     fun prepareAsync()
-
-    /**
-     * 是否正在播放
-     */
-    fun isPlaying(): Boolean
 
     /**
      * 开始播放
@@ -238,12 +228,17 @@ interface CSPlayer {
     fun start()
 
     /**
-     * 获取当前播放的位置
+     * 是否正在播放
+     */
+    fun isPlaying(): Boolean
+
+    /**
+     * 获取当前播放的位置,单位 msec
      */
     fun getCurrentPosition(): Long
 
     /**
-     * 获取视频总时长
+     * 获取视频总时长,单位 msec
      */
     fun getDuration(): Long
 
@@ -254,7 +249,7 @@ interface CSPlayer {
     fun getBufferedPercentage(): Int
 
     /**
-     * 设置是否循环播放
+     * 设置循环播放
      */
     fun setLooping(isLooping: Boolean)
 

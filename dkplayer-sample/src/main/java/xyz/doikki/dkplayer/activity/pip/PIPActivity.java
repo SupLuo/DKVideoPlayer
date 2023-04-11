@@ -21,7 +21,7 @@ import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.dkplayer.util.PIPManager;
 import xyz.doikki.dkplayer.util.Tag;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 public class PIPActivity extends BaseActivity {
 
@@ -38,7 +38,7 @@ public class PIPActivity extends BaseActivity {
         }
         FrameLayout playerContainer = findViewById(R.id.player_container);
         mPIPManager = PIPManager.getInstance();
-        CSVideoView videoView = getVideoViewManager().get(Tag.PIP);
+        UNSVideoView videoView = getVideoViewManager().get(Tag.PIP);
         StandardVideoController controller = new StandardVideoController(this);
         controller.addDefaultControlComponent(getString(R.string.str_pip), false);
         videoView.setVideoController(controller);

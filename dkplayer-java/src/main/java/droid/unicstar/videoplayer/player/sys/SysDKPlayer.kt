@@ -11,7 +11,7 @@ import android.view.SurfaceHolder
 import droid.unicstar.videoplayer.logw
 import droid.unicstar.videoplayer.orDefault
 import droid.unicstar.videoplayer.player.AbstractCSPlayer
-import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
 import droid.unicstar.videoplayer.tryIgnore
 import java.io.IOException
@@ -135,7 +135,7 @@ class SysDKPlayer : AbstractCSPlayer() {
                     trackInfo.trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO
                 }.orDefault()
                 if (!isVideo) {
-                    it.onInfo(CSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+                    it.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
                 }
             }
         } catch (e: Throwable) {

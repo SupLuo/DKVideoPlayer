@@ -26,7 +26,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 /**
  * RecyclerView demo
@@ -38,7 +38,7 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLinearLayoutManager;
 
-    protected CSVideoView mVideoView;
+    protected UNSVideoView mVideoView;
     protected StandardVideoController mController;
     protected ErrorView mErrorView;
     protected CompleteView mCompleteView;
@@ -99,12 +99,12 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
     }
 
     protected void initVideoView() {
-        mVideoView = new CSVideoView(getActivity());
-        mVideoView.addOnStateChangeListener(new CSVideoView.OnStateChangeListener() {
+        mVideoView = new UNSVideoView(getActivity());
+        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
                 //监听VideoViewManager释放，重置状态
-                if (playState == CSVideoView.STATE_IDLE) {
+                if (playState == UNSVideoView.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mLastPos = mCurPos;
                     mCurPos = -1;

@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.widget.CenteredImageSpan;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 import xyz.doikki.videoplayer.controller.MediaController;
 import xyz.doikki.videoplayer.util.PlayerUtils;
 import xyz.doikki.videoplayer.BuildConfig;
@@ -41,7 +41,7 @@ import master.flame.danmaku.ui.widget.DanmakuView;
  * @deprecated 推荐 {@link xyz.doikki.dkplayer.widget.component.MyDanmakuView}
  */
 @Deprecated
-public class DanmukuVideoView extends CSVideoView {
+public class DanmukuVideoView extends UNSVideoView {
     private DanmakuView mDanmakuView;
     private DanmakuContext mContext;
     private BaseDanmakuParser mParser;
@@ -65,10 +65,10 @@ public class DanmukuVideoView extends CSVideoView {
         if (mDanmakuView == null) {
             initDanMuView();
         }
-        playerContainer.removeView(mDanmakuView);
+        mDisplayContainer.removeView(mDanmakuView);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.topMargin = (int) PlayerUtils.getStatusBarHeight(getContext());
-        playerContainer.addView(mDanmakuView, layoutParams);
+        mDisplayContainer.addView(mDanmakuView, layoutParams);
         //将控制器提到最顶层，如果有的话
         MediaController controller = getVideoController();
         if (controller != null) {

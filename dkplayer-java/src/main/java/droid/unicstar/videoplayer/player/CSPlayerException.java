@@ -4,8 +4,8 @@ import android.annotation.SuppressLint;
 
 public class CSPlayerException extends RuntimeException {
 
-    private int what = CSPlayer.MEDIA_ERROR_UNKNOWN;
-    private int extra = CSPlayer.MEDIA_ERROR_UNKNOWN;
+    private int what = UNSPlayer.MEDIA_ERROR_UNKNOWN;
+    private int extra = UNSPlayer.MEDIA_ERROR_UNKNOWN;
 
     @SuppressLint("DefaultLocale")
     public CSPlayerException(int what, int extra) {

@@ -9,7 +9,7 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.util.PlayerUtils
 import droid.unicstar.videoplayer.orDefault
 
@@ -43,11 +43,11 @@ class LiveControlView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            CSVideoView.STATE_IDLE, CSVideoView.STATE_PREPARED_BUT_ABORT, CSVideoView.STATE_PREPARING, CSVideoView.STATE_PREPARED, CSVideoView.STATE_ERROR, CSVideoView.STATE_PLAYBACK_COMPLETED -> visibility =
+            UNSVideoView.STATE_IDLE, UNSVideoView.STATE_PREPARED_BUT_ABORT, UNSVideoView.STATE_PREPARING, UNSVideoView.STATE_PREPARED, UNSVideoView.STATE_ERROR, UNSVideoView.STATE_PLAYBACK_COMPLETED -> visibility =
                 GONE
-            CSVideoView.STATE_PLAYING -> mPlayButton.isSelected = true
-            CSVideoView.STATE_PAUSED -> mPlayButton.isSelected = false
-            CSVideoView.STATE_BUFFERING, CSVideoView.STATE_BUFFERED -> mPlayButton.isSelected =
+            UNSVideoView.STATE_PLAYING -> mPlayButton.isSelected = true
+            UNSVideoView.STATE_PAUSED -> mPlayButton.isSelected = false
+            UNSVideoView.STATE_BUFFERING, UNSVideoView.STATE_BUFFERED -> mPlayButton.isSelected =
                 mController?.playerControl?.isPlaying().orDefault()
         }
     }
@@ -55,8 +55,8 @@ class LiveControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            CSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
-            CSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
+            UNSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
+            UNSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
         }
         val activity = PlayerUtils.scanForActivity(context)
         val controller = mController

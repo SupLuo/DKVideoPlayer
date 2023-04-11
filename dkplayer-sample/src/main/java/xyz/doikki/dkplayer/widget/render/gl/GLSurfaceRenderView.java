@@ -38,8 +38,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 import javax.microedition.khronos.opengles.GL10;
 
-import droid.unicstar.videoplayer.player.CSPlayer;
-import droid.unicstar.videoplayer.render.Render;
+import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.videoplayer.render.UNSRender;
 import droid.unicstar.videoplayer.render.internal.RenderMeasureHelper;
 
 /**
@@ -54,14 +54,14 @@ import droid.unicstar.videoplayer.render.internal.RenderMeasureHelper;
  * https://developer.android.com/guide/topics/graphics/opengl?hl=zh-cn
  * https://github.com/google/grafika
  */
-public final class GLSurfaceRenderView extends GLSurfaceView implements Render {
+public final class GLSurfaceRenderView extends GLSurfaceView implements UNSRender {
 
     private final RenderMeasureHelper mMeasureHelper = new RenderMeasureHelper();
 
-    private CSPlayer player;
+    private UNSPlayer player;
 
     @Override
-    public void bindPlayer(@NonNull CSPlayer player) {
+    public void bindPlayer(@NonNull UNSPlayer player) {
         this.player = player;
         setVideoRenderer(new BitmapOverlayVideoProcessor(getContext()), false);
     }

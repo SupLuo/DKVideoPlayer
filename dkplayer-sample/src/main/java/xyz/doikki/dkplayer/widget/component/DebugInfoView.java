@@ -14,7 +14,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 
 import droid.unicstar.videoplayer.UtilsKt;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 import xyz.doikki.videoplayer.controller.MediaController;
 import xyz.doikki.videoplayer.controller.VideoViewControl;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
@@ -71,7 +71,7 @@ public class DebugInfoView extends AppCompatTextView implements ControlComponent
         if (control == null)
             return "";
         int[] videoSize = control.getVideoSize();
-        CSVideoView videoView = (CSVideoView) mController.getPlayerControl();
+        UNSVideoView videoView = (UNSVideoView) mController.getPlayerControl();
         StringBuilder sb = new StringBuilder();
         sb.append("player:").append(videoView.getPlayerName()).append("   ")
                 .append("render:").append(videoView.getRenderName()).append("\n");

@@ -26,9 +26,9 @@ import xyz.doikki.videocontroller.component.LiveControlView;
 import xyz.doikki.videocontroller.component.PrepareView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 import droid.unicstar.videoplayer.render.AspectRatioType;
-import droid.unicstar.videoplayer.render.Render;
+import droid.unicstar.videoplayer.render.UNSRender;
 import xyz.doikki.videoplayer.util.L;
 
 /**
@@ -36,7 +36,7 @@ import xyz.doikki.videoplayer.util.L;
  * Created by Doikki on 2017/4/7.
  */
 
-public class PlayerActivityJava extends BaseActivity<CSVideoView> {
+public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
 
     private static final String THUMB = "https://cms-bucket.nosdn.127.net/eb411c2810f04ffa8aaafc42052b233820180418095416.jpeg";
 
@@ -166,33 +166,33 @@ public class PlayerActivityJava extends BaseActivity<CSVideoView> {
         });
     }
 
-    private CSVideoView.OnStateChangeListener mOnStateChangeListener = new CSVideoView.OnStateChangeListener() {
+    private UNSVideoView.OnStateChangeListener mOnStateChangeListener = new UNSVideoView.OnStateChangeListener() {
 
 
         @Override
         public void onPlayerStateChanged(int playState) {
             switch (playState) {
-                case CSVideoView.STATE_IDLE:
+                case UNSVideoView.STATE_IDLE:
                     break;
-                case CSVideoView.STATE_PREPARING:
+                case UNSVideoView.STATE_PREPARING:
                     break;
-                case CSVideoView.STATE_PREPARED:
+                case UNSVideoView.STATE_PREPARED:
                     break;
-                case CSVideoView.STATE_PLAYING:
+                case UNSVideoView.STATE_PLAYING:
                     //需在此时获取视频宽高
                     int[] videoSize = mVideoView.getVideoSize();
                     L.d("视频宽：" + videoSize[0]);
                     L.d("视频高：" + videoSize[1]);
                     break;
-                case CSVideoView.STATE_PAUSED:
+                case UNSVideoView.STATE_PAUSED:
                     break;
-                case CSVideoView.STATE_BUFFERING:
+                case UNSVideoView.STATE_BUFFERING:
                     break;
-                case CSVideoView.STATE_BUFFERED:
+                case UNSVideoView.STATE_BUFFERED:
                     break;
-                case CSVideoView.STATE_PLAYBACK_COMPLETED:
+                case UNSVideoView.STATE_PLAYBACK_COMPLETED:
                     break;
-                case CSVideoView.STATE_ERROR:
+                case UNSVideoView.STATE_ERROR:
                     break;
             }
         }
@@ -240,7 +240,7 @@ public class PlayerActivityJava extends BaseActivity<CSVideoView> {
 
             case R.id.screen_shot:
                 ImageView imageView = findViewById(R.id.iv_screen_shot);
-                 mVideoView.screenshot(new Render.ScreenShotCallback() {
+                 mVideoView.screenshot(new UNSRender.ScreenShotCallback() {
                     @Override
                     public void onScreenShotResult(@Nullable Bitmap bmp) {
                         imageView.setImageBitmap(bmp);
@@ -264,7 +264,7 @@ public class PlayerActivityJava extends BaseActivity<CSVideoView> {
         super.onPause();
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView.getCurrentState() == CSVideoView.STATE_PREPARING) {
+        if (mVideoView.getCurrentState() == UNSVideoView.STATE_PREPARING) {
             mVideoView.release();
         }
     }

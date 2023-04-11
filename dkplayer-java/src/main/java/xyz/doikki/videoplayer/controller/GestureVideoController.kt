@@ -8,7 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.INVALIDATE_SEEK_POSITION
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
 import droid.unicstar.videoplayer.getActivityContext
@@ -84,11 +84,11 @@ abstract class GestureVideoController @JvmOverloads constructor(
         mDoubleTapTogglePlayEnabled = enabled
     }
 
-    override fun setScreenMode(@CSVideoView.ScreenMode playerState: Int) {
+    override fun setScreenMode(@UNSVideoView.ScreenMode playerState: Int) {
         super.setScreenMode(playerState)
-        if (playerState == CSVideoView.SCREEN_MODE_NORMAL) {
+        if (playerState == UNSVideoView.SCREEN_MODE_NORMAL) {
             mCanSlide = mGestureInPortraitEnabled
-        } else if (playerState == CSVideoView.SCREEN_MODE_FULL) {
+        } else if (playerState == UNSVideoView.SCREEN_MODE_FULL) {
             mCanSlide = true
         }
     }

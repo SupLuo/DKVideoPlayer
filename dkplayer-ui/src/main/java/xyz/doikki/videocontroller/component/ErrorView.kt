@@ -8,7 +8,7 @@ import android.view.ViewConfiguration
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import kotlin.math.abs
 
@@ -40,7 +40,7 @@ class ErrorView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == CSVideoView.STATE_ERROR) {
+        if (playState == UNSVideoView.STATE_ERROR) {
             bringToFront()
             visibility = VISIBLE
         }else{

@@ -7,7 +7,7 @@ import com.danikula.videocache.Logger;
 import xyz.doikki.videoplayer.BuildConfig;
 import xyz.doikki.videoplayer.DKManager;
 import xyz.doikki.videoplayer.ijk.IjkPlayerFactory;
-import droid.unicstar.videoplayer.render.RenderFactory;
+import droid.unicstar.videoplayer.render.UNSRenderFactory;
 
 /**
  * app
@@ -24,7 +24,7 @@ public class MyApplication extends MultiDexApplication {
         instance = this;
         //播放器配置，注意：此为全局配置，按需开启
         DKManager.setDebuggable(BuildConfig.DEBUG);
-        DKManager.setRenderFactory(RenderFactory.surfaceViewRenderFactory());
+        DKManager.setRenderFactory(UNSRenderFactory.surfaceViewRenderFactory());
 //        DKManager.setRenderFactory(RenderFactory.surfaceViewRenderFactory());
         DKManager.setPlayerFactory(IjkPlayerFactory.create());
 

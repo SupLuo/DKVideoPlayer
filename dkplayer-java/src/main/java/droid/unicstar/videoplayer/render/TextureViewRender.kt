@@ -8,10 +8,10 @@ import android.view.TextureView
 import android.view.View
 import droid.unicstar.videoplayer.logd
 import xyz.doikki.videoplayer.DKManager
-import droid.unicstar.videoplayer.player.CSPlayer
-import droid.unicstar.videoplayer.render.Render.Companion.createShotBitmap
-import droid.unicstar.videoplayer.render.Render.ScreenShotCallback
-import droid.unicstar.videoplayer.render.Render.SurfaceListener
+import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.videoplayer.render.UNSRender.Companion.createShotBitmap
+import droid.unicstar.videoplayer.render.UNSRender.ScreenShotCallback
+import droid.unicstar.videoplayer.render.UNSRender.SurfaceListener
 import droid.unicstar.videoplayer.render.internal.RenderViewProxy
 import java.lang.ref.WeakReference
 
@@ -20,14 +20,14 @@ import java.lang.ref.WeakReference
  * 会先回调[TextureView.SurfaceTextureListener.onSurfaceTextureDestroyed]并释放[SurfaceTexture],
  * 在需要[SurfaceTexture]时会重新构建并回调[TextureView.SurfaceTextureListener.onSurfaceTextureAvailable]
  *
- * @see Render 具体可调用的方法请查看Render
+ * @see UNSRender 具体可调用的方法请查看Render
  */
 class TextureViewRender @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
-) : TextureView(context, attrs), Render {
+) : TextureView(context, attrs), UNSRender {
 
     private val mProxy: RenderViewProxy = RenderViewProxy.new(this)
-    private var mPlayerRef: WeakReference<CSPlayer>? = null
+    private var mPlayerRef: WeakReference<UNSPlayer>? = null
     private var mSurfaceTexture: SurfaceTexture? = null
     private var mSurface: Surface? = null
     private var mSurfaceListener: SurfaceListener? = null
@@ -115,7 +115,7 @@ class TextureViewRender @JvmOverloads constructor(
      *
      * @param player
      */
-    override fun bindPlayer(player: CSPlayer?) {
+    override fun bindPlayer(player: UNSPlayer?) {
         if(player == null){
             mPlayerRef = null
             return

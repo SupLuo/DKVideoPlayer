@@ -12,7 +12,7 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer.OnNativeInvokeListener
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
 import droid.unicstar.videoplayer.player.AbstractCSPlayer
-import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
 import droid.unicstar.videoplayer.orDefault
 
@@ -223,7 +223,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         eventListener!!.onPrepared()
         // 修复播放纯音频时状态出错问题
         if (!isVideo) {
-            eventListener!!.onInfo(CSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+            eventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
         }
     }
 

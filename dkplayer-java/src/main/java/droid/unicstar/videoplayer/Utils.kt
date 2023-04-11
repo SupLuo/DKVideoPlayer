@@ -19,8 +19,11 @@ internal const val TAG = "UCSPlayer"
 
 var isDebug = isDebuggable
 
-@JvmOverloads
-inline fun logd(tag: String = TAG, msg: String) {
+internal inline fun logd(msg: String) {
+   logd(TAG,msg)
+}
+
+internal inline fun logd(tag: String , msg: String) {
     if (isDebug) {
         Log.d(tag, msg)
     }
@@ -177,11 +180,11 @@ internal val View.canTakeFocus: Boolean
 /**
  * Returns a string containing player state debugging information.
  */
-internal fun screenMode2str(@CSVideoView.ScreenMode mode: Int): String? {
+internal fun screenMode2str(@UNSVideoView.ScreenMode mode: Int): String? {
     val playerStateString: String = when (mode) {
-        CSVideoView.SCREEN_MODE_NORMAL -> "normal"
-        CSVideoView.SCREEN_MODE_FULL -> "full screen"
-        CSVideoView.SCREEN_MODE_TINY -> "tiny screen"
+        UNSVideoView.SCREEN_MODE_NORMAL -> "normal"
+        UNSVideoView.SCREEN_MODE_FULL -> "full screen"
+        UNSVideoView.SCREEN_MODE_TINY -> "tiny screen"
         else -> "normal"
     }
     return String.format("screenMode: %s", playerStateString)
@@ -192,15 +195,15 @@ internal fun screenMode2str(@CSVideoView.ScreenMode mode: Int): String? {
  */
 internal fun playState2str(state: Int): String? {
     val playStateString: String = when (state) {
-        CSVideoView.STATE_IDLE -> "idle"
-        CSVideoView.STATE_PREPARING -> "preparing"
-        CSVideoView.STATE_PREPARED -> "prepared"
-        CSVideoView.STATE_PLAYING -> "playing"
-        CSVideoView.STATE_PAUSED -> "pause"
-        CSVideoView.STATE_BUFFERING -> "buffering"
-        CSVideoView.STATE_BUFFERED -> "buffered"
-        CSVideoView.STATE_PLAYBACK_COMPLETED -> "playback completed"
-        CSVideoView.STATE_ERROR -> "error"
+        UNSVideoView.STATE_IDLE -> "idle"
+        UNSVideoView.STATE_PREPARING -> "preparing"
+        UNSVideoView.STATE_PREPARED -> "prepared"
+        UNSVideoView.STATE_PLAYING -> "playing"
+        UNSVideoView.STATE_PAUSED -> "pause"
+        UNSVideoView.STATE_BUFFERING -> "buffering"
+        UNSVideoView.STATE_BUFFERED -> "buffered"
+        UNSVideoView.STATE_PLAYBACK_COMPLETED -> "playback completed"
+        UNSVideoView.STATE_ERROR -> "error"
         else -> "idle"
     }
     return String.format("playState: %s", playStateString)

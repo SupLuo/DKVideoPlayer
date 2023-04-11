@@ -2,9 +2,9 @@ package xyz.doikki.videoplayer.exo;
 
 import android.content.Context;
 
-import droid.unicstar.videoplayer.player.CSPlayerFactory;
+import droid.unicstar.videoplayer.player.UNSPlayerFactory;
 
-public class ExoMediaPlayerFactory implements CSPlayerFactory<ExoMediaPlayer> {
+public class ExoMediaPlayerFactory implements UNSPlayerFactory<ExoMediaPlayer> {
 
     public static ExoMediaPlayerFactory create() {
         return new ExoMediaPlayerFactory();

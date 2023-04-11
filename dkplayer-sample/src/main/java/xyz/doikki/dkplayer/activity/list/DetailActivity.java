@@ -15,9 +15,9 @@ import xyz.doikki.dkplayer.util.IntentKeys;
 import xyz.doikki.dkplayer.util.Tag;
 import xyz.doikki.dkplayer.util.Utils;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
-public class DetailActivity extends BaseActivity<CSVideoView> {
+public class DetailActivity extends BaseActivity<UNSVideoView> {
 
     private FrameLayout mPlayerContainer;
 

@@ -6,10 +6,10 @@ import android.os.Build
 import android.view.Surface
 import android.view.View
 import androidx.annotation.IntRange
-import droid.unicstar.videoplayer.player.CSPlayer
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.PartialFunc
 
-interface Render {
+interface UNSRender {
 
     companion object {
 
@@ -38,7 +38,7 @@ interface Render {
          * 创建截图的Bitmap容器
          */
         @JvmStatic
-        fun createShotBitmap(render: Render, highQuality: Boolean): Bitmap {
+        fun createShotBitmap(render: UNSRender, highQuality: Boolean): Bitmap {
             val view = render.view
             return createShotBitmap(view!!.context, view.width, view.height, highQuality)
         }
@@ -47,7 +47,7 @@ interface Render {
 
     interface SurfaceListener {
         /**
-         * Invoked when a [Render]'s Surface is ready for use.
+         * Invoked when a [UNSRender]'s Surface is ready for use.
          *
          * @param surface The surface returned by getSurfaceTexture()
          */
@@ -85,9 +85,9 @@ interface Render {
 
     /**
      * 绑定播放器
-     * @param player 播放器，如果为null，则会接触之前的播放器持有
+     * @param player 播放器，如果为null，则会解除之前的播放器持有
      */
-    fun bindPlayer(player: CSPlayer?)
+    fun bindPlayer(player: UNSPlayer?)
 
     /**
      * 释放资源
@@ -120,7 +120,7 @@ interface Render {
     }
 
     /**
-     * 设置镜像旋转
+     * 设置镜像旋转，暂不支持SurfaceView
      *
      * @param enable
      */
@@ -148,7 +148,7 @@ interface Render {
      * 截图
      *
      * @param highQuality 是否采用高质量，默认false；
-     * 如果设置为true，则[Render.ScreenShotCallback]返回的[Bitmap]采用[Bitmap.Config.ARGB_8888]配置，相反则采用[Bitmap.Config.RGB_565]
+     * 如果设置为true，则[UNSRender.ScreenShotCallback]返回的[Bitmap]采用[Bitmap.Config.ARGB_8888]配置，相反则采用[Bitmap.Config.RGB_565]
      * @param callback    回调
      * @see Bitmap.Config
      */

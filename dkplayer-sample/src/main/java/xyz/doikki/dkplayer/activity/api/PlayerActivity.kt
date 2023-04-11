@@ -23,16 +23,16 @@ import xyz.doikki.dkplayer.widget.render.gl2.filter.GlWatermarkFilter
 import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.render.AspectRatioType
-import droid.unicstar.videoplayer.render.RenderFactory
+import droid.unicstar.videoplayer.render.UNSRenderFactory
 import xyz.doikki.videoplayer.util.L
 
 /**
  * 播放器演示
  * Created by Doikki on 2017/4/7.
  */
-class PlayerActivity : BaseActivity<CSVideoView>() {
+class PlayerActivity : BaseActivity<UNSVideoView>() {
 
     private lateinit var controller: StandardVideoController
     private val renderView by lazy {
@@ -197,35 +197,35 @@ class PlayerActivity : BaseActivity<CSVideoView>() {
         }
     }
 
-    private val mOnStateChangeListener: CSVideoView.OnStateChangeListener =
-        object : CSVideoView.OnStateChangeListener {
+    private val mOnStateChangeListener: UNSVideoView.OnStateChangeListener =
+        object : UNSVideoView.OnStateChangeListener {
 
             override fun onPlayerStateChanged(playState: Int) {
                 when (playState) {
-                    CSVideoView.STATE_IDLE -> {
+                    UNSVideoView.STATE_IDLE -> {
                     }
-                    CSVideoView.STATE_PREPARING -> {
+                    UNSVideoView.STATE_PREPARING -> {
                     }
-                    CSVideoView.STATE_PREPARED -> {
+                    UNSVideoView.STATE_PREPARED -> {
                     }
-                    CSVideoView.STATE_PLAYING -> {
+                    UNSVideoView.STATE_PLAYING -> {
                         //需在此时获取视频宽高
                         val videoSize = mVideoView!!.videoSize
                         L.d("视频宽：" + videoSize[0])
                         L.d("视频高：" + videoSize[1])
                     }
-                    CSVideoView.STATE_PAUSED -> {
+                    UNSVideoView.STATE_PAUSED -> {
                     }
-                    CSVideoView.STATE_BUFFERING -> {
+                    UNSVideoView.STATE_BUFFERING -> {
                         isBuff = true
                         lastBTime = System.currentTimeMillis()
                     }
-                    CSVideoView.STATE_BUFFERED -> {
+                    UNSVideoView.STATE_BUFFERED -> {
                         isBuff = false
                     }
-                    CSVideoView.STATE_PLAYBACK_COMPLETED -> {
+                    UNSVideoView.STATE_PLAYBACK_COMPLETED -> {
                     }
-                    CSVideoView.STATE_ERROR -> {
+                    UNSVideoView.STATE_ERROR -> {
                     }
                 }
             }
@@ -262,10 +262,10 @@ class PlayerActivity : BaseActivity<CSVideoView>() {
                 i++
             }
             R.id.surface_render->{
-                mVideoView!!.setRenderViewFactory(RenderFactory.surfaceViewRenderFactory())
+                mVideoView!!.setRenderViewFactory(UNSRenderFactory.surfaceViewRenderFactory())
             }
             R.id.texture_render->{
-                mVideoView!!.setRenderViewFactory(RenderFactory.textureViewRenderFactory())
+                mVideoView!!.setRenderViewFactory(UNSRenderFactory.textureViewRenderFactory())
             }
             R.id.btn_mute -> mVideoView!!.isMute = !mVideoView!!.isMute
         }
@@ -275,7 +275,7 @@ class PlayerActivity : BaseActivity<CSVideoView>() {
         super.onPause()
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView!!.currentState == CSVideoView.STATE_PREPARING) {
+        if (mVideoView!!.currentState == UNSVideoView.STATE_PREPARING) {
             mVideoView!!.release()
         }
     }

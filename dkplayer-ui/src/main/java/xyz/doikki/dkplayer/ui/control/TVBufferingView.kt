@@ -8,7 +8,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
@@ -66,14 +66,14 @@ class TVBufferingView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         super.onPlayStateChanged(playState)
-        if (playState == CSVideoView.STATE_BUFFERING) {
+        if (playState == UNSVideoView.STATE_BUFFERING) {
             show(textWhenBuffering)
-        } else if (playState == CSVideoView.STATE_PLAYING
-            || playState == CSVideoView.STATE_ERROR
-            || playState == CSVideoView.STATE_PLAYBACK_COMPLETED
-            || playState == CSVideoView.STATE_BUFFERED
-            || playState == CSVideoView.STATE_PREPARED_BUT_ABORT
-            || playState == CSVideoView.STATE_PAUSED
+        } else if (playState == UNSVideoView.STATE_PLAYING
+            || playState == UNSVideoView.STATE_ERROR
+            || playState == UNSVideoView.STATE_PLAYBACK_COMPLETED
+            || playState == UNSVideoView.STATE_BUFFERED
+            || playState == UNSVideoView.STATE_PREPARED_BUT_ABORT
+            || playState == UNSVideoView.STATE_PAUSED
         ) {
             hide()
         }

@@ -6,7 +6,7 @@ import xyz.doikki.videocontroller.component.CompleteView;
 import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
-import droid.unicstar.videoplayer.CSVideoView;
+import droid.unicstar.videoplayer.UNSVideoView;
 
 /**
  * 全屏后手动横屏，并不完美，仅做参考
@@ -15,11 +15,11 @@ public class RecyclerViewPortraitFragment extends RecyclerViewAutoPlayFragment {
 
     @Override
     protected void initVideoView() {
-        mVideoView = new CSVideoView(getActivity());
-        mVideoView.addOnStateChangeListener(new CSVideoView.OnStateChangeListener() {
+        mVideoView = new UNSVideoView(getActivity());
+        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == CSVideoView.STATE_IDLE) {
+                if (playState == UNSVideoView.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mLastPos = mCurPos;
                     mCurPos = -1;

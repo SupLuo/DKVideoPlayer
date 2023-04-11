@@ -8,7 +8,7 @@ import android.view.View
 import xyz.doikki.dkplayer.R
 import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.component.VodControlView
-import droid.unicstar.videoplayer.CSVideoView
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.controller.VideoViewControl
 
 class PortraitWhenFullScreenController @JvmOverloads constructor(
@@ -57,7 +57,7 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
 
     override fun onScreenModeChanged(screenMode: Int) {
         super.onScreenModeChanged(screenMode)
-        if (screenMode == CSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == UNSVideoView.SCREEN_MODE_FULL) {
             mFullScreen.isSelected = false
         } else {
             hide()
