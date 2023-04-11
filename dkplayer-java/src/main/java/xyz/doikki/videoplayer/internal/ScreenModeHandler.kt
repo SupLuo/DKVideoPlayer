@@ -54,11 +54,17 @@ class ScreenModeHandler {
      * 切换到全屏
      *
      * @param view 用于全屏展示的view
+     * @param hideSystemBar 隐藏状态栏：true 则表示同时隐藏状态栏，false则不做处理
+     * @note hideSystemBar：在某些盒子上，全屏的时候不需要处理状态栏相关的操作，否则会在某些盒子上显示系统提示导致界面无法操作
      */
-    fun startFullScreen(activity: Activity, view: View): Boolean {
+    fun startFullScreen(activity: Activity, view: View, hideSystemBar: Boolean = true): Boolean {
         val decorView = activity.decorView ?: return false
-        //隐藏NavigationBar和StatusBar
-        hideSystemBar(activity, decorView)
+
+        if (hideSystemBar) {
+            //隐藏NavigationBar和StatusBar
+            hideSystemBar(activity, decorView)
+        }
+
         //从parent中移除指定view
         view.removeFromParent()
         //将视图添加到DecorView中即实现了全屏展示该控件
@@ -71,11 +77,13 @@ class ScreenModeHandler {
      *
      * @param container view退出全屏之后的容器
      * @param view      全屏展示的view ： 本身这个参数可以不传，但是还是保留，这样更明确逻辑
+     * @param showSystemBar 显示状态栏：true 则表示同时隐藏状态栏，false则不做处理
+     * @note showSystemBar：在某些盒子上，全屏的时候不需要处理状态栏相关的操作，否则会在某些盒子上显示系统提示导致界面无法操作
      */
-    fun stopFullScreen(activity: Activity, container: ViewGroup, view: View): Boolean {
+    fun stopFullScreen(activity: Activity, container: ViewGroup, view: View, showSystemBar: Boolean = true): Boolean {
         activity.decorView?.let {
-            //显示状态栏
-            showSystemBar(activity, it)
+            if(showSystemBar)
+            showSystemBar(activity, it)//显示状态栏
         }
         view.removeFromParent()
         container.addView(view)
@@ -148,7 +156,6 @@ class ScreenModeHandler {
         mPreferredTinyScreenWidth = activity.resources.displayMetrics.widthPixels / 2
         mPreferredTinyScreenHeight = mPreferredTinyScreenWidth * 9 / 16
     }
-
 
 
     companion object {

@@ -38,9 +38,9 @@ class SurfaceRenderView @JvmOverloads constructor(
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
             Log.d("SurfaceViewRender", "${this@SurfaceRenderView.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceChanged($holder,$format,$w,$h)")
+            player?.setDisplay(holder)
             if (holder != mSurfaceHolder) {
                 mSurfaceHolder = holder
-                player?.setDisplay(holder)
                 mSurfaceListener?.onSurfaceUpdated(holder.surface)
             } else {
                 mSurfaceListener?.onSurfaceSizeChanged(holder.surface, width, height)
@@ -114,5 +114,11 @@ class SurfaceRenderView @JvmOverloads constructor(
         val surfaceHolder = holder
         surfaceHolder.addCallback(mSHCallback)
         surfaceHolder.setFormat(PixelFormat.RGBA_8888)
+
+//        /**
+//         * 解决surface黑屏问题
+//         */
+//        setZOrderOnTop(true)
+//        surfaceHolder.setFormat(PixelFormat.TRANSLUCENT)
     }
 }
