@@ -319,7 +319,12 @@ interface UNSPlayer {
     /**
      * 设置播放器事件监听
      */
-    fun setEventListener(eventListener: EventListener?)
+    fun addEventListener(eventListener: EventListener)
+
+    /**
+     * 移除事件监听
+     */
+    fun removeEventListener(eventListener: EventListener)
 
     /**
      * 获取当前缓冲的网速

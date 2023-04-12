@@ -204,22 +204,22 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
         int id = view.getId();
         switch (id) {
             case R.id.scale_default:
-                mVideoView.setScreenAspectRatioType(AspectRatioType.DEFAULT_SCALE);
+                mVideoView.setAspectRatioType(AspectRatioType.DEFAULT_SCALE);
                 break;
             case R.id.scale_169:
-                mVideoView.setScreenAspectRatioType(AspectRatioType.SCALE_16_9);
+                mVideoView.setAspectRatioType(AspectRatioType.SCALE_16_9);
                 break;
             case R.id.scale_43:
-                mVideoView.setScreenAspectRatioType(AspectRatioType.SCALE_4_3);
+                mVideoView.setAspectRatioType(AspectRatioType.SCALE_4_3);
                 break;
             case R.id.scale_original:
-                mVideoView.setScreenAspectRatioType(AspectRatioType.SCALE_ORIGINAL);
+                mVideoView.setAspectRatioType(AspectRatioType.SCALE_ORIGINAL);
                 break;
             case R.id.scale_match_parent:
-                mVideoView.setScreenAspectRatioType(AspectRatioType.MATCH_PARENT);
+                mVideoView.setAspectRatioType(AspectRatioType.MATCH_PARENT);
                 break;
             case R.id.scale_center_crop:
-                mVideoView.setScreenAspectRatioType(AspectRatioType.CENTER_CROP);
+                mVideoView.setAspectRatioType(AspectRatioType.CENTER_CROP);
                 break;
 
             case R.id.speed_0_5:

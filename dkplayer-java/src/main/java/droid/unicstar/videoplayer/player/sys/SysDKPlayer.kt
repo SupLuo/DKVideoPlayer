@@ -40,11 +40,11 @@ class SysDKPlayer : AbstractCSPlayer() {
             MediaPlayer.OnVideoSizeChangedListener {
 
             override fun onPrepared(mp: MediaPlayer) {
-                eventListener?.onPrepared()
+                mEventListeners?.onPrepared()
             }
 
             override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-                eventListener?.onError(
+                mEventListeners?.onError(
                     CSPlayerException(
                         what,
                         extra
@@ -54,7 +54,7 @@ class SysDKPlayer : AbstractCSPlayer() {
             }
 
             override fun onCompletion(mp: MediaPlayer) {
-                eventListener?.onCompletion()
+                mEventListeners?.onCompletion()
             }
 
             override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean {
@@ -62,12 +62,12 @@ class SysDKPlayer : AbstractCSPlayer() {
                 when (what) {
                     MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
                         if (isPreparing) {
-                            eventListener?.onInfo(what, extra)
+                            mEventListeners?.onInfo(what, extra)
                             isPreparing = false
                         }
                     }
                     else -> {
-                        eventListener?.onInfo(what, extra)
+                        mEventListeners?.onInfo(what, extra)
                     }
                 }
                 return true
@@ -78,7 +78,7 @@ class SysDKPlayer : AbstractCSPlayer() {
             }
 
             override fun onVideoSizeChanged(mp: MediaPlayer, width: Int, height: Int) {
-                eventListener?.let {
+                mEventListeners?.let {
                     val videoWidth = mp.videoWidth
                     val videoHeight = mp.videoHeight
                     if (videoWidth != 0 && videoHeight != 0) {
@@ -129,7 +129,7 @@ class SysDKPlayer : AbstractCSPlayer() {
         try {
             logOnKernelInvalidate()
             mKernel!!.start()
-            eventListener?.let {
+            mEventListeners?.let {
                 // 修复播放纯音频时状态出错问题:：系统播放器播放纯音频没有对应回调
                 val isVideo = mKernel!!.trackInfo?.any { trackInfo ->
                     trackInfo.trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO
@@ -303,7 +303,7 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     private fun handlePlayerOperationException(e: Throwable) {
         e.printStackTrace()
-        eventListener?.onError(e)
+        mEventListeners?.onError(e)
     }
 
 }

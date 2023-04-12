@@ -1,4 +1,4 @@
-package droid.unicstar.videoplayer.render
+package droid.unicstar.videoplayer
 
 import android.content.Context
 import android.util.Log
@@ -7,17 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.IntRange
-import droid.unicstar.videoplayer.UNSVideoView
-import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.controller.UNSRenderControl
 import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.videoplayer.render.AspectRatioType
+import droid.unicstar.videoplayer.render.UNSRender
+import droid.unicstar.videoplayer.render.UNSRenderFactory
 import xyz.doikki.videoplayer.DKManager
 
 /**
- * @param container render的容器,限定了FrameLayout，更适合放render的位置
+ * 在使用之前，必须调用[bindContainer]指定容器
  */
-class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
+class UNSRenderProxy() : UNSRender, UNSRenderControl {
 
-    private inline val mContext: Context get() = container.context
+    /**
+     * Render所在的容器，必须指定
+     */
+    private lateinit var mContainer: FrameLayout
+
+    private inline val mContext: Context get() = mContainer.context
 
     //关联的播放器
     private var mAttachedPlayer: UNSPlayer? = null
@@ -62,7 +69,17 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
      * 视频画面大小
      * todo 是否适合直接返回该变量,存在被外层修改的可能？是否应该 return new int[]{mVideoSize[0], mVideoSize[1]}
      */
-    val videoSize: IntArray = mVideoSize
+    override fun getVideoSize(): IntArray {
+        return mVideoSize
+    }
+
+    /**
+     * 绑定Render所在的容器
+     * @note 限定了FrameLayout，更适合放render的位置
+     */
+    fun bindContainer(container: FrameLayout) {
+        mContainer = container
+    }
 
     /**
      * render是否可以重用
@@ -74,7 +91,7 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
     /**
      * 自定义RenderView，继承[UNSRenderFactory]实现自己的RenderView,设置为null则会使用[DKManager.renderFactory]
      */
-    fun setRenderViewFactory(factory: UNSRenderFactory?) {
+    override fun setRenderViewFactory(factory: UNSRenderFactory?) {
         if (mRenderFactory == factory || (factory == null && mRenderFactory == DKManager.renderFactory)) {
             //与当前工厂相同或者与全局工厂相同,即当前工厂并没有发生任何变化，不作任何处理
             return
@@ -112,7 +129,7 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
                 render.setVideoSize(mVideoSize[0], mVideoSize[1])
             render.view?.let {
                 //render添加到最底层
-                container.addView(render.view, 0, params)
+                mContainer.addView(render.view, 0, params)
             }
             mRender = render
         }
@@ -130,7 +147,7 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
 
     private fun releaseRender(render: UNSRender) {
         render.view?.let {
-            container.removeView(it)
+            mContainer.removeView(it)
         }
         render.release()
     }
@@ -169,7 +186,7 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
      *
      * @param degree 旋转角度
      */
-    override fun setVideoRotation(degree: Int) {
+    override fun setVideoRotation(@IntRange(from = 0, to = 360) degree: Int) {
         mVideoRotation = degree
         mRender?.setVideoRotation(degree)
     }
@@ -179,7 +196,7 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
         mRender?.setMirrorRotation(enable)
     }
 
-    override fun setAspectRatioType(aspectRatioType: Int) {
+    override fun setAspectRatioType(@AspectRatioType aspectRatioType: Int) {
         mScreenAspectRatioType = aspectRatioType
         mRender?.setAspectRatioType(aspectRatioType)
     }
@@ -191,6 +208,10 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
         mVideoSize[0] = videoWidth
         mVideoSize[1] = videoHeight
         mRender?.setVideoSize(videoWidth, videoHeight)
+    }
+
+    override fun screenshot(callback: UNSRender.ScreenShotCallback) {
+        super<UNSRender>.screenshot(callback)
     }
 
     override fun screenshot(highQuality: Boolean, callback: UNSRender.ScreenShotCallback) {
@@ -210,7 +231,6 @@ class UNSRenderProxy(private val container: FrameLayout) : UNSRender {
         mAttachedPlayer = null
         releaseCurrentRender()
         //关闭屏幕常亮
-        container.keepScreenOn = false
+        mContainer.keepScreenOn = false
     }
-
 }

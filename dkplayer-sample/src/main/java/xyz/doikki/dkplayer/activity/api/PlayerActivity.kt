@@ -233,13 +233,13 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
     private var i = 0
     fun onButtonClick(view: View) {
         when (view.id) {
-            R.id.scale_default -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.DEFAULT_SCALE)
-            R.id.scale_189 -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.SCALE_18_9)
-            R.id.scale_169 -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.SCALE_16_9)
-            R.id.scale_43 -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.SCALE_4_3)
-            R.id.scale_original -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.SCALE_ORIGINAL)
-            R.id.scale_match_parent -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.MATCH_PARENT)
-            R.id.scale_center_crop -> mVideoView!!.setScreenAspectRatioType(AspectRatioType.CENTER_CROP)
+            R.id.scale_default -> mVideoView!!.setAspectRatioType(AspectRatioType.DEFAULT_SCALE)
+            R.id.scale_189 -> mVideoView!!.setAspectRatioType(AspectRatioType.SCALE_18_9)
+            R.id.scale_169 -> mVideoView!!.setAspectRatioType(AspectRatioType.SCALE_16_9)
+            R.id.scale_43 -> mVideoView!!.setAspectRatioType(AspectRatioType.SCALE_4_3)
+            R.id.scale_original -> mVideoView!!.setAspectRatioType(AspectRatioType.SCALE_ORIGINAL)
+            R.id.scale_match_parent -> mVideoView!!.setAspectRatioType(AspectRatioType.MATCH_PARENT)
+            R.id.scale_center_crop -> mVideoView!!.setAspectRatioType(AspectRatioType.CENTER_CROP)
             R.id.speed_0_5 -> mVideoView!!.speed = 0.5f
             R.id.speed_0_75 -> mVideoView!!.speed = 0.75f
             R.id.speed_1_0 -> mVideoView!!.speed = 1.0f

@@ -14,14 +14,14 @@ interface UNSRenderControl {
     /**
      * 自定义RenderView，继承[UNSRenderFactory]实现自己的RenderView
      */
-    fun setRenderViewFactory(renderViewFactory: UNSRenderFactory?)
+    fun setRenderViewFactory(factory: UNSRenderFactory?)
 
     /**
      * 设置界面比例（宽比高）模式
      *
      * @param aspectRatioType 类型
      */
-    fun setScreenAspectRatioType(@AspectRatioType aspectRatioType: Int)
+    fun setAspectRatioType(@AspectRatioType aspectRatioType: Int)
 
     /**
      * 设置播放控件旋转角度

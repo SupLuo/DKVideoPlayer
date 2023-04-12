@@ -4,25 +4,20 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.AssetFileDescriptor
-import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import droid.unicstar.videoplayer.controller.UNSRenderControl
-import droid.unicstar.videoplayer.controller.UNSWindowModelControl
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_ERROR
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PAUSED
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PLAYBACK_COMPLETED
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PLAYING
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PREPARING
-import droid.unicstar.videoplayer.player.UNSPlayerProxy
 import droid.unicstar.videoplayer.render.AspectRatioType
 import droid.unicstar.videoplayer.render.UNSRender
-import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.ProgressManager
-import xyz.doikki.videoplayer.R
 import xyz.doikki.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.internal.AudioFocusHelper
@@ -63,7 +58,7 @@ import xyz.doikki.videoplayer.internal.ScreenModeHandler
  * @see UNSVideoView.setLooping
  * @see UNSVideoView.resume
  * @see UNSVideoView.speed
- * @see UNSVideoView.setScreenAspectRatioType
+ * @see UNSVideoView.setAspectRatioType
  * @see UNSVideoView.screenshot
  * @see UNSVideoView.setMute
  * @see UNSVideoView.isMute
@@ -86,8 +81,7 @@ open class UNSVideoView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     private val mDisplayContainer: UNSDisplayContainer
-) : FrameLayout(context, attrs), VideoViewControl, UNSRenderControl by mDisplayContainer,
-    UNSWindowModelControl by mDisplayContainer {
+) : FrameLayout(context, attrs), VideoViewControl, UNSRenderControl by mDisplayContainer{
 
     /**
      * 屏幕状态发生变化容器
@@ -460,18 +454,7 @@ open class UNSVideoView @JvmOverloads constructor(
 
     init {
 
-        //读取xml中的配置，并综合全局配置
-        val ta = context.obtainStyledAttributes(attrs, R.styleable.DKVideoView)
 
-        mAudioFocusHelper.isEnable =
-            ta.getBoolean(R.styleable.DKVideoView_enableAudioFocus, DKManager.isAudioFocusEnabled)
-        mLooping = ta.getBoolean(R.styleable.DKVideoView_looping, false)
-
-        val screenAspectRatioType =
-            ta.getInt(R.styleable.DKVideoView_screenScaleType, DKManager.screenAspectRatioType)
-        val playerBackgroundColor =
-            ta.getColor(R.styleable.DKVideoView_playerBackgroundColor, Color.BLACK)
-        ta.recycle()
 
         //准备播放器容器
         mDisplayContainer = UNSDisplayContainer(context).also {
@@ -482,7 +465,7 @@ open class UNSVideoView @JvmOverloads constructor(
 
 
         mPlayer = UNSPlayerProxy(this.context)
-        mPlayer.setEventListener(mEventListener)
+        mPlayer.addEventListener(mEventListener)
         mPlayer.addOnPlayStateChangeListener(mStateChangeListener)
     }
 }

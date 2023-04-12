@@ -194,32 +194,32 @@ open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listene
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {
-        if (eventListener == null) return
+        if (mEventListeners == null) return
         if (mIsPreparing) {
             if (playbackState == Player.STATE_READY) {
-                eventListener!!.onPrepared()
-                eventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+                mEventListeners!!.onPrepared()
+                mEventListeners!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
                 mIsPreparing = false
             }
             return
         }
         when (playbackState) {
-            Player.STATE_BUFFERING -> eventListener!!.onInfo(
+            Player.STATE_BUFFERING -> mEventListeners!!.onInfo(
                 UNSPlayer.MEDIA_INFO_BUFFERING_START,
                 getBufferedPercentage()
             )
-            Player.STATE_READY -> eventListener!!.onInfo(
+            Player.STATE_READY -> mEventListeners!!.onInfo(
                 UNSPlayer.MEDIA_INFO_BUFFERING_END,
                 getBufferedPercentage()
             )
-            Player.STATE_ENDED -> eventListener!!.onCompletion()
+            Player.STATE_ENDED -> mEventListeners!!.onCompletion()
             Player.STATE_IDLE -> {}
         }
     }
 
     override fun onPlayerError(error: PlaybackException) {
-        if (eventListener != null) {
-            eventListener!!.onError(
+        if (mEventListeners != null) {
+            mEventListeners!!.onError(
                 CSPlayerException(
                     error
                 )
@@ -228,10 +228,10 @@ open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listene
     }
 
     override fun onVideoSizeChanged(videoSize: VideoSize) {
-        if (eventListener != null) {
-            eventListener!!.onVideoSizeChanged(videoSize.width, videoSize.height)
+        if (mEventListeners != null) {
+            mEventListeners!!.onVideoSizeChanged(videoSize.width, videoSize.height)
             if (videoSize.unappliedRotationDegrees > 0) {
-                eventListener!!.onInfo(
+                mEventListeners!!.onInfo(
                     UNSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED,
                     videoSize.unappliedRotationDegrees
                 )

@@ -4,37 +4,37 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import droid.unicstar.videoplayer.controller.UNSRenderControl
-import droid.unicstar.videoplayer.controller.UNSWindowModelControl
-import droid.unicstar.videoplayer.render.AspectRatioType
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.render.UNSRender
-import droid.unicstar.videoplayer.render.UNSRenderFactory
-import droid.unicstar.videoplayer.render.UNSRenderProxy
+import xyz.doikki.videoplayer.DKManager
+import xyz.doikki.videoplayer.R
 import xyz.doikki.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.internal.ScreenModeHandler
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * 播放器显示容器：包含Controller、Render
- * 创建该容器方便在全屏、小窗、等不同窗口之间切换
- * @note 该控件设计上考虑可以使用ApplicationContext来创建使用，达到界面间共享
+ * 本类职责：处理器视频显示相关的逻辑，包含Render、窗口模式、Controller三者相关功能；
+ * 不包括Player相关的依赖，这样便于视图层的复用和共用，也方便Player的各种灵活形态（共享的、全局的、局部的）都可以。
+ * @see bindPlayer 通过该方法绑定对应的播放器
+ *
+ * Render部分：可使用的功能参考[UNSRenderControl]
+ * 窗口模式部分：[isFullScreen]、[isTinyScreen]、[toggleFullScreen]、[startFullScreen]、[stopFullScreen]
+ * [startTinyScreen]、[stopTinyScreen]、[startVideoViewFullScreen]、[stopVideoViewFullScreen]
+ * 、[addOnScreenModeChangeListener]、[removeOnScreenModeChangeListener]
+ * Controller部分：
+ *
+ * @note todo 该控件设计上考虑可以使用ApplicationContext来创建使用，达到界面间共享（只是理论层面，还未测试）
  */
 open class UNSDisplayContainer @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : FrameLayout(context, attrs), UNSRenderControl, UNSWindowModelControl {
-
-//    /**
-//     * 获取Activity，优先通过Controller去获取Activity
-//     */
-//    private val mPreferredActivity: Activity? get() = context.getActivityContext()
-//
-//    private val mActivity: Activity get() = mPreferredActivity!!
-
-    private val mRender: UNSRenderProxy
+    context: Context, attrs: AttributeSet? = null,
+    private val mRender: UNSRenderProxy = UNSRenderProxy()
+) : FrameLayout(context, attrs), UNSRenderControl by mRender {
 
     /**
      * 控制器
@@ -42,11 +42,45 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     var videoController: MediaController? = null
         private set
 
+    //对外提供的
+    val render: UNSRender get() = mRender
+
+    private val mOnScreenModeChangeListeners =
+        CopyOnWriteArrayList<UNSVideoView.OnScreenModeChangeListener>()
+
+    //屏幕模式切换帮助类
+    private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
+
+    /**
+     * 获取渲染视图的名字
+     */
+    val renderName: String get() = mRender.renderName
+
+    /**
+     * 当前屏幕模式：普通、全屏、小窗口
+     */
+    @UNSVideoView.ScreenMode
+    var screenMode: Int = UNSVideoView.SCREEN_MODE_NORMAL
+        private set(@UNSVideoView.ScreenMode screenMode) {
+            if (field != screenMode) {
+                field = screenMode
+                notifyScreenModeChanged(screenMode)
+            }
+        }
+
+    /**
+     * 绑定播放器
+     */
+    fun bindPlayer(player: UNSPlayer) {
+        mRender.bindPlayer(player)
+//        videoController?.setMediaPlayer(player)
+    }
+
     /**
      * 设置控制器，传null表示移除控制器
      */
     fun setVideoController(mediaController: MediaController?) {
-        if(mediaController == videoController){
+        if (mediaController == videoController) {
             logd("same with current video controller,set ignore.")
             return
         }
@@ -69,29 +103,14 @@ open class UNSDisplayContainer @JvmOverloads constructor(
 
     /**
      * 移除控制器
+     * @return 被移除的控制器
      */
-    private fun removeController(){
-        videoController?.let {//移除之前已添加的控制器
-            logd("remove current video controller.")
-            removeView(it)
-        }
+    private fun removeController(): MediaController? {
+        val vc = videoController ?: return null
+        removeView(vc)
+        videoController = null
+        return vc
     }
-
-
-    private val mOnScreenModeChangeListeners =
-        CopyOnWriteArrayList<UNSVideoView.OnScreenModeChangeListener>()
-
-    /**
-     * 当前屏幕模式：普通、全屏、小窗口
-     */
-    @UNSVideoView.ScreenMode
-    var screenMode: Int = UNSVideoView.SCREEN_MODE_NORMAL
-        private set(@UNSVideoView.ScreenMode screenMode) {
-            if (field != screenMode) {
-                field = screenMode
-                notifyScreenModeChanged(screenMode)
-            }
-        }
 
     /**
      * 通知当前界面模式发生了变化
@@ -103,15 +122,6 @@ open class UNSDisplayContainer @JvmOverloads constructor(
             it.onScreenModeChanged(screenMode)
         }
     }
-
-    //屏幕模式切换帮助类
-    private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
-
-    /**
-     * 获取渲染视图的名字
-     * @return
-     */
-    val renderName: String get() = mRender.renderName
 
     /**
      * 添加屏幕模式变化监听
@@ -126,36 +136,6 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     fun removeOnScreenModeChangeListener(listener: UNSVideoView.OnScreenModeChangeListener) {
         mOnScreenModeChangeListeners.remove(listener)
     }
-
-    /***************Start UNSRenderControl**************************/
-    override fun setRenderViewFactory(renderViewFactory: UNSRenderFactory?) {
-        mRender.setRenderViewFactory(renderViewFactory)
-    }
-
-    override fun setScreenAspectRatioType(@AspectRatioType aspectRatioType: Int) {
-        mRender.setAspectRatioType(aspectRatioType)
-    }
-
-    override fun screenshot(highQuality: Boolean, callback: UNSRender.ScreenShotCallback) {
-        mRender.screenshot(highQuality, callback)
-    }
-
-    override fun setVideoSize(videoWidth: Int, videoHeight: Int) {
-        mRender.setVideoSize(videoWidth, videoHeight)
-    }
-
-    override fun getVideoSize(): IntArray {
-        return mRender.videoSize
-    }
-
-    override fun setVideoRotation(degree: Int) {
-        mRender.setVideoRotation(degree)
-    }
-
-    override fun setMirrorRotation(enable: Boolean) {
-        mRender.setMirrorRotation(enable)
-    }
-    /***************End UNSRenderControl**************************/
 
     /**
      * 判断是否处于全屏状态（视图处于全屏）
@@ -295,8 +275,27 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         mRender.release()
     }
 
-    init {
-        mRender = UNSRenderProxy(this)
-        mRender.setAspectRatioType(screenAspectRatioType)
+    /**
+     * 解析对应参数：一般是从外层容器从解析
+     */
+    fun applyAttributes(context: Context, attrs: AttributeSet) {
+        //读取xml中的配置，并综合全局配置
+        val ta = context.obtainStyledAttributes(attrs, R.styleable.DKVideoView)
+        //todo这两个参数的处理
+        val audioFocus: Boolean =
+            ta.getBoolean(R.styleable.DKVideoView_enableAudioFocus, DKManager.isAudioFocusEnabled)
+        val looping = ta.getBoolean(R.styleable.DKVideoView_looping, false)
+
+        if (ta.hasValue(R.styleable.DKVideoView_screenScaleType)) {
+            val screenAspectRatioType =
+                ta.getInt(R.styleable.DKVideoView_screenScaleType, DKManager.screenAspectRatioType)
+            setAspectRatioType(screenAspectRatioType)
+        }
+        if (ta.hasValue(R.styleable.DKVideoView_playerBackgroundColor)) {
+            val playerBackgroundColor =
+                ta.getColor(R.styleable.DKVideoView_playerBackgroundColor, Color.TRANSPARENT)
+            setBackgroundColor(playerBackgroundColor)
+        }
+        ta.recycle()
     }
 }

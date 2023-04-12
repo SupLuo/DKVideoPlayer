@@ -1,4 +1,4 @@
-package droid.unicstar.videoplayer.player
+package droid.unicstar.videoplayer
 
 import android.content.ContentResolver
 import android.content.Context
@@ -6,8 +6,7 @@ import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
-import droid.unicstar.videoplayer.logd
-import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_BUFFERED
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_BUFFERING
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_ERROR
@@ -20,7 +19,7 @@ import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PREPARED_BUT_
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PREPARING
 import droid.unicstar.videoplayer.player.UNSPlayer.EventListener
 import droid.unicstar.videoplayer.player.UNSPlayer.OnPlayStateChangeListener
-import droid.unicstar.videoplayer.tryIgnore
+import droid.unicstar.videoplayer.player.UNSPlayerFactory
 import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.ProgressManager
 import xyz.doikki.videoplayer.internal.AudioFocusHelper
@@ -142,7 +141,6 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
                 UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
                     currentState = STATE_PLAYING
                 }
-                UNSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED -> setRotation(extra)
             }
             mCustomEventListener?.onInfo(what, extra)
         }
@@ -269,7 +267,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         //目前每次都重新创建一个播放器
         mPlayer?.release()
         return createPlayer().also {
-            it.setEventListener(mEventListener)
+            it.addEventListener(mEventListener)
             it.onInit()
             it.setLooping(mLooping)
             it.setVolume(mLeftVolume, mRightVolume)
@@ -511,7 +509,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         mPlayer?.setDisplay(holder)
     }
 
-    override fun setEventListener(eventListener: EventListener?) {
+    override fun addEventListener(eventListener: EventListener?) {
         this.mCustomEventListener = eventListener
     }
 

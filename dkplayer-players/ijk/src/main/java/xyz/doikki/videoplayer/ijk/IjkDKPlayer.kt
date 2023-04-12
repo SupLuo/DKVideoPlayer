@@ -68,7 +68,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
                 }
             }
         } catch (e: Throwable) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -76,7 +76,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.setDataSource(RawDataSourceProvider(fd))
         } catch (e: Exception) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -84,7 +84,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.pause()
         } catch (e: IllegalStateException) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -92,7 +92,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.start()
         } catch (e: IllegalStateException) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -100,7 +100,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.stop()
         } catch (e: IllegalStateException) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -111,7 +111,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
             kernel!!.setAutoPlayOnPrepared(false)
             kernel!!.prepareAsync()
         } catch (e: IllegalStateException) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -130,7 +130,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.seekTo(msec.toInt().toLong())
         } catch (e: IllegalStateException) {
-            eventListener!!.onError(e)
+            mEventListeners!!.onError(e)
         }
     }
 
@@ -197,7 +197,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     }
 
     override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
-        eventListener!!.onError(
+        mEventListeners!!.onError(
             CSPlayerException(
                 what,
                 extra
@@ -207,11 +207,11 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     }
 
     override fun onCompletion(mp: IMediaPlayer) {
-        eventListener!!.onCompletion()
+        mEventListeners!!.onCompletion()
     }
 
     override fun onInfo(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
-        eventListener!!.onInfo(what, extra)
+        mEventListeners!!.onInfo(what, extra)
         return true
     }
 
@@ -220,10 +220,10 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     }
 
     override fun onPrepared(mp: IMediaPlayer) {
-        eventListener!!.onPrepared()
+        mEventListeners!!.onPrepared()
         // 修复播放纯音频时状态出错问题
         if (!isVideo) {
-            eventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+            mEventListeners!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
         }
     }
 
@@ -249,7 +249,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         val videoHeight = mp.videoHeight
         //todo 发现某些视频回调为0
 //        if (videoWidth != 0 && videoHeight != 0) {
-        eventListener!!.onVideoSizeChanged(videoWidth, videoHeight)
+        mEventListeners!!.onVideoSizeChanged(videoWidth, videoHeight)
 //        }
 
     }
