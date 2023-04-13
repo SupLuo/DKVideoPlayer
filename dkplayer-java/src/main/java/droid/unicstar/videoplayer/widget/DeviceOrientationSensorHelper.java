@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.internal;
+package droid.unicstar.videoplayer.widget;
 
 import android.app.Activity;
 import android.content.Context;
@@ -127,7 +127,7 @@ public class DeviceOrientationSensorHelper extends OrientationEventListener {
         mActivityRef = null;
     }
 
-    private Activity requireActivity() {
+    private Activity getActivity() {
         if (mActivityRef != null)
             return mActivityRef.get();
         return null;
@@ -161,7 +161,7 @@ public class DeviceOrientationSensorHelper extends OrientationEventListener {
             e.printStackTrace();
         }
 
-        Activity activity = requireActivity();
+        Activity activity = getActivity();
         if (activity == null)
             return;
 

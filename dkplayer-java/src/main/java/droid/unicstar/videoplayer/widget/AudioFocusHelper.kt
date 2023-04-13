@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.internal
+package droid.unicstar.videoplayer.widget
 
 import android.content.Context
 import android.media.AudioManager

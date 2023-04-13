@@ -108,15 +108,15 @@ public class AndroidOPiPActivity extends AppCompatActivity {
             @Override
             public void onPlayerStateChanged(int playState) {
                 switch (playState) {
-                    case UNSVideoView.STATE_PAUSED:
+                    case UNSPlayer.STATE_PAUSED:
                         updatePictureInPictureActions(
                                 R.drawable.dkplayer_ic_action_play_arrow, "播放", CONTROL_TYPE_PLAY, REQUEST_PLAY);
                         break;
-                    case UNSVideoView.STATE_PLAYING:
+                    case UNSPlayer.STATE_PLAYING:
                         updatePictureInPictureActions(
                                 R.drawable.dkplayer_ic_action_pause, "暂停", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
                         break;
-                    case UNSVideoView.STATE_PLAYBACK_COMPLETED:
+                    case UNSPlayer.STATE_PLAYBACK_COMPLETED:
                         updatePictureInPictureActions(
                                 R.drawable.dkplayer_ic_action_replay, "重新播放", CONTROL_TYPE_REPLAY, REQUEST_REPLAY);
                         break;

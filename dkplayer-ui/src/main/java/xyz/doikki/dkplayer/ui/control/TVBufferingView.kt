@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.doikki.videocontroller.R
 import droid.unicstar.videoplayer.UNSVideoView
-import xyz.doikki.videoplayer.controller.MediaController
+import droid.unicstar.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import droid.unicstar.videoplayer.setTextOrGone
@@ -66,14 +66,14 @@ class TVBufferingView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         super.onPlayStateChanged(playState)
-        if (playState == UNSVideoView.STATE_BUFFERING) {
+        if (playState == UNSPlayer.STATE_BUFFERING) {
             show(textWhenBuffering)
-        } else if (playState == UNSVideoView.STATE_PLAYING
-            || playState == UNSVideoView.STATE_ERROR
-            || playState == UNSVideoView.STATE_PLAYBACK_COMPLETED
-            || playState == UNSVideoView.STATE_BUFFERED
-            || playState == UNSVideoView.STATE_PREPARED_BUT_ABORT
-            || playState == UNSVideoView.STATE_PAUSED
+        } else if (playState == UNSPlayer.STATE_PLAYING
+            || playState == UNSPlayer.STATE_ERROR
+            || playState == UNSPlayer.STATE_PLAYBACK_COMPLETED
+            || playState == UNSPlayer.STATE_BUFFERED
+            || playState == UNSPlayer.STATE_PREPARED_BUT_ABORT
+            || playState == UNSPlayer.STATE_PAUSED
         ) {
             hide()
         }

@@ -9,13 +9,15 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import droid.unicstar.videoplayer.controller.MediaController
+import droid.unicstar.videoplayer.controller.UNSContainerControl
 import droid.unicstar.videoplayer.controller.UNSRenderControl
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.render.UNSRender
 import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.R
-import xyz.doikki.videoplayer.controller.MediaController
-import xyz.doikki.videoplayer.internal.ScreenModeHandler
+import droid.unicstar.videoplayer.widget.ScreenModeHandler
+import java.lang.ref.SoftReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -34,7 +36,13 @@ import java.util.concurrent.CopyOnWriteArrayList
 open class UNSDisplayContainer @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null,
     private val mRender: UNSRenderProxy = UNSRenderProxy()
-) : FrameLayout(context, attrs), UNSRenderControl by mRender {
+) : FrameLayout(context, attrs), UNSRenderControl by mRender, UNSContainerControl {
+
+    //绑定的界面
+    private var mBindActivityRef: SoftReference<Activity?>? = null
+
+    //绑定的容器：即正常情况下显示播放器所属的容器
+    private var mBindContainer: SoftReference<FrameLayout?>? = null
 
     /**
      * 控制器
@@ -50,6 +58,38 @@ open class UNSDisplayContainer @JvmOverloads constructor(
 
     //屏幕模式切换帮助类
     private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
+
+    private var mPlayerRef: SoftReference<UNSPlayerProxy?>? = null
+
+    private val mPlayerEventListener = object : UNSPlayer.EventListener {
+        override fun onInfo(what: Int, extra: Int) {
+            try {
+                when (what) {
+                    UNSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED -> setVideoRotation(extra)
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+        }
+
+        override fun onVideoSizeChanged(width: Int, height: Int) {
+            setVideoSize(width, height)
+        }
+    }
+
+    private val mPlayerStateListener = UNSPlayer.OnPlayStateChangeListener { playState ->
+        when (playState) {
+            UNSPlayer.STATE_PLAYING -> {
+                if (!this@UNSDisplayContainer.keepScreenOn)
+                    this@UNSDisplayContainer.keepScreenOn = true
+            }
+            UNSPlayer.STATE_PAUSED, UNSPlayer.STATE_PLAYBACK_COMPLETED, UNSPlayer.STATE_ERROR -> {
+                if (this@UNSDisplayContainer.keepScreenOn)
+                    this@UNSDisplayContainer.keepScreenOn = false
+            }
+        }
+        videoController?.setPlayerState(playState)
+    }
 
     /**
      * 获取渲染视图的名字
@@ -69,9 +109,57 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         }
 
     /**
+     * 绑定Activity
+     */
+    fun bindActivity(activity: Activity) {
+        if(activity == getActivity()){
+            logw("[DisplayContainer]bindActivity:the activity is same with current activity.ignore set.")
+            return
+        }
+        //todo 绑定界面之后应该完善状态？
+        mBindActivityRef = SoftReference(activity)
+    }
+
+    /**
+     * 解绑Activity
+     */
+    fun unbindActivity() {
+        //todo 如果是小窗或者全屏，从界面中移除
+        mBindActivityRef
+    }
+
+    /**
+     * 绑定所在的容器：即正常显示所在的容器
+     */
+    fun bindContainer(container: FrameLayout) {
+        //todo 注意考虑从原来的容器中移除、并考虑当前的view状态
+    }
+
+    /**
+     * 解绑容器
+     */
+    fun unbindContainer() {
+        //解除容器的时候，记得考虑从parent 中移除
+    }
+
+    /**
      * 绑定播放器
      */
-    fun bindPlayer(player: UNSPlayer) {
+    fun bindPlayer(player: UNSPlayerProxy) {
+        logd("[DisplayContainer]:bindPlayer")
+        val currentPlayer = mPlayerRef?.get()
+        if (currentPlayer != player) {
+            logd("[DisplayContainer]:bindPlayer not same with current player,un ref current player.")
+            currentPlayer?.let {
+                it.removeEventListener(mPlayerEventListener)
+                it.removeOnPlayStateChangeListener(mPlayerStateListener)
+            }
+            mPlayerRef = SoftReference(player)
+            player.addEventListener(mPlayerEventListener)
+            player.addOnPlayStateChangeListener(mPlayerStateListener)
+        } else {
+            logd("[DisplayContainer]:same with current player,ignore ref player listeners.")
+        }
         mRender.bindPlayer(player)
 //        videoController?.setMediaPlayer(player)
     }
@@ -97,7 +185,7 @@ open class UNSDisplayContainer @JvmOverloads constructor(
 
             //fix：video view先调用全屏方法后调用setController的情况下，controller的screen mode与video view的模式不一致问题（比如引起手势无效等）
             controller.setScreenMode(screenMode)
-            logd("attach controller to display container.")
+            logd("controller attached to display container.")
         }
     }
 
@@ -140,39 +228,53 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     /**
      * 判断是否处于全屏状态（视图处于全屏）
      */
-    fun isFullScreen(): Boolean {
+    override fun isFullScreen(): Boolean {
         return screenMode == UNSVideoView.SCREEN_MODE_FULL
     }
 
     /**
      * 当前是否处于小屏状态（视图处于小屏）
      */
-    fun isTinyScreen(): Boolean {
+    override fun isTinyScreen(): Boolean {
         return screenMode == UNSVideoView.SCREEN_MODE_TINY
     }
 
+    private inline fun getActivity(): Activity? = mBindActivityRef?.get()
+
+    private inline fun requireActivity(methodName: () -> String): Activity {
+        return mBindActivityRef?.get()
+            ?: throw IllegalArgumentException("must invoke ${::bindActivity.name} method to bind activity before call method ${methodName.invoke()}")
+    }
+
+    private inline fun requireContainer(methodName: () -> String): FrameLayout {
+        return mBindContainer?.get()
+            ?: throw IllegalArgumentException("must invoke ${::bindContainer.name} method to bind activity before call method ${methodName.invoke()}")
+    }
+
+
     /**
      * 横竖屏切换
+     * 如果切换为横屏、并且当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面；
+     * 如果切换为竖屏，并且当前界面为界面间共享的播放器，则调用此方法前，需要先调用[bindContainer]绑定竖屏显示状态下的容器；并且也可以调用[bindActivity]指定当前的界面，用于退出全屏时设置Activity为竖屏
      *
      * @return
-     * @note 由于设计上支持界面间共享播放器，因此需要明确指定[Activity]对象
      */
-    fun toggleFullScreen(activity: Activity, container: ViewGroup): Boolean {
+    override fun toggleFullScreen(): Boolean {
         return if (isFullScreen()) {
-            stopFullScreen(container, activity)
+            stopFullScreen()
         } else {
-            startFullScreen(activity)
+            startFullScreen()
         }
     }
 
     /**
      * 开始全屏
+     * 如果当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面；
      */
-    @JvmOverloads
-    fun startFullScreen(
-        activity: Activity,
-        isLandscapeReversed: Boolean = false
-    ): Boolean {
+    override fun startFullScreen(isLandscapeReversed: Boolean): Boolean {
+        val activity = requireActivity {
+            "startFullScreen"
+        }
         if (isLandscapeReversed) {
             if (activity.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
                 activity.requestedOrientation =
@@ -183,16 +285,18 @@ open class UNSDisplayContainer @JvmOverloads constructor(
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
         }
-        return startVideoViewFullScreen(activity)
+        return startVideoViewFullScreen()
     }
 
     /**
      * 整个播放视图（Render、Controller）全屏
-     * @param activity 在指定界面全屏
+     * 如果当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面；
      */
-    @JvmOverloads
-    fun startVideoViewFullScreen(activity: Activity, tryHideSystemBar: Boolean = true): Boolean {
+    override fun startVideoViewFullScreen(tryHideSystemBar: Boolean): Boolean {
         if (isFullScreen()) return false
+        val activity = requireActivity {
+            "startVideoViewFullScreen"
+        }
         if (mScreenModeHandler.startFullScreen(activity, this, tryHideSystemBar)) {
             screenMode = UNSVideoView.SCREEN_MODE_FULL
             return true
@@ -200,28 +304,24 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         return false
     }
 
-    /**
-     * 停止全屏
-     */
     @SuppressLint("SourceLockedOrientationActivity")
-    fun stopFullScreen(
-        container: ViewGroup,
-        activity: Activity? = container.context.getActivityContext()
-    ): Boolean {
+    override fun stopFullScreen(): Boolean {
+        val activity = getActivity()
         if (activity != null && activity.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        return stopVideoViewFullScreen(container)
+        return stopVideoViewFullScreen()
     }
 
     /**
-     * 整个播放视图（Render、Controller）退出全屏
-     * @param container 停止全屏之后，用于包含当前view的容器
+     * 整个播放视图（Render、Controller）退出全屏（切换为竖屏）;则调用此方法前，需要先调用[bindContainer]绑定竖屏显示的容器；
      */
-    @JvmOverloads
-    fun stopVideoViewFullScreen(container: ViewGroup, tryShowSystemBar: Boolean = true): Boolean {
+    override fun stopVideoViewFullScreen(tryShowSystemBar: Boolean): Boolean {
         if (!isFullScreen()) return false
-        val activity = container.context.getActivityContext()
+        val container = requireContainer {
+            "stopVideoViewFullScreen"
+        }
+        val activity = getActivity()
         val changed = if (activity != null && tryShowSystemBar) {
             mScreenModeHandler.stopFullScreen(activity, container, this)
         } else {
@@ -236,20 +336,26 @@ open class UNSDisplayContainer @JvmOverloads constructor(
 
     /**
      * 开启小屏
+     * 如果当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面
      */
-    fun startTinyScreen(activity: Activity) {
+    override fun startTinyScreen() {
         if (isTinyScreen()) return
+        val activity = requireActivity {
+            ::startTinyScreen.name
+        }
         if (mScreenModeHandler.startTinyScreen(activity, this)) {
             screenMode = UNSVideoView.SCREEN_MODE_TINY
         }
     }
 
     /**
-     * 退出小屏
-     * @param container 停止小屏后，用于包含当前view的容器
+     * 退出小屏;调用此方法前，需要先调用[bindContainer]绑定界面
      */
-    fun stopTinyScreen(container: ViewGroup) {
+    override fun stopTinyScreen() {
         if (!isTinyScreen()) return
+        val container: ViewGroup = requireContainer {
+            ::stopTinyScreen.name
+        }
         if (mScreenModeHandler.stopTinyScreen(container, this)) {
             screenMode = UNSVideoView.SCREEN_MODE_NORMAL
         }
@@ -297,5 +403,14 @@ open class UNSDisplayContainer @JvmOverloads constructor(
             setBackgroundColor(playerBackgroundColor)
         }
         ta.recycle()
+    }
+
+
+    init {
+        //如果当前容器是通过Activity上下文构建的，则默认绑定的界面为该Activity
+        val activity = context.getActivityContext()
+        if (activity != null) {
+            mBindActivityRef = SoftReference(activity)
+        }
     }
 }

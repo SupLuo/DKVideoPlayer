@@ -10,9 +10,9 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import droid.unicstar.videoplayer.logw
 import droid.unicstar.videoplayer.orDefault
-import droid.unicstar.videoplayer.player.AbstractCSPlayer
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.videoplayer.player.BaseUNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.tryIgnore
 import java.io.IOException
 
@@ -20,19 +20,13 @@ import java.io.IOException
  * 基于系统[android.media.MediaPlayer]封装
  * 注意：不推荐，兼容性差，建议使用IJK或者Exo播放器
  */
-class SysDKPlayer : AbstractCSPlayer() {
-
-    //系统播放器核心
-    private var mKernel: MediaPlayer? = null
+class SysUNSPlayer : BaseUNSPlayer() {
 
     //当前缓冲百分比
     private var mBufferedPercent = 0//todo 是否需要在播放结束或者错误的时候把该变量设置为0
-
-    /**
-     * 是否正在准备阶段：用于解决[android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START]多次回调问题
-     */
-    private var isPreparing = false
-
+    //是否正在准备阶段：用于解决[android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START]多次回调问题
+    private var mPreparing = false
+    //系统播放器监听
     private val mKernelListener =
         object : MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
             MediaPlayer.OnInfoListener,
@@ -40,11 +34,11 @@ class SysDKPlayer : AbstractCSPlayer() {
             MediaPlayer.OnVideoSizeChangedListener {
 
             override fun onPrepared(mp: MediaPlayer) {
-                mEventListeners?.onPrepared()
+                mEventListener?.onPrepared()
             }
 
             override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-                mEventListeners?.onError(
+                mEventListener?.onError(
                     CSPlayerException(
                         what,
                         extra
@@ -54,20 +48,20 @@ class SysDKPlayer : AbstractCSPlayer() {
             }
 
             override fun onCompletion(mp: MediaPlayer) {
-                mEventListeners?.onCompletion()
+                mEventListener?.onCompletion()
             }
 
             override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean {
                 //解决MEDIA_INFO_VIDEO_RENDERING_START多次回调问题
                 when (what) {
                     MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
-                        if (isPreparing) {
-                            mEventListeners?.onInfo(what, extra)
-                            isPreparing = false
+                        if (mPreparing) {
+                            mEventListener?.onInfo(what, extra)
+                            mPreparing = false
                         }
                     }
                     else -> {
-                        mEventListeners?.onInfo(what, extra)
+                        mEventListener?.onInfo(what, extra)
                     }
                 }
                 return true
@@ -78,7 +72,7 @@ class SysDKPlayer : AbstractCSPlayer() {
             }
 
             override fun onVideoSizeChanged(mp: MediaPlayer, width: Int, height: Int) {
-                mEventListeners?.let {
+                mEventListener?.let {
                     val videoWidth = mp.videoWidth
                     val videoHeight = mp.videoHeight
                     if (videoWidth != 0 && videoHeight != 0) {
@@ -88,17 +82,10 @@ class SysDKPlayer : AbstractCSPlayer() {
             }
         }
 
-    override fun init() {
-        mKernel = MediaPlayer().also {
-            it.setAudioStreamType(AudioManager.STREAM_MUSIC)
-            it.setOnErrorListener(mKernelListener)
-            it.setOnCompletionListener(mKernelListener)
-            it.setOnInfoListener(mKernelListener)
-            it.setOnBufferingUpdateListener(mKernelListener)
-            it.setOnPreparedListener(mKernelListener)
-            it.setOnVideoSizeChangedListener(mKernelListener)
-        }
-    }
+    //系统播放器核心
+    private val mKernel: MediaPlayer = createMediaPlayer()
+
+    private var mReleased:Boolean = false
 
     @Throws(
         IOException::class,
@@ -108,9 +95,9 @@ class SysDKPlayer : AbstractCSPlayer() {
     )
     override fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>?) {
         try {
-            logOnKernelInvalidate()
+            checkKernelValidation()
             //这里转换成了application context，一般没问题
-            mKernel!!.setDataSource(context.applicationContext, uri, headers)
+            mKernel.setDataSource(context.applicationContext, uri, headers)
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
         }
@@ -118,8 +105,8 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun setDataSource(fd: AssetFileDescriptor) {
         try {
-            logOnKernelInvalidate()
-            mKernel!!.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
+            checkKernelValidation()
+            mKernel.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
         }
@@ -127,9 +114,9 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun start() {
         try {
-            logOnKernelInvalidate()
-            mKernel!!.start()
-            mEventListeners?.let {
+            checkKernelValidation()
+            mKernel.start()
+            mEventListener?.let {
                 // 修复播放纯音频时状态出错问题:：系统播放器播放纯音频没有对应回调
                 val isVideo = mKernel!!.trackInfo?.any { trackInfo ->
                     trackInfo.trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO
@@ -145,7 +132,7 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun pause() {
         try {
-            logOnKernelInvalidate()
+            checkKernelValidation()
             mKernel!!.pause()
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
@@ -154,7 +141,7 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun stop() {
         try {
-            logOnKernelInvalidate()
+            checkKernelValidation()
             mKernel!!.stop()
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
@@ -163,11 +150,11 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun prepareAsync() {
         try {
-            logOnKernelInvalidate()
-            isPreparing = true
+            checkKernelValidation()
+            mPreparing = true
             mKernel!!.prepareAsync()
         } catch (e: Throwable) {
-            isPreparing = false
+            mPreparing = false
             handlePlayerOperationException(e)
         }
     }
@@ -183,13 +170,13 @@ class SysDKPlayer : AbstractCSPlayer() {
     }
 
     override fun isPlaying(): Boolean {
-        logOnKernelInvalidate()
+        checkKernelValidation()
         return mKernel?.isPlaying.orDefault()
     }
 
     override fun seekTo(msec: Long) {
         try {
-            logOnKernelInvalidate()
+            checkKernelValidation()
             if (Build.VERSION.SDK_INT >= 26) {
                 //使用这个api seekTo定位更加准确 支持android 8.0以上的设备 https://developer.android.com/reference/android/media/MediaPlayer#SEEK_CLOSEST
                 mKernel!!.seekTo(msec, MediaPlayer.SEEK_CLOSEST)
@@ -202,7 +189,10 @@ class SysDKPlayer : AbstractCSPlayer() {
     }
 
     override fun release() {
-        mKernel?.let {
+        if(mReleased)
+            return
+        mReleased = true
+        mKernel.let {
             it.setOnErrorListener(null)
             it.setOnCompletionListener(null)
             it.setOnInfoListener(null)
@@ -222,16 +212,15 @@ class SysDKPlayer : AbstractCSPlayer() {
                 }
             }.start()
         }
-        mKernel = null
     }
 
     override fun getCurrentPosition(): Long {
-        logOnKernelInvalidate()
+        checkKernelValidation()
         return mKernel?.currentPosition.orDefault().toLong()
     }
 
     override fun getDuration(): Long {
-        logOnKernelInvalidate()
+        checkKernelValidation()
         return mKernel?.duration.orDefault().toLong()
     }
 
@@ -241,7 +230,7 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun setSurface(surface: Surface?) {
         try {
-            logOnKernelInvalidate()
+            checkKernelValidation()
             mKernel!!.setSurface(surface)
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
@@ -250,7 +239,7 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     override fun setDisplay(holder: SurfaceHolder?) {
         try {
-            logOnKernelInvalidate()
+            checkKernelValidation()
             mKernel!!.setDisplay(holder)
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
@@ -258,12 +247,12 @@ class SysDKPlayer : AbstractCSPlayer() {
     }
 
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
-        logOnKernelInvalidate()
+        checkKernelValidation()
         mKernel?.setVolume(leftVolume, rightVolume)
     }
 
     override fun setLooping(isLooping: Boolean) {
-        logOnKernelInvalidate()
+        checkKernelValidation()
         mKernel?.isLooping = isLooping
     }
 
@@ -273,7 +262,7 @@ class SysDKPlayer : AbstractCSPlayer() {
             logw("SysDKPlayer", "Android MediaPlayer do not support set speed")
             return
         }
-        logOnKernelInvalidate()
+        checkKernelValidation()
         mKernel?.let {
             it.playbackParams = it.playbackParams.setSpeed(speed)
         }
@@ -282,7 +271,7 @@ class SysDKPlayer : AbstractCSPlayer() {
     override fun getSpeed(): Float {
         tryIgnore {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                logOnKernelInvalidate()
+                checkKernelValidation()
                 return mKernel?.playbackParams?.speed.orDefault(1f)
             } else {
                 logw("SysDKPlayer", "Android MediaPlayer do not support tcp speed")
@@ -291,7 +280,7 @@ class SysDKPlayer : AbstractCSPlayer() {
         return 1f
     }
 
-    private fun logOnKernelInvalidate() {
+    private fun checkKernelValidation() {
         tryIgnore {
             if (mKernel == null)
                 logw(
@@ -303,7 +292,19 @@ class SysDKPlayer : AbstractCSPlayer() {
 
     private fun handlePlayerOperationException(e: Throwable) {
         e.printStackTrace()
-        mEventListeners?.onError(e)
+        mEventListener?.onError(e)
+    }
+
+    protected fun createMediaPlayer(): MediaPlayer {
+        return MediaPlayer().also {
+            it.setAudioStreamType(AudioManager.STREAM_MUSIC)
+            it.setOnErrorListener(mKernelListener)
+            it.setOnCompletionListener(mKernelListener)
+            it.setOnInfoListener(mKernelListener)
+            it.setOnBufferingUpdateListener(mKernelListener)
+            it.setOnPreparedListener(mKernelListener)
+            it.setOnVideoSizeChangedListener(mKernelListener)
+        }
     }
 
 }

@@ -1,18 +1,13 @@
 package xyz.doikki.videoplayer.controller;
 
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.videoplayer.controller.UNSContainerControl;
 import droid.unicstar.videoplayer.controller.UNSPlayerControl;
-import droid.unicstar.videoplayer.render.AspectRatioType;
-import droid.unicstar.videoplayer.render.UNSRender;
 
 /**
  * 播放控制类：用于提供给Controller控制播放器（VideoView）
  * 在{@link UNSPlayerControl}功能的基础上新增了视图方面的控制
  */
-public interface VideoViewControl extends UNSPlayerControl {
+public interface VideoViewControl extends UNSPlayerControl, UNSContainerControl {
 
     /**********[Start]全屏、小窗口、自动横屏等 屏幕相关操作所需接口***********/
 //    /**

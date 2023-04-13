@@ -1,8 +1,8 @@
 package droid.unicstar.videoplayer.player
 
 import android.content.Context
-import droid.unicstar.videoplayer.player.sys.SysDKPlayer
-import droid.unicstar.videoplayer.player.sys.SysDKPlayerFactory
+import droid.unicstar.videoplayer.player.sys.SysUNSPlayer
+import droid.unicstar.videoplayer.player.sys.SysUNSPlayerFactory
 
 /**
  * 此接口使用方法：
@@ -25,12 +25,12 @@ fun interface UNSPlayerFactory<P : UNSPlayer> {
     companion object {
 
         /**
-         * 创建[SysDKPlayer]的工厂类，不推荐，系统的MediaPlayer兼容性较差，建议使用IjkPlayer或者ExoPlayer
+         * 创建[SysUNSPlayer]的工厂类，不推荐，系统的MediaPlayer兼容性较差，建议使用IjkPlayer或者ExoPlayer
          */
         @Deprecated("兼容性较差：比如某些盒子上不能配合texture使用")
         @JvmStatic
-        fun systemMediaPlayerFactory(): UNSPlayerFactory<SysDKPlayer> {
-            return SysDKPlayerFactory()
+        fun systemMediaPlayerFactory(): UNSPlayerFactory<SysUNSPlayer> {
+            return SysUNSPlayerFactory()
         }
     }
 

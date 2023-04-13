@@ -104,7 +104,7 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
             @Override
             public void onPlayerStateChanged(int playState) {
                 //监听VideoViewManager释放，重置状态
-                if (playState == UNSVideoView.STATE_IDLE) {
+                if (playState == UNSPlayer.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mLastPos = mCurPos;
                     mCurPos = -1;

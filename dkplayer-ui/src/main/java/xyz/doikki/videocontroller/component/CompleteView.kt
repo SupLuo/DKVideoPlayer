@@ -13,6 +13,7 @@ import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import droid.unicstar.videoplayer.isVisible
 import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.player.UNSPlayer
 
 /**
  * 自动播放完成界面
@@ -39,7 +40,7 @@ class CompleteView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
+        if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
             visibility = VISIBLE
             mStopFullscreen?.isVisible = mController?.isFullScreen.orDefault()
             bringToFront()

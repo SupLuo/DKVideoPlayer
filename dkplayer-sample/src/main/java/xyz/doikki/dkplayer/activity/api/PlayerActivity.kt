@@ -24,6 +24,7 @@ import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
 import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.render.AspectRatioType
 import droid.unicstar.videoplayer.render.UNSRenderFactory
 import xyz.doikki.videoplayer.util.L
@@ -202,30 +203,30 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
 
             override fun onPlayerStateChanged(playState: Int) {
                 when (playState) {
-                    UNSVideoView.STATE_IDLE -> {
+                    UNSPlayer.STATE_IDLE -> {
                     }
-                    UNSVideoView.STATE_PREPARING -> {
+                    UNSPlayer.STATE_PREPARING -> {
                     }
-                    UNSVideoView.STATE_PREPARED -> {
+                    UNSPlayer.STATE_PREPARED -> {
                     }
-                    UNSVideoView.STATE_PLAYING -> {
+                    UNSPlayer.STATE_PLAYING -> {
                         //需在此时获取视频宽高
                         val videoSize = mVideoView!!.videoSize
                         L.d("视频宽：" + videoSize[0])
                         L.d("视频高：" + videoSize[1])
                     }
-                    UNSVideoView.STATE_PAUSED -> {
+                    UNSPlayer.STATE_PAUSED -> {
                     }
-                    UNSVideoView.STATE_BUFFERING -> {
+                    UNSPlayer.STATE_BUFFERING -> {
                         isBuff = true
                         lastBTime = System.currentTimeMillis()
                     }
-                    UNSVideoView.STATE_BUFFERED -> {
+                    UNSPlayer.STATE_BUFFERED -> {
                         isBuff = false
                     }
-                    UNSVideoView.STATE_PLAYBACK_COMPLETED -> {
+                    UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
                     }
-                    UNSVideoView.STATE_ERROR -> {
+                    UNSPlayer.STATE_ERROR -> {
                     }
                 }
             }
@@ -245,11 +246,11 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
             R.id.speed_1_0 -> mVideoView!!.speed = 1.0f
             R.id.speed_1_5 -> mVideoView!!.speed = 1.5f
             R.id.speed_2_0 -> mVideoView!!.speed = 2.0f
-            R.id.rotate90 -> controller.setRotation(90)
-            R.id.rotate180 -> controller.setRotation(180)
-            R.id.rotate270 -> controller.setRotation(270)
-            R.id.rotate60 -> controller.setRotation(60)
-            R.id.rotate0 -> controller.setRotation(0)
+            R.id.rotate90 -> mVideoView.setVideoRotation(90)
+            R.id.rotate180 -> mVideoView.setVideoRotation(180)
+            R.id.rotate270 -> mVideoView.setVideoRotation(270)
+            R.id.rotate60 -> mVideoView.setVideoRotation(60)
+            R.id.rotate0 -> mVideoView.setVideoRotation(0)
             R.id.screen_shot -> {
                 val imageView = findViewById<ImageView>(R.id.iv_screen_shot)
                 mVideoView!!.screenshot {
@@ -275,7 +276,7 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
         super.onPause()
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView!!.currentState == UNSVideoView.STATE_PREPARING) {
+        if (mVideoView!!.currentState == UNSPlayer.STATE_PREPARING) {
             mVideoView!!.release()
         }
     }

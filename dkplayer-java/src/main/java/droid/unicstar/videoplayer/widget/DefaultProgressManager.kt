@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.internal
+package droid.unicstar.videoplayer.widget
 
 import android.util.LruCache
 import xyz.doikki.videoplayer.ProgressManager

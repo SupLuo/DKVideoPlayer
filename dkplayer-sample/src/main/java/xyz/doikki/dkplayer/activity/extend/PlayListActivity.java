@@ -57,7 +57,7 @@ public class PlayListActivity extends BaseActivity {
             private int mCurrentVideoPosition;
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
+                if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
                     if (data != null) {
                         mCurrentVideoPosition++;
                         if (mCurrentVideoPosition >= data.size()) return;

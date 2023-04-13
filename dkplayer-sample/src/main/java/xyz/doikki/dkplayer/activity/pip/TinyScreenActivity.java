@@ -52,7 +52,7 @@ public class TinyScreenActivity extends BaseActivity<UNSVideoView> implements On
         mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
+                if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
                     if (mVideoView.isTinyScreen()) {
                         mVideoView.stopTinyScreen();
                         releaseVideoView();
@@ -100,7 +100,7 @@ public class TinyScreenActivity extends BaseActivity<UNSVideoView> implements On
                 if (position == mCurPos && !mVideoView.isFullScreen()) {
                     mVideoView.startTinyScreen();
                     mVideoView.setVideoController(null);
-                    mController.setPlayerState(UNSVideoView.STATE_IDLE);
+                    mController.setPlayerState(UNSPlayer.STATE_IDLE);
                 }
             }
         });

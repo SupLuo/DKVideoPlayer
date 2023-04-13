@@ -40,7 +40,7 @@ class ErrorView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == UNSVideoView.STATE_ERROR) {
+        if (playState == UNSPlayer.STATE_ERROR) {
             bringToFront()
             visibility = VISIBLE
         }else{

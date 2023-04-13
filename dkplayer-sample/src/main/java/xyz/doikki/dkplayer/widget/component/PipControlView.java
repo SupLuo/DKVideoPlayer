@@ -79,37 +79,37 @@ public class PipControlView extends BaseControlComponent implements View.OnClick
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSVideoView.STATE_IDLE:
-            case UNSVideoView.STATE_PAUSED:
+            case UNSPlayer.STATE_IDLE:
+            case UNSPlayer.STATE_PAUSED:
                 mPlay.setSelected(false);
                 mPlay.setVisibility(VISIBLE);
                 mLoading.setVisibility(GONE);
                 break;
-            case UNSVideoView.STATE_PLAYING:
+            case UNSPlayer.STATE_PLAYING:
                 mPlay.setSelected(true);
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 break;
-            case UNSVideoView.STATE_PREPARING:
-            case UNSVideoView.STATE_BUFFERING:
+            case UNSPlayer.STATE_PREPARING:
+            case UNSPlayer.STATE_BUFFERING:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(VISIBLE);
                 break;
-            case UNSVideoView.STATE_PREPARED:
+            case UNSPlayer.STATE_PREPARED:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 break;
-            case UNSVideoView.STATE_ERROR:
+            case UNSPlayer.STATE_ERROR:
                 mLoading.setVisibility(GONE);
                 mPlay.setVisibility(GONE);
                 bringToFront();
                 break;
-            case UNSVideoView.STATE_BUFFERED:
+            case UNSPlayer.STATE_BUFFERED:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 mPlay.setSelected(getPlayer().isPlaying());
                 break;
-            case UNSVideoView.STATE_PLAYBACK_COMPLETED:
+            case UNSPlayer.STATE_PLAYBACK_COMPLETED:
                 bringToFront();
                 break;
         }

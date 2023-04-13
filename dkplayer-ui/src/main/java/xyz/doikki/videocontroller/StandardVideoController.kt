@@ -154,25 +154,25 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onPlayerStateChanged(playState: Int) {
         super.onPlayerStateChanged(playState)
         when (playState) {
-            UNSVideoView.STATE_IDLE -> {
+            UNSPlayer.STATE_IDLE -> {
                 lockButton.isSelected = false
                 loadingIndicator?.visibility = GONE
             }
-            UNSVideoView.STATE_PLAYING, UNSVideoView.STATE_PAUSED, UNSVideoView.STATE_PREPARED, UNSVideoView.STATE_ERROR, UNSVideoView.STATE_BUFFERED -> {
-                if (playState == UNSVideoView.STATE_BUFFERED) {
+            UNSPlayer.STATE_PLAYING, UNSPlayer.STATE_PAUSED, UNSPlayer.STATE_PREPARED, UNSPlayer.STATE_ERROR, UNSPlayer.STATE_BUFFERED -> {
+                if (playState == UNSPlayer.STATE_BUFFERED) {
                     isBuffering = false
                 }
                 if (!isBuffering) {
                     loadingIndicator?.visibility = GONE
                 }
             }
-            UNSVideoView.STATE_PREPARING, UNSVideoView.STATE_BUFFERING -> {
+            UNSPlayer.STATE_PREPARING, UNSPlayer.STATE_BUFFERING -> {
                 loadingIndicator?.visibility = VISIBLE
-                if (playState == UNSVideoView.STATE_BUFFERING) {
+                if (playState == UNSPlayer.STATE_BUFFERING) {
                     isBuffering = true
                 }
             }
-            UNSVideoView.STATE_PLAYBACK_COMPLETED -> {
+            UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 loadingIndicator?.visibility = GONE
                 lockButton.visibility = GONE
                 lockButton.isSelected = false

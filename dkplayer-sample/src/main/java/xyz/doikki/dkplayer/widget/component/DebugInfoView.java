@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat;
 
 import droid.unicstar.videoplayer.UtilsKt;
 import droid.unicstar.videoplayer.UNSVideoView;
-import xyz.doikki.videoplayer.controller.MediaController;
+import droid.unicstar.videoplayer.controller.MediaController;
 import xyz.doikki.videoplayer.controller.VideoViewControl;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
 

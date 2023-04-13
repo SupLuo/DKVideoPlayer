@@ -21,7 +21,7 @@ import androidx.core.content.ContextCompat;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.widget.CenteredImageSpan;
 import droid.unicstar.videoplayer.UNSVideoView;
-import xyz.doikki.videoplayer.controller.MediaController;
+import droid.unicstar.videoplayer.controller.MediaController;
 import xyz.doikki.videoplayer.util.PlayerUtils;
 import xyz.doikki.videoplayer.BuildConfig;
 

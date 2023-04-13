@@ -16,12 +16,12 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.util.Clock
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.video.VideoSize
-import droid.unicstar.videoplayer.player.AbstractCSPlayer
+import droid.unicstar.videoplayer.player.BaseUNSPlayer
 import xyz.doikki.videoplayer.DKManager.isDebuggable
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
 
-open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listener {
+open class ExoMediaPlayer(context: Context) : BaseUNSPlayer(), Player.Listener {
     protected var mAppContext: Context
     protected var mInternalPlayer: ExoPlayer? = null
     @JvmField
@@ -194,32 +194,32 @@ open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listene
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {
-        if (mEventListeners == null) return
+        if (mEventListener == null) return
         if (mIsPreparing) {
             if (playbackState == Player.STATE_READY) {
-                mEventListeners!!.onPrepared()
-                mEventListeners!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+                mEventListener!!.onPrepared()
+                mEventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
                 mIsPreparing = false
             }
             return
         }
         when (playbackState) {
-            Player.STATE_BUFFERING -> mEventListeners!!.onInfo(
+            Player.STATE_BUFFERING -> mEventListener!!.onInfo(
                 UNSPlayer.MEDIA_INFO_BUFFERING_START,
                 getBufferedPercentage()
             )
-            Player.STATE_READY -> mEventListeners!!.onInfo(
+            Player.STATE_READY -> mEventListener!!.onInfo(
                 UNSPlayer.MEDIA_INFO_BUFFERING_END,
                 getBufferedPercentage()
             )
-            Player.STATE_ENDED -> mEventListeners!!.onCompletion()
+            Player.STATE_ENDED -> mEventListener!!.onCompletion()
             Player.STATE_IDLE -> {}
         }
     }
 
     override fun onPlayerError(error: PlaybackException) {
-        if (mEventListeners != null) {
-            mEventListeners!!.onError(
+        if (mEventListener != null) {
+            mEventListener!!.onError(
                 CSPlayerException(
                     error
                 )
@@ -228,10 +228,10 @@ open class ExoMediaPlayer(context: Context) : AbstractCSPlayer(), Player.Listene
     }
 
     override fun onVideoSizeChanged(videoSize: VideoSize) {
-        if (mEventListeners != null) {
-            mEventListeners!!.onVideoSizeChanged(videoSize.width, videoSize.height)
+        if (mEventListener != null) {
+            mEventListener!!.onVideoSizeChanged(videoSize.width, videoSize.height)
             if (videoSize.unappliedRotationDegrees > 0) {
-                mEventListeners!!.onInfo(
+                mEventListener!!.onInfo(
                     UNSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED,
                     videoSize.unappliedRotationDegrees
                 )

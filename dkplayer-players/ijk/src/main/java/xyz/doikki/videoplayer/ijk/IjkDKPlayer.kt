@@ -11,12 +11,12 @@ import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer.OnNativeInvokeListener
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
-import droid.unicstar.videoplayer.player.AbstractCSPlayer
+import droid.unicstar.videoplayer.player.BaseUNSPlayer
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
 import droid.unicstar.videoplayer.orDefault
 
-open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
+open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
     IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnInfoListener,
     IMediaPlayer.OnBufferingUpdateListener, IMediaPlayer.OnPreparedListener,
     IMediaPlayer.OnVideoSizeChangedListener, OnNativeInvokeListener {
@@ -68,7 +68,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
                 }
             }
         } catch (e: Throwable) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -76,7 +76,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.setDataSource(RawDataSourceProvider(fd))
         } catch (e: Exception) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -84,7 +84,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.pause()
         } catch (e: IllegalStateException) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -92,7 +92,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.start()
         } catch (e: IllegalStateException) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -100,7 +100,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.stop()
         } catch (e: IllegalStateException) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -111,7 +111,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
             kernel!!.setAutoPlayOnPrepared(false)
             kernel!!.prepareAsync()
         } catch (e: IllegalStateException) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -130,7 +130,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         try {
             kernel!!.seekTo(msec.toInt().toLong())
         } catch (e: IllegalStateException) {
-            mEventListeners!!.onError(e)
+            mEventListener!!.onError(e)
         }
     }
 
@@ -197,7 +197,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     }
 
     override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
-        mEventListeners!!.onError(
+        mEventListener!!.onError(
             CSPlayerException(
                 what,
                 extra
@@ -207,11 +207,11 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     }
 
     override fun onCompletion(mp: IMediaPlayer) {
-        mEventListeners!!.onCompletion()
+        mEventListener!!.onCompletion()
     }
 
     override fun onInfo(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
-        mEventListeners!!.onInfo(what, extra)
+        mEventListener!!.onInfo(what, extra)
         return true
     }
 
@@ -220,10 +220,10 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
     }
 
     override fun onPrepared(mp: IMediaPlayer) {
-        mEventListeners!!.onPrepared()
+        mEventListener!!.onPrepared()
         // 修复播放纯音频时状态出错问题
         if (!isVideo) {
-            mEventListeners!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+            mEventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
         }
     }
 
@@ -249,7 +249,7 @@ open class IjkDKPlayer(private val appContext: Context) : AbstractCSPlayer(),
         val videoHeight = mp.videoHeight
         //todo 发现某些视频回调为0
 //        if (videoWidth != 0 && videoHeight != 0) {
-        mEventListeners!!.onVideoSizeChanged(videoWidth, videoHeight)
+        mEventListener!!.onVideoSizeChanged(videoWidth, videoHeight)
 //        }
 
     }

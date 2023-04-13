@@ -16,7 +16,7 @@ import droid.unicstar.videoplayer.PartialFunc
  * 备注：本类的职责应该完全定位在播放器的“能力”上，因此只考虑播放相关的逻辑（不包括UI层面）
  * Created by Doikki on 2017/12/21.
  * update by luochao on 2022/9/16. 调整部分代码及结构
- * @see AbstractCSPlayer
+ * @see BaseUNSPlayer
  */
 interface UNSPlayer {
 
@@ -319,12 +319,7 @@ interface UNSPlayer {
     /**
      * 设置播放器事件监听
      */
-    fun addEventListener(eventListener: EventListener)
-
-    /**
-     * 移除事件监听
-     */
-    fun removeEventListener(eventListener: EventListener)
+    fun setEventListener(eventListener: EventListener?)
 
     /**
      * 获取当前缓冲的网速

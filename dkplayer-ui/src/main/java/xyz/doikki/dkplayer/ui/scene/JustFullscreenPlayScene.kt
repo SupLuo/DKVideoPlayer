@@ -11,7 +11,7 @@ import xyz.doikki.videocontroller.R
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
 import droid.unicstar.videoplayer.UNSVideoView
-import xyz.doikki.videoplayer.controller.MediaController
+import droid.unicstar.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.util.CutoutUtil
 import xyz.doikki.videoplayer.util.PlayerUtils
 

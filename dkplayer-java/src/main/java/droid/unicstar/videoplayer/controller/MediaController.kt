@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.controller
+package droid.unicstar.videoplayer.controller
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -12,14 +12,16 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.removeAllByValue
 import droid.unicstar.videoplayer.toast
 import xyz.doikki.videoplayer.*
-import droid.unicstar.videoplayer.UNSVideoView.PlayState
+import xyz.doikki.videoplayer.controller.VideoViewControl
+import xyz.doikki.videoplayer.controller.VideoViewController
 import xyz.doikki.videoplayer.controller.component.ControlComponent
-import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper
-import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper.DeviceDirection
-import xyz.doikki.videoplayer.internal.DeviceOrientationSensorHelper.DeviceOrientationChangedListener
+import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper
+import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper.DeviceDirection
+import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper.DeviceOrientationChangedListener
 import xyz.doikki.videoplayer.util.*
 
 /**
@@ -61,26 +63,24 @@ open class MediaController @JvmOverloads constructor(
      */
     protected var mPlayer: VideoViewControl? = null
 
-    /**
-     * 是否处于锁定状态
-     */
+    //是否处于锁定状态
     private var mLocked = false
 
     /**
      * 当前播放器状态
      */
-    @PlayState
+    @UNSPlayer.PlayState
     private var mPlayerState = 0
 
-    /**
-     * 显示动画
-     */
-    private val mShowAnim: Animation
+    //显示动画
+    private val mShowAnim: Animation = AlphaAnimation(0f, 1f).also {
+        it.duration = 300
+    }
 
-    /**
-     * 隐藏动画
-     */
-    private val mHideAnim: Animation
+    //隐藏动画
+    private val mHideAnim: Animation = AlphaAnimation(1f, 0f).also {
+        it.duration = 300
+    }
 
     /**
      * 控制器显示超时时间：即显示超过该时间后自动隐藏
@@ -156,10 +156,6 @@ open class MediaController @JvmOverloads constructor(
 
         mEnableOrientationSensor = DKManager.isOrientationSensorEnabled
         mAdaptCutout = DKManager.isAdaptCutout
-        mShowAnim = AlphaAnimation(0f, 1f)
-        mShowAnim.setDuration(300)
-        mHideAnim = AlphaAnimation(1f, 0f)
-        mHideAnim.setDuration(300)
         mActivity = PlayerUtils.scanForActivity(context)
     }
 
@@ -170,16 +166,16 @@ open class MediaController @JvmOverloads constructor(
      */
     protected val isInPlaybackState: Boolean
         get() = mPlayer != null
-                && mPlayerState != UNSVideoView.STATE_ERROR
-                && mPlayerState != UNSVideoView.STATE_IDLE
-                && mPlayerState != UNSVideoView.STATE_PREPARING
-                && mPlayerState != UNSVideoView.STATE_PREPARED
-                && mPlayerState != UNSVideoView.STATE_PREPARED_BUT_ABORT
-                && mPlayerState != UNSVideoView.STATE_PLAYBACK_COMPLETED
+                && mPlayerState != UNSPlayer.STATE_ERROR
+                && mPlayerState != UNSPlayer.STATE_IDLE
+                && mPlayerState != UNSPlayer.STATE_PREPARING
+                && mPlayerState != UNSPlayer.STATE_PREPARED
+                && mPlayerState != UNSPlayer.STATE_PREPARED_BUT_ABORT
+                && mPlayerState != UNSPlayer.STATE_PLAYBACK_COMPLETED
 
-    protected val isInCompleteState: Boolean get() = mPlayerState == UNSVideoView.STATE_PLAYBACK_COMPLETED
+    protected val isInCompleteState: Boolean get() = mPlayerState == UNSPlayer.STATE_PLAYBACK_COMPLETED
 
-    protected val isInErrorState: Boolean get() = mPlayerState == UNSVideoView.STATE_ERROR
+    protected val isInErrorState: Boolean get() = mPlayerState == UNSPlayer.STATE_ERROR
 
     /**
      * 重要：此方法用于将[UNSVideoView] 和控制器绑定
@@ -278,7 +274,7 @@ open class MediaController @JvmOverloads constructor(
     /***********START 关键方法代码 */
     override fun isFullScreen(): Boolean {
         return invokeOnPlayerAttached {
-            it.isFullScreen
+            it.isFullScreen()
         }.orDefault()
     }
 
@@ -343,13 +339,13 @@ open class MediaController @JvmOverloads constructor(
      */
     @SuppressLint("SwitchIntDef")
     @CallSuper
-    fun setPlayerState(@PlayState playState: Int) {
+    fun setPlayerState(@UNSPlayer.PlayState playState: Int) {
         mPlayerState = playState
         for ((key) in mControlComponents) {
             key.onPlayStateChanged(playState)
         }
         when (playState) {
-            UNSVideoView.STATE_IDLE -> {
+            UNSPlayer.STATE_IDLE -> {
                 mOrientationSensorHelper.disable()
                 mLocked = false
                 mShowing = false
@@ -357,11 +353,11 @@ open class MediaController @JvmOverloads constructor(
                 //所以在播放器release的时候需要移除
                 removeAllDissociateComponents()
             }
-            UNSVideoView.STATE_PLAYBACK_COMPLETED -> {
+            UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 mLocked = false
                 mShowing = false
             }
-            UNSVideoView.STATE_ERROR -> mShowing = false
+            UNSPlayer.STATE_ERROR -> mShowing = false
         }
         onPlayerStateChanged(playState)
     }
@@ -653,7 +649,7 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 用于子类重写
      */
-    protected open fun onPlayerStateChanged(@PlayState playState: Int) {}
+    protected open fun onPlayerStateChanged(@UNSPlayer.PlayState playState: Int) {}
 
     /**
      * 用于子类重写
@@ -682,17 +678,6 @@ open class MediaController @JvmOverloads constructor(
 
     fun toggleLock() {
         isLocked = !isLocked
-    }
-
-    /**
-     * 设置播放控件旋转角度
-     *
-     * @param degree 角度 0-360
-     */
-    fun setRotation(@IntRange(from = 0, to = 360) degree: Int) {
-        invokeOnPlayerAttached {
-            it.setRotation(degree)
-        }
     }
 
     protected inline fun <R> invokeOnPlayerAttached(

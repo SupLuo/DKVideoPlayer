@@ -98,7 +98,7 @@ public class PIPListActivity extends BaseActivity implements OnItemChildClickLis
                 int position = holder.mPosition;
                 if (position == mPIPManager.getPlayingPosition()) {
                     startFloatWindow();
-                    mController.setPlayerState(UNSVideoView.STATE_IDLE);
+                    mController.setPlayerState(UNSPlayer.STATE_IDLE);
                 }
             }
         });

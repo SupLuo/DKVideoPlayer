@@ -44,9 +44,9 @@ public class DanmakuActivity extends BaseActivity<UNSVideoView> {
         mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
             @Override
             public void onPlayerStateChanged(int playState) {
-                if (playState == UNSVideoView.STATE_PREPARED) {
+                if (playState == UNSPlayer.STATE_PREPARED) {
                     simulateDanmu();
-                } else if (playState == UNSVideoView.STATE_PLAYBACK_COMPLETED) {
+                } else if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
                     mHandler.removeCallbacksAndMessages(null);
                 }
             }

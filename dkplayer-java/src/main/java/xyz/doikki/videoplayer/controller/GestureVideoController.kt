@@ -10,6 +10,7 @@ import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
 import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.INVALIDATE_SEEK_POSITION
+import droid.unicstar.videoplayer.controller.MediaController
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
 import droid.unicstar.videoplayer.getActivityContext
 import xyz.doikki.videoplayer.util.PlayerUtils

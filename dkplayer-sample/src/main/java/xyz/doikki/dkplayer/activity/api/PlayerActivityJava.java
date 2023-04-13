@@ -172,27 +172,27 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
         @Override
         public void onPlayerStateChanged(int playState) {
             switch (playState) {
-                case UNSVideoView.STATE_IDLE:
+                case UNSPlayer.STATE_IDLE:
                     break;
-                case UNSVideoView.STATE_PREPARING:
+                case UNSPlayer.STATE_PREPARING:
                     break;
-                case UNSVideoView.STATE_PREPARED:
+                case UNSPlayer.STATE_PREPARED:
                     break;
-                case UNSVideoView.STATE_PLAYING:
+                case UNSPlayer.STATE_PLAYING:
                     //需在此时获取视频宽高
                     int[] videoSize = mVideoView.getVideoSize();
                     L.d("视频宽：" + videoSize[0]);
                     L.d("视频高：" + videoSize[1]);
                     break;
-                case UNSVideoView.STATE_PAUSED:
+                case UNSPlayer.STATE_PAUSED:
                     break;
-                case UNSVideoView.STATE_BUFFERING:
+                case UNSPlayer.STATE_BUFFERING:
                     break;
-                case UNSVideoView.STATE_BUFFERED:
+                case UNSPlayer.STATE_BUFFERED:
                     break;
-                case UNSVideoView.STATE_PLAYBACK_COMPLETED:
+                case UNSPlayer.STATE_PLAYBACK_COMPLETED:
                     break;
-                case UNSVideoView.STATE_ERROR:
+                case UNSPlayer.STATE_ERROR:
                     break;
             }
         }
@@ -264,7 +264,7 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
         super.onPause();
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView.getCurrentState() == UNSVideoView.STATE_PREPARING) {
+        if (mVideoView.getCurrentState() == UNSPlayer.STATE_PREPARING) {
             mVideoView.release();
         }
     }

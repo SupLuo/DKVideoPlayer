@@ -128,7 +128,7 @@ open class VodControlView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            UNSVideoView.STATE_IDLE, UNSVideoView.STATE_PLAYBACK_COMPLETED -> {
+            UNSPlayer.STATE_IDLE, UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 visibility = GONE
                 mBottomProgress?.let {
                     it.progress = 0
@@ -139,9 +139,9 @@ open class VodControlView @JvmOverloads constructor(
                     it.secondaryProgress = 0
                 }
             }
-            UNSVideoView.STATE_PREPARED_BUT_ABORT, UNSVideoView.STATE_PREPARING,
-            UNSVideoView.STATE_PREPARED, UNSVideoView.STATE_ERROR -> visibility = GONE
-            UNSVideoView.STATE_PLAYING -> {
+            UNSPlayer.STATE_PREPARED_BUT_ABORT, UNSPlayer.STATE_PREPARING,
+            UNSPlayer.STATE_PREPARED, UNSPlayer.STATE_ERROR -> visibility = GONE
+            UNSPlayer.STATE_PLAYING -> {
                 mPlayButton?.isSelected = true
                 if (showBottomProgress) {
                     if (mController?.isShowing.orDefault()) {
@@ -158,13 +158,13 @@ open class VodControlView @JvmOverloads constructor(
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
-            UNSVideoView.STATE_PAUSED -> mPlayButton?.isSelected = false
-            UNSVideoView.STATE_BUFFERING -> {
+            UNSPlayer.STATE_PAUSED -> mPlayButton?.isSelected = false
+            UNSPlayer.STATE_BUFFERING -> {
                 mPlayButton?.isSelected = player?.isPlaying().orDefault()
                 // 停止刷新进度
                 mController?.stopUpdateProgress()
             }
-            UNSVideoView.STATE_BUFFERED -> {
+            UNSPlayer.STATE_BUFFERED -> {
                 mPlayButton?.isSelected = player?.isPlaying().orDefault()
                 //开始刷新进度
                 mController?.startUpdateProgress()

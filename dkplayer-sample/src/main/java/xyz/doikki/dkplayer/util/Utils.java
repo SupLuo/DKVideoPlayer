@@ -12,7 +12,7 @@ import android.widget.FrameLayout;
 import java.lang.reflect.Field;
 
 import droid.unicstar.videoplayer.UNSVideoView;
-import xyz.doikki.videoplayer.controller.MediaController;
+import droid.unicstar.videoplayer.controller.MediaController;
 
 public final class Utils {
 

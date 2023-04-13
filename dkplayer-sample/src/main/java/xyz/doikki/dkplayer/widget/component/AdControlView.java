@@ -61,11 +61,11 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSVideoView.STATE_PLAYING:
+            case UNSPlayer.STATE_PLAYING:
                 getMController().startUpdateProgress();
                 mPlayButton.setSelected(true);
                 break;
-            case UNSVideoView.STATE_PAUSED:
+            case UNSPlayer.STATE_PAUSED:
                 mPlayButton.setSelected(false);
                 break;
         }

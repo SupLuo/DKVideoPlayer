@@ -84,9 +84,9 @@ class TitleView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            UNSVideoView.STATE_IDLE, UNSVideoView.STATE_PREPARED_BUT_ABORT,
-            UNSVideoView.STATE_PREPARING, UNSVideoView.STATE_PREPARED,
-            UNSVideoView.STATE_ERROR, UNSVideoView.STATE_PLAYBACK_COMPLETED -> visibility = GONE
+            UNSPlayer.STATE_IDLE, UNSPlayer.STATE_PREPARED_BUT_ABORT,
+            UNSPlayer.STATE_PREPARING, UNSPlayer.STATE_PREPARED,
+            UNSPlayer.STATE_ERROR, UNSPlayer.STATE_PLAYBACK_COMPLETED -> visibility = GONE
         }
     }
 

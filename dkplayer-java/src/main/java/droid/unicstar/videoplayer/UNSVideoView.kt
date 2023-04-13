@@ -1,6 +1,5 @@
 package droid.unicstar.videoplayer
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.AssetFileDescriptor
@@ -10,18 +9,15 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import droid.unicstar.videoplayer.controller.UNSRenderControl
 import droid.unicstar.videoplayer.player.UNSPlayer
-import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_ERROR
-import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PAUSED
-import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PLAYBACK_COMPLETED
-import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PLAYING
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PREPARING
 import droid.unicstar.videoplayer.render.AspectRatioType
 import droid.unicstar.videoplayer.render.UNSRender
 import xyz.doikki.videoplayer.ProgressManager
-import xyz.doikki.videoplayer.controller.MediaController
+import droid.unicstar.videoplayer.controller.MediaController
+import droid.unicstar.videoplayer.controller.UNSContainerControl
 import xyz.doikki.videoplayer.controller.VideoViewControl
-import xyz.doikki.videoplayer.internal.AudioFocusHelper
-import xyz.doikki.videoplayer.internal.ScreenModeHandler
+import droid.unicstar.videoplayer.widget.AudioFocusHelper
+import droid.unicstar.videoplayer.widget.ScreenModeHandler
 
 /**
  * 播放器&播放视图  内部包含了对应的[UNSPlayer]和 [UNSRender]，因此由本类提供这两者的功能能力
@@ -75,13 +71,14 @@ import xyz.doikki.videoplayer.internal.ScreenModeHandler
  * @see UNSVideoView.stopVideoViewFullScreen
  * @see UNSVideoView.startTinyScreen
  * @see UNSVideoView.stopTinyScreen
-
  */
 open class UNSVideoView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    private val mDisplayContainer: UNSDisplayContainer
-) : FrameLayout(context, attrs), VideoViewControl, UNSRenderControl by mDisplayContainer{
+    private val mDisplayContainer: UNSDisplayContainer = UNSDisplayContainer(context)
+) : FrameLayout(context, attrs), VideoViewControl,
+    UNSRenderControl by mDisplayContainer,
+    UNSContainerControl by mDisplayContainer {
 
     /**
      * 屏幕状态发生变化容器
@@ -115,36 +112,11 @@ open class UNSVideoView @JvmOverloads constructor(
      */
     val renderName: String get() = mDisplayContainer.renderName
 
-    protected val videoController: MediaController? get() = mDisplayContainer.videoController
-
     private val mStateChangeListener = UNSPlayer.OnPlayStateChangeListener { playState ->
         when (playState) {
-            STATE_PLAYING -> {
-                if (!this@UNSVideoView.keepScreenOn)
-                    this@UNSVideoView.keepScreenOn = true
-            }
-            STATE_PAUSED, STATE_PLAYBACK_COMPLETED, STATE_ERROR -> {
-                if (this@UNSVideoView.keepScreenOn)
-                    this@UNSVideoView.keepScreenOn = false
-            }
             STATE_PREPARING -> {
                 attachMediaController()
             }
-        }
-        videoController?.setPlayerState(playState)
-    }
-
-    private val mEventListener = object : UNSPlayer.EventListener {
-        override fun onInfo(what: Int, extra: Int) {
-            super.onInfo(what, extra)
-            when (what) {
-                UNSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED ->
-                    mDisplayContainer.setVideoRotation(extra)
-            }
-        }
-
-        override fun onVideoSizeChanged(width: Int, height: Int) {
-            mDisplayContainer.setVideoSize(width, height)
         }
     }
 
@@ -181,9 +153,7 @@ open class UNSVideoView @JvmOverloads constructor(
     }
 
     private fun attachMediaController() {
-        player?.let {
-            mDisplayContainer.attachPlayer(it)
-        }
+        mDisplayContainer.bindPlayer(mPlayer)
     }
 
     /**
@@ -317,87 +287,86 @@ open class UNSVideoView @JvmOverloads constructor(
         return mPlayer.getTcpSpeed()
     }
 
-
-    /*************START WindowModeControl  */
-    /**
-     * 判断是否处于全屏状态（视图处于全屏）
-     */
-    fun isFullScreen(): Boolean {
-        return mDisplayContainer.isFullScreen()
-    }
-
-    /**
-     * 当前是否处于小屏状态（视图处于小屏）
-     */
-    fun isTinyScreen(): Boolean {
-        return mDisplayContainer.isTinyScreen()
-    }
-
-    /**
-     * 横竖屏切换
-     * @return
-     * @note 由于设计上支持界面间共享播放器，因此需要明确指定[Activity]对象
-     */
-    fun toggleFullScreen(activity: Activity = mActivity): Boolean {
-        return mDisplayContainer.toggleFullScreen(activity, this)
-    }
-
-    /**
-     * 开始全屏
-     */
-    @JvmOverloads
-    fun startFullScreen(
-        activity: Activity = mActivity,
-        isLandscapeReversed: Boolean = false
-    ): Boolean {
-        return mDisplayContainer.startFullScreen(activity, isLandscapeReversed)
-    }
-
-    /**
-     * 整个播放视图（Render、Controller）全屏
-     * @param activity 在指定界面全屏
-     */
-    @JvmOverloads
-    fun startVideoViewFullScreen(
-        activity: Activity = mActivity,
-        tryHideSystemBar: Boolean = true
-    ): Boolean {
-        return mDisplayContainer.startVideoViewFullScreen(activity, tryHideSystemBar)
-    }
-
-    /**
-     * 停止全屏
-     */
-    @SuppressLint("SourceLockedOrientationActivity")
-    @JvmOverloads
-    fun stopFullScreen(activity: Activity? = mPreferredActivity): Boolean {
-        return mDisplayContainer.stopFullScreen(this, activity)
-    }
-
-    /**
-     * 整个播放视图（Render、Controller）退出全屏
-     */
-    @JvmOverloads
-    fun stopVideoViewFullScreen(tryShowSystemBar: Boolean = true): Boolean {
-        return mDisplayContainer.stopVideoViewFullScreen(this, tryShowSystemBar)
-    }
-
-    /**
-     * 开启小屏
-     */
-    @JvmOverloads
-    fun startTinyScreen(activity: Activity = mActivity) {
-        mDisplayContainer.startTinyScreen(activity)
-    }
-
-    /**
-     * 退出小屏
-     */
-    fun stopTinyScreen() {
-        mDisplayContainer.stopTinyScreen(this)
-    }
-
-    /*************END WindowModeControl  */
+//    /*************START WindowModeControl  */
+//    /**
+//     * 判断是否处于全屏状态（视图处于全屏）
+//     */
+//    fun isFullScreen(): Boolean {
+//        return mDisplayContainer.isFullScreen()
+//    }
+//
+//    /**
+//     * 当前是否处于小屏状态（视图处于小屏）
+//     */
+//    fun isTinyScreen(): Boolean {
+//        return mDisplayContainer.isTinyScreen()
+//    }
+//
+//    /**
+//     * 横竖屏切换
+//     * @return
+//     * @note 由于设计上支持界面间共享播放器，因此需要明确指定[Activity]对象
+//     */
+//    fun toggleFullScreen(activity: Activity = mActivity): Boolean {
+//        return mDisplayContainer.toggleFullScreen(activity, this)
+//    }
+//
+//    /**
+//     * 开始全屏
+//     */
+//    @JvmOverloads
+//    fun startFullScreen(
+//        activity: Activity = mActivity,
+//        isLandscapeReversed: Boolean = false
+//    ): Boolean {
+//        return mDisplayContainer.startFullScreen(activity, isLandscapeReversed)
+//    }
+//
+//    /**
+//     * 整个播放视图（Render、Controller）全屏
+//     * @param activity 在指定界面全屏
+//     */
+//    @JvmOverloads
+//    fun startVideoViewFullScreen(
+//        activity: Activity = mActivity,
+//        tryHideSystemBar: Boolean = true
+//    ): Boolean {
+//        return mDisplayContainer.startVideoViewFullScreen(activity, tryHideSystemBar)
+//    }
+//
+//    /**
+//     * 停止全屏
+//     */
+//    @SuppressLint("SourceLockedOrientationActivity")
+//    @JvmOverloads
+//    fun stopFullScreen(activity: Activity? = mPreferredActivity): Boolean {
+//        return mDisplayContainer.stopFullScreen(this, activity)
+//    }
+//
+//    /**
+//     * 整个播放视图（Render、Controller）退出全屏
+//     */
+//    @JvmOverloads
+//    fun stopVideoViewFullScreen(tryShowSystemBar: Boolean = true): Boolean {
+//        return mDisplayContainer.stopVideoViewFullScreen(this, tryShowSystemBar)
+//    }
+//
+//    /**
+//     * 开启小屏
+//     */
+//    @JvmOverloads
+//    fun startTinyScreen(activity: Activity = mActivity) {
+//        mDisplayContainer.startTinyScreen(activity)
+//    }
+//
+//    /**
+//     * 退出小屏
+//     */
+//    fun stopTinyScreen() {
+//        mDisplayContainer.stopTinyScreen(this)
+//    }
+//
+//    /*************END WindowModeControl  */
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
@@ -453,19 +422,25 @@ open class UNSVideoView @JvmOverloads constructor(
 
 
     init {
-
-
-
         //准备播放器容器
-        mDisplayContainer = UNSDisplayContainer(context).also {
-            it.setBackgroundColor(playerBackgroundColor)
+        if(mDisplayContainer.parent != this){
+            mDisplayContainer.removeFromParent()
+            val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            this.addView(mDisplayContainer, params)
+            attrs?.let {
+                mDisplayContainer.applyAttributes(context,attrs)
+            }
         }
-        val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        this.addView(mDisplayContainer, params)
 
+        //绑定所属容器
+        mDisplayContainer.bindContainer(this)
+        //绑定界面
+        val activity = context.getActivityContext()
+        if(activity != null){
+            mDisplayContainer.bindActivity(activity)
+        }
 
         mPlayer = UNSPlayerProxy(this.context)
-        mPlayer.addEventListener(mEventListener)
         mPlayer.addOnPlayStateChangeListener(mStateChangeListener)
     }
 }

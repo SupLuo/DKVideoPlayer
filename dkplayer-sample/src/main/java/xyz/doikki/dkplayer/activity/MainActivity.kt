@@ -23,7 +23,7 @@ import droid.unicstar.videoplayer.player.UNSPlayerFactory
 import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.exo.ExoMediaPlayerFactory
 import xyz.doikki.videoplayer.ijk.IjkPlayerFactory
-import droid.unicstar.videoplayer.player.sys.SysDKPlayerFactory
+import droid.unicstar.videoplayer.player.sys.SysUNSPlayerFactory
 import java.io.*
 
 class MainActivity : BaseActivity<UNSVideoView>(), NavigationBarView.OnItemSelectedListener {
@@ -51,7 +51,7 @@ class MainActivity : BaseActivity<UNSVideoView>(), NavigationBarView.OnItemSelec
             is IjkPlayerFactory -> {
                 setTitle(resources.getString(R.string.app_name) + " (IjkPlayer)")
             }
-            is SysDKPlayerFactory -> {
+            is SysUNSPlayerFactory -> {
                 setTitle(resources.getString(R.string.app_name) + " (MediaPlayer)")
             }
             else -> {

@@ -42,16 +42,16 @@ class PrepareView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            UNSVideoView.STATE_PREPARING -> {
+            UNSPlayer.STATE_PREPARING -> {
                 bringToFront()
                 visibility = VISIBLE
                 mStartPlay.visibility = GONE
                 mNetWarning.visibility = GONE
                 mLoading.visibility = VISIBLE
             }
-            UNSVideoView.STATE_PLAYING, UNSVideoView.STATE_PAUSED, UNSVideoView.STATE_ERROR, UNSVideoView.STATE_BUFFERING, UNSVideoView.STATE_BUFFERED, UNSVideoView.STATE_PLAYBACK_COMPLETED ->
+            UNSPlayer.STATE_PLAYING, UNSPlayer.STATE_PAUSED, UNSPlayer.STATE_ERROR, UNSPlayer.STATE_BUFFERING, UNSPlayer.STATE_BUFFERED, UNSPlayer.STATE_PLAYBACK_COMPLETED ->
                 visibility = GONE
-            UNSVideoView.STATE_IDLE -> {
+            UNSPlayer.STATE_IDLE -> {
                 visibility = VISIBLE
                 bringToFront()
                 mLoading.visibility = GONE
@@ -59,7 +59,7 @@ class PrepareView @JvmOverloads constructor(
                 mStartPlay.visibility = VISIBLE
                 mThumb.visibility = VISIBLE
             }
-            UNSVideoView.STATE_PREPARED_BUT_ABORT -> {
+            UNSPlayer.STATE_PREPARED_BUT_ABORT -> {
                 visibility = VISIBLE
                 mNetWarning.visibility = VISIBLE
                 mNetWarning.bringToFront()

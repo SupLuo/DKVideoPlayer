@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.internal
+package droid.unicstar.videoplayer.widget
 
 import android.app.Activity
 import android.os.Build
@@ -87,7 +87,7 @@ class ScreenModeHandler {
      * 退出全屏播放（不会修改系统状态栏的状态）
      * @note 适合TV（盒子）开发调用
      */
-    fun stopFullScreen( container: ViewGroup, view: View): Boolean {
+    fun stopFullScreen(container: ViewGroup, view: View): Boolean {
         view.removeFromParent()
         container.addView(view)
         return true

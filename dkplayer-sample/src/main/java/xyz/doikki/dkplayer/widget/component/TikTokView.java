@@ -82,24 +82,24 @@ public class TikTokView extends BaseControlComponent {
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSVideoView.STATE_IDLE:
+            case UNSPlayer.STATE_IDLE:
                 L.e("STATE_IDLE " + hashCode());
                 thumb.setVisibility(VISIBLE);
                 break;
-            case UNSVideoView.STATE_PLAYING:
+            case UNSPlayer.STATE_PLAYING:
                 L.e("STATE_PLAYING " + hashCode());
                 thumb.setVisibility(GONE);
                 mPlayBtn.setVisibility(GONE);
                 break;
-            case UNSVideoView.STATE_PAUSED:
+            case UNSPlayer.STATE_PAUSED:
                 L.e("STATE_PAUSED " + hashCode());
                 thumb.setVisibility(GONE);
                 mPlayBtn.setVisibility(VISIBLE);
                 break;
-            case UNSVideoView.STATE_PREPARED:
+            case UNSPlayer.STATE_PREPARED:
                 L.e("STATE_PREPARED " + hashCode());
                 break;
-            case UNSVideoView.STATE_ERROR:
+            case UNSPlayer.STATE_ERROR:
                 L.e("STATE_ERROR " + hashCode());
                 Toast.makeText(getContext(), R.string.dkplayer_error_message, Toast.LENGTH_SHORT).show();
                 break;

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
+import droid.unicstar.videoplayer.player.UNSPlayer
 import xyz.doikki.videoplayer.DKManager.isDebuggable
 import xyz.doikki.videoplayer.util.L
 
@@ -20,10 +21,10 @@ internal const val TAG = "UCSPlayer"
 var isDebug = isDebuggable
 
 internal inline fun logd(msg: String) {
-   logd(TAG,msg)
+    logd(TAG, msg)
 }
 
-internal inline fun logd(tag: String , msg: String) {
+internal inline fun logd(tag: String, msg: String) {
     if (isDebug) {
         Log.d(tag, msg)
     }
@@ -43,8 +44,11 @@ inline fun logi(tag: String = TAG, msg: String) {
     }
 }
 
-@JvmOverloads
-inline fun logw(tag: String = TAG, msg: String) {
+inline fun logw(msg: String) {
+    logw(TAG, msg)
+}
+
+inline fun logw(tag: String, msg: String) {
     if (isDebug) {
         Log.w(tag, msg)
     }
@@ -140,6 +144,8 @@ internal fun Context.getActivityContext(): Activity? {
 
 internal inline val Context.layoutInflater: LayoutInflater get() = LayoutInflater.from(this)
 internal inline val View.layoutInflater: LayoutInflater get() = context.layoutInflater
+
+@PublishedApi
 internal inline fun Context.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, length).show()
 }
@@ -148,6 +154,7 @@ internal inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast
     Toast.makeText(this, messageId, length).show()
 }
 
+@PublishedApi
 internal inline fun View.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
     context.toast(message, length)
 }
@@ -195,15 +202,15 @@ internal fun screenMode2str(@UNSVideoView.ScreenMode mode: Int): String? {
  */
 internal fun playState2str(state: Int): String? {
     val playStateString: String = when (state) {
-        UNSVideoView.STATE_IDLE -> "idle"
-        UNSVideoView.STATE_PREPARING -> "preparing"
-        UNSVideoView.STATE_PREPARED -> "prepared"
-        UNSVideoView.STATE_PLAYING -> "playing"
-        UNSVideoView.STATE_PAUSED -> "pause"
-        UNSVideoView.STATE_BUFFERING -> "buffering"
-        UNSVideoView.STATE_BUFFERED -> "buffered"
-        UNSVideoView.STATE_PLAYBACK_COMPLETED -> "playback completed"
-        UNSVideoView.STATE_ERROR -> "error"
+        UNSPlayer.STATE_IDLE -> "idle"
+        UNSPlayer.STATE_PREPARING -> "preparing"
+        UNSPlayer.STATE_PREPARED -> "prepared"
+        UNSPlayer.STATE_PLAYING -> "playing"
+        UNSPlayer.STATE_PAUSED -> "pause"
+        UNSPlayer.STATE_BUFFERING -> "buffering"
+        UNSPlayer.STATE_BUFFERED -> "buffered"
+        UNSPlayer.STATE_PLAYBACK_COMPLETED -> "playback completed"
+        UNSPlayer.STATE_ERROR -> "error"
         else -> "idle"
     }
     return String.format("playState: %s", playStateString)

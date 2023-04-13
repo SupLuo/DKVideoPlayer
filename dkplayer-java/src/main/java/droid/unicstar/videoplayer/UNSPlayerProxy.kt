@@ -22,7 +22,7 @@ import droid.unicstar.videoplayer.player.UNSPlayer.OnPlayStateChangeListener
 import droid.unicstar.videoplayer.player.UNSPlayerFactory
 import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.ProgressManager
-import xyz.doikki.videoplayer.internal.AudioFocusHelper
+import droid.unicstar.videoplayer.widget.AudioFocusHelper
 import xyz.doikki.videoplayer.util.L
 import xyz.doikki.videoplayer.util.PlayerUtils
 import java.util.concurrent.CopyOnWriteArrayList
@@ -118,7 +118,9 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
 
     private var mCustomEventListener: EventListener? = null
 
-    private val mEventListener = object : EventListener {
+    private val mEventListeners: CopyOnWriteArrayList<EventListener> = CopyOnWriteArrayList()
+
+    private val mPlayerEventListener = object : EventListener {
 
         //视频缓冲完毕，准备开始播放时回调
         override fun onPrepared() {
@@ -131,6 +133,9 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
                 start()
             }
             mCustomEventListener?.onPrepared()
+            mEventListeners.forEach {
+                it.onPrepared()
+            }
         }
 
         override fun onInfo(what: Int, extra: Int) {
@@ -143,11 +148,17 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
                 }
             }
             mCustomEventListener?.onInfo(what, extra)
+            mEventListeners.forEach {
+                it.onInfo(what, extra)
+            }
         }
 
         override fun onVideoSizeChanged(width: Int, height: Int) {
             super.onVideoSizeChanged(width, height)
             mCustomEventListener?.onVideoSizeChanged(width, height)
+            mEventListeners.forEach {
+                it.onVideoSizeChanged(width, height)
+            }
         }
 
         override fun onCompletion() {
@@ -158,6 +169,10 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
             savePlayedProgress(mUrl?.toString(), 0)
             currentState = STATE_PLAYBACK_COMPLETED
             mTargetState = STATE_PLAYBACK_COMPLETED
+            mCustomEventListener?.onCompletion()
+            mEventListeners.forEach {
+                it.onCompletion()
+            }
         }
 
         override fun onError(e: Throwable) {
@@ -165,6 +180,9 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
             currentState = STATE_ERROR
             mTargetState = STATE_ERROR
             mCustomEventListener?.onError(e)
+            mEventListeners.forEach {
+                it.onError(e)
+            }
         }
     }
 
@@ -264,15 +282,23 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
      * 准备播放器内核
      */
     protected open fun preparePlayer(): UNSPlayer {
+        releaseCurrentPlayerKernel()
         //目前每次都重新创建一个播放器
-        mPlayer?.release()
         return createPlayer().also {
-            it.addEventListener(mEventListener)
+            it.setEventListener(mPlayerEventListener)
             it.onInit()
             it.setLooping(mLooping)
             it.setVolume(mLeftVolume, mRightVolume)
             mPlayer = it
         }
+    }
+
+    private fun releaseCurrentPlayerKernel() {
+        mPlayer?.let {
+            it.setEventListener(null)
+            it.release()
+        }
+        mPlayer = null
     }
 
     /**
@@ -443,10 +469,11 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
         mPlayer?.reset()
         preparePlayer()
-        //重新设置option，media player reset之后，option会失效
-        preparePlayerOptions()
-        attachMediaController()
-        prepareKernelDataSource()
+        //todo
+//        //重新设置option，media player reset之后，option会失效
+//        preparePlayerOptions()
+//        attachMediaController()
+//        prepareKernelDataSource()
         start()
     }
 
@@ -509,7 +536,15 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         mPlayer?.setDisplay(holder)
     }
 
-    override fun addEventListener(eventListener: EventListener?) {
+    fun addEventListener(eventListener: EventListener){
+        this.mEventListeners.add(eventListener)
+    }
+
+    fun removeEventListener(eventListener: EventListener){
+        this.mEventListeners.remove(eventListener)
+    }
+
+    override fun setEventListener(eventListener: EventListener?) {
         this.mCustomEventListener = eventListener
     }
 

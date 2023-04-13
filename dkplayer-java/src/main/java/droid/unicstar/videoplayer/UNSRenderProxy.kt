@@ -108,11 +108,14 @@ class UNSRenderProxy() : UNSRender, UNSRenderControl {
     }
 
     private fun attachRender(player: UNSPlayer) {
+        logd("[RenderProxy]:attachRender")
         val render = mRender ?: createRender()
+        logd("[RenderProxy]:attachRender render=$render")
         render.bindPlayer(player)
     }
 
     private fun createRender(): UNSRender {
+
         return mRenderFactory.create(mContext).also { render ->
             val params = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -132,6 +135,7 @@ class UNSRenderProxy() : UNSRender, UNSRenderControl {
                 mContainer.addView(render.view, 0, params)
             }
             mRender = render
+            logd("[RenderProxy]:createRender render=$render")
         }
     }
 
@@ -168,7 +172,9 @@ class UNSRenderProxy() : UNSRender, UNSRenderControl {
         get() = mRender?.view
 
     override fun bindPlayer(player: UNSPlayer?) {
+        logd("[RenderProxy]:bindPlayer")
         if (!mRenderReusable) {//不重用render，则立即释放当前的render
+            logd("[RenderProxy]:releaseCurrentRender renderReusable=$mRenderReusable")
             releaseCurrentRender()
         }
         mAttachedPlayer = player
