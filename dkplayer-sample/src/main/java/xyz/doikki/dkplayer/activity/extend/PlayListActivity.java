@@ -1,5 +1,6 @@
 package xyz.doikki.dkplayer.activity.extend;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.bean.VideoBean;
@@ -52,11 +53,12 @@ public class PlayListActivity extends BaseActivity {
         mTitleView.setTitle(videoBean.getTitle());
         mVideoView.setVideoController(mController);
 
+
         //监听播放结束
-        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
             private int mCurrentVideoPosition;
             @Override
-            public void onPlayerStateChanged(int playState) {
+            public void onPlayStateChanged(int playState) {
                 if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
                     if (data != null) {
                         mCurrentVideoPosition++;

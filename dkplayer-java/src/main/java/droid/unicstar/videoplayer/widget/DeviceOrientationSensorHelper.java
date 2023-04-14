@@ -107,7 +107,7 @@ public class DeviceOrientationSensorHelper extends OrientationEventListener {
     @Override
     public void disable() {
         super.disable();
-        //重置本地变量
+        //todo 为什么要重置本地变量？
         mOrientation = DEVICE_DIRECTION_PORTRAIT;
     }
 

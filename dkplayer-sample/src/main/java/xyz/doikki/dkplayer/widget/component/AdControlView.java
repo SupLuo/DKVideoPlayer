@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.videocontroller.component.BaseControlComponent;
 import droid.unicstar.videoplayer.UNSVideoView;

@@ -12,7 +12,7 @@ import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.render.UNSRender.Companion.createShotBitmap
 import droid.unicstar.videoplayer.render.UNSRender.ScreenShotCallback
 import droid.unicstar.videoplayer.render.UNSRender.SurfaceListener
-import droid.unicstar.videoplayer.render.internal.RenderViewProxy
+import droid.unicstar.videoplayer.render.internal.RenderHelper
 import java.lang.ref.WeakReference
 
 /**
@@ -26,7 +26,7 @@ class TextureViewRender @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : TextureView(context, attrs), UNSRender {
 
-    private val mProxy: RenderViewProxy = RenderViewProxy.new(this)
+    private val mHelper: RenderHelper = RenderHelper.create(this)
     private var mPlayerRef: WeakReference<UNSPlayer>? = null
     private var mSurfaceTexture: SurfaceTexture? = null
     private var mSurface: Surface? = null
@@ -128,7 +128,7 @@ class TextureViewRender @JvmOverloads constructor(
     }
 
     override fun setVideoSize(videoWidth: Int, videoHeight: Int) {
-        mProxy.setVideoSize(videoWidth, videoHeight)
+        mHelper.setVideoSize(videoWidth, videoHeight)
     }
 
     /*************START Render 实现逻辑 */
@@ -152,15 +152,15 @@ class TextureViewRender @JvmOverloads constructor(
     }
 
     override fun setAspectRatioType(aspectRatioType: Int) {
-        mProxy.setAspectRatioType(aspectRatioType)
+        mHelper.setAspectRatioType(aspectRatioType)
     }
 
     override fun setVideoRotation(degree: Int) {
-        mProxy.setVideoRotation(degree)
+        mHelper.setVideoRotation(degree)
     }
 
     override fun setMirrorRotation(enable: Boolean) {
-        mProxy.setMirrorRotation(enable)
+        mHelper.setMirrorRotation(enable)
     }
 
     override fun release() {
@@ -172,8 +172,8 @@ class TextureViewRender @JvmOverloads constructor(
     /*************END Render 实现逻辑 */
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        mProxy.doMeasure(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(mProxy.measuredWidth, mProxy.measuredHeight)
+        mHelper.doMeasure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(mHelper.measuredWidth, mHelper.measuredHeight)
     }
 
     init {

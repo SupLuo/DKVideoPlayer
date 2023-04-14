@@ -6,6 +6,7 @@ import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
+import droid.unicstar.videoplayer.controller.UNSPlayerControl
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_BUFFERED
 import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_BUFFERING
@@ -20,17 +21,18 @@ import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PREPARING
 import droid.unicstar.videoplayer.player.UNSPlayer.EventListener
 import droid.unicstar.videoplayer.player.UNSPlayer.OnPlayStateChangeListener
 import droid.unicstar.videoplayer.player.UNSPlayerFactory
+import droid.unicstar.videoplayer.widget.AudioFocusHelper
 import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.ProgressManager
-import droid.unicstar.videoplayer.widget.AudioFocusHelper
 import xyz.doikki.videoplayer.util.L
 import xyz.doikki.videoplayer.util.PlayerUtils
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 播放器代理：只管播放器播放相关
+ * 在播放器基础控制功能的情况下，提供播放器切内核切换、工厂切换、音频焦点处理、进度缓存处理、播放状态回调等相关功能
  */
-open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
+open class UNSPlayerProxy(private val context: Context) : UNSPlayer, UNSPlayerControl {
 
     //播放器内核 即代理的主要对象
     protected var mPlayer: UNSPlayer? = null
@@ -95,9 +97,10 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
      * of STATE_PAUSED.
      */
     @UNSPlayer.PlayState
-    var currentState: Int = STATE_IDLE
+    override var currentState: Int = STATE_IDLE
         protected set(@UNSPlayer.PlayState state) {
             if (field != state) {
+                sLogd("the play state changed. old=$field new=$state")
                 field = state
                 //通知播放器状态发生变化
                 mStateChangedListeners.forEach {
@@ -105,6 +108,8 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
                 }
             }
         }
+
+    val kernel: UNSPlayer? get() = mPlayer
 
     /**
      * 获取播放器名字
@@ -125,11 +130,14 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         //视频缓冲完毕，准备开始播放时回调
         override fun onPrepared() {
             super.onPrepared()
+            sLogd("onPrepared")
             currentState = STATE_PREPARED
             if (mSeekWhenPrepared > 0) {
+                sLogd("onPrepared-seekTo $mSeekWhenPrepared")
                 seekTo(mSeekWhenPrepared)
             }
             if (mTargetState == STATE_PLAYING) {
+                sLogd("onPrepared-start")
                 start()
             }
             mCustomEventListener?.onPrepared()
@@ -139,6 +147,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
 
         override fun onInfo(what: Int, extra: Int) {
+            sLogd("onInfo(what=$what,extra=$extra)")
             super.onInfo(what, extra)
             when (what) {
                 UNSPlayer.MEDIA_INFO_BUFFERING_START -> currentState = STATE_BUFFERING
@@ -154,6 +163,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
 
         override fun onVideoSizeChanged(width: Int, height: Int) {
+            sLogd("onVideoSizeChanged(width=$width,height=$height)")
             super.onVideoSizeChanged(width, height)
             mCustomEventListener?.onVideoSizeChanged(width, height)
             mEventListeners.forEach {
@@ -162,10 +172,12 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
 
         override fun onCompletion() {
+            sLogd("onCompletion")
             super.onCompletion()
             mSeekWhenPrepared = 0
             mCurrentPosition = 0
             //播放完成，清除进度
+            sLogd("clear saved progress. url=$mUrl")
             savePlayedProgress(mUrl?.toString(), 0)
             currentState = STATE_PLAYBACK_COMPLETED
             mTargetState = STATE_PLAYBACK_COMPLETED
@@ -176,6 +188,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
 
         override fun onError(e: Throwable) {
+            sLogd("onError")
             super.onError(e)
             currentState = STATE_ERROR
             mTargetState = STATE_ERROR
@@ -189,22 +202,18 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
     /**
      * 自定义播放核心，继承[UNSPlayerFactory]实现自己的播放核心
      */
-    fun setPlayerFactory(playerFactory: UNSPlayerFactory<out UNSPlayer>) {
+    override fun setPlayerFactory(playerFactory: UNSPlayerFactory<out UNSPlayer>) {
         mPlayerFactory = playerFactory
     }
 
     /**
      * 设置进度管理器，用于保存播放进度
      */
-    fun setProgressManager(progressManager: ProgressManager?) {
+    override fun setProgressManager(progressManager: ProgressManager?) {
         this.mProgressManager = progressManager
     }
 
-    /**
-     * 是否开启AudioFocus监听，默认开启，用于监听其它地方是否获取音频焦点，如果有其它地方获取了
-     * 音频焦点，此播放器将做出相应反应，具体实现见[AudioFocusHelper]
-     */
-    fun setEnableAudioFocus(enableAudioFocus: Boolean) {
+    override fun setEnableAudioFocus(enableAudioFocus: Boolean) {
         mAudioFocusHelper.isEnable = enableAudioFocus
     }
 
@@ -222,22 +231,15 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
     /**
      * 添加一个播放状态监听器，播放状态发生变化时将会调用。
      */
-    fun addOnPlayStateChangeListener(listener: OnPlayStateChangeListener) {
+    override fun addOnPlayStateChangeListener(listener: OnPlayStateChangeListener) {
         mStateChangedListeners.add(listener)
     }
 
     /**
      * 移除某个播放状态监听
      */
-    fun removeOnPlayStateChangeListener(listener: OnPlayStateChangeListener) {
+    override fun removeOnPlayStateChangeListener(listener: OnPlayStateChangeListener) {
         mStateChangedListeners.remove(listener)
-    }
-
-    /**
-     * 移除所有播放状态监听
-     */
-    fun clearPlayStateChangeListeners() {
-        mStateChangedListeners.clear()
     }
 
     override fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>?) {
@@ -345,6 +347,15 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
     }
 
+    override fun resume() {
+        mPlayer?.let { player ->
+            if (isInPlaybackState() && !player.isPlaying()) {
+                startInPlaybackState()
+            }
+        }
+        mTargetState = STATE_PLAYING
+    }
+
     /**
      * 播放状态下开始播放
      */
@@ -379,12 +390,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         mPlayer?.setLooping(isLooping)
     }
 
-    /**
-     * 设置静音
-     *
-     * @param isMute true:静音 false：相反
-     */
-    fun setMute(isMute: Boolean) {
+    override fun setMute(isMute: Boolean) {
         mMute = isMute
         mAudioFocusHelper.isPlayerMute = isMute
         mPlayer?.let { player ->
@@ -394,10 +400,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         }
     }
 
-    /**
-     * 是否处于静音中
-     */
-    fun isMute(): Boolean {
+    override fun isMute(): Boolean {
         return mMute
     }
 
@@ -445,30 +448,12 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         mTargetState = STATE_PAUSED
     }
 
-    fun resume() {
-        mPlayer?.let { player ->
-            if (isInPlaybackState() && !player.isPlaying()) {
-                player.start()
-                currentState = STATE_PLAYING
-                if (!mMute) {
-                    mAudioFocusHelper.requestFocus()
-                }
-            }
-        }
-        mTargetState = STATE_PLAYING
-    }
-
-    /**
-     * 重新播放
-     * @param resetPosition 是否从头开始播放，true：从头开始播放，false继续之前位置开始播放
-     */
-    fun replay(resetPosition: Boolean) {
+    override fun replay(resetPosition: Boolean) {
         //用于恢复之前播放的位置
         if (!resetPosition && mCurrentPosition > 0) {
             mSeekWhenPrepared = mCurrentPosition
         }
-        mPlayer?.reset()
-        preparePlayer()
+        openVideo()
         //todo
 //        //重新设置option，media player reset之后，option会失效
 //        preparePlayerOptions()
@@ -506,6 +491,9 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
             //切换转态
             currentState = STATE_IDLE
             mTargetState = STATE_IDLE
+
+            //todo 清除所有的回调监听？
+            mStateChangedListeners.clear()
         }
     }
 
@@ -536,11 +524,11 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
         mPlayer?.setDisplay(holder)
     }
 
-    fun addEventListener(eventListener: EventListener){
+    fun addEventListener(eventListener: EventListener) {
         this.mEventListeners.add(eventListener)
     }
 
-    fun removeEventListener(eventListener: EventListener){
+    fun removeEventListener(eventListener: EventListener) {
         this.mEventListeners.remove(eventListener)
     }
 
@@ -601,4 +589,7 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer {
             return false
         }
 
+    private fun sLogd(message: String) {
+        logd("[UNSPlayerProxy]:$message")
+    }
 }

@@ -1,4 +1,4 @@
-package xyz.doikki.dkplayer.ui.control
+package droid.unicstar.videoplayer.ui
 
 import android.content.Context
 import android.graphics.Color
@@ -8,9 +8,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.controller.MediaController
-import xyz.doikki.videoplayer.controller.VideoViewControl
+import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import droid.unicstar.videoplayer.setTextOrGone
 
@@ -23,7 +23,7 @@ class TVBufferingView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr), ControlComponent {
 
     protected var mController: MediaController? = null
-    protected val player: VideoViewControl? get() = mController?.playerControl
+    protected val player: UNSVideoViewControl? get() = mController?.playerControl
     private val titleView: TextView
     private val hintView: TextView
     private val loadingView: ProgressBar

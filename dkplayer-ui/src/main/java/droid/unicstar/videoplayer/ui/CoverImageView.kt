@@ -1,12 +1,12 @@
-package xyz.doikki.dkplayer.ui.control
+package droid.unicstar.videoplayer.ui
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
-import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.controller.MediaController
-import xyz.doikki.videoplayer.controller.VideoViewControl
+import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 
 /**
@@ -18,7 +18,7 @@ class CoverImageView @JvmOverloads constructor(
 
     protected var mController: MediaController? = null
 
-    protected val player: VideoViewControl? get() = mController?.playerControl
+    protected val player: UNSVideoViewControl? get() = mController?.playerControl
 
     override fun attachController(controller: MediaController) {
         this.mController = controller

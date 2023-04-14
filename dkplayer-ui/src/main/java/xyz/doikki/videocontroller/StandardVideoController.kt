@@ -13,6 +13,7 @@ import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videocontroller.component.*
 import xyz.doikki.videoplayer.DKManager
 import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.videoplayer.player.UNSPlayer
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.GestureVideoController
 import xyz.doikki.videoplayer.util.PlayerUtils
@@ -91,7 +92,7 @@ open class StandardVideoController @JvmOverloads constructor(
         if (!enableLock)
             return
         invokeOnPlayerAttached { player ->
-            if (player.isFullScreen) {
+            if (player.isFullScreen()) {
                 if (isVisible) {
                     if (lockButton.visibility == GONE) {
                         lockButton.visibility = VISIBLE
@@ -128,27 +129,29 @@ open class StandardVideoController @JvmOverloads constructor(
             }
         }
 
-        val activity = mActivity ?: return
-
-        if (hasCutout()) {
-            val orientation = activity.requestedOrientation
-            val dp24 = PlayerUtils.dp2px(context, 24f)
-            val cutoutHeight = cutoutHeight
-            when (orientation) {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                    val lblp = lockButton.layoutParams as LayoutParams
-                    lblp.setMargins(dp24, 0, dp24, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
-                    val layoutParams = lockButton.layoutParams as LayoutParams
-                    layoutParams.setMargins(dp24 + cutoutHeight, 0, dp24 + cutoutHeight, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
-                    val layoutParams = lockButton.layoutParams as LayoutParams
-                    layoutParams.setMargins(dp24, 0, dp24, 0)
+        invokeOnPlayerAttached {
+            val activity = mActivity ?: return
+            if (it.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                val dp24 = PlayerUtils.dp2px(context, 24f)
+                val cutoutHeight = it.getCutoutHeight()
+                when (orientation) {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                        val lblp = lockButton.layoutParams as LayoutParams
+                        lblp.setMargins(dp24, 0, dp24, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                        val layoutParams = lockButton.layoutParams as LayoutParams
+                        layoutParams.setMargins(dp24 + cutoutHeight, 0, dp24 + cutoutHeight, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
+                        val layoutParams = lockButton.layoutParams as LayoutParams
+                        layoutParams.setMargins(dp24, 0, dp24, 0)
+                    }
                 }
             }
         }
+
     }
 
     override fun onPlayerStateChanged(playState: Int) {
@@ -187,7 +190,7 @@ open class StandardVideoController @JvmOverloads constructor(
             return true
         }
         return invokeOnPlayerAttached {
-            if (it.isFullScreen) {
+            if (it.isFullScreen()) {
                 stopFullScreen()
             } else {
                 super.onBackPressed()

@@ -56,14 +56,19 @@ public final class PlayerUtils {
      * 获取竖屏下状态栏高度
      */
     public static double getStatusBarHeightPortrait(Context context) {
-        int statusBarHeight = 0;
-        //获取status_bar_height_portrait资源的ID
-        int resourceId = context.getResources().getIdentifier("status_bar_height_portrait", "dimen", "android");
-        if (resourceId > 0) {
-            //根据资源ID获取响应的尺寸值
-            statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+        try {
+            int statusBarHeight = 0;
+            //获取status_bar_height_portrait资源的ID
+            int resourceId = context.getResources().getIdentifier("status_bar_height_portrait", "dimen", "android");
+            if (resourceId > 0) {
+                //根据资源ID获取响应的尺寸值
+                statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+            }
+            return statusBarHeight;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return 0;
         }
-        return statusBarHeight;
     }
 
     /**

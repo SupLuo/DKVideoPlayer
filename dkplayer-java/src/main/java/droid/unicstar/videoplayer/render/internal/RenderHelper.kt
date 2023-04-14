@@ -5,15 +5,17 @@ import androidx.annotation.IntRange
 import droid.unicstar.videoplayer.render.AspectRatioType
 
 /**
- * render view 共同代理部分：统一部分行为
+ * render view 共同帮助类：统一部分行为
  */
-internal class RenderViewProxy(private val view: View) {
+class RenderHelper(private val view: View) {
 
     companion object {
+
         @JvmStatic
-        fun new(view: View): RenderViewProxy {
-            return RenderViewProxy(view)
+        fun create(view: View): RenderHelper {
+            return RenderHelper(view)
         }
+
     }
 
     /**
@@ -37,6 +39,8 @@ internal class RenderViewProxy(private val view: View) {
      * @param videoHeight 视频高
      */
     fun setVideoSize(videoWidth: Int, videoHeight: Int) {
+        if (videoWidth == 0 || videoHeight == 0)
+            return
         mMeasureHelper.setVideoSize(videoWidth, videoHeight)
         view.requestLayout()
     }

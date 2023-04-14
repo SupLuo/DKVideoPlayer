@@ -14,7 +14,6 @@ import tv.danmaku.ijk.media.player.misc.ITrackInfo
 import droid.unicstar.videoplayer.player.BaseUNSPlayer
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.player.CSPlayerException
-import droid.unicstar.videoplayer.orDefault
 
 open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
     IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnInfoListener,
@@ -36,13 +35,6 @@ open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
             it.setOnVideoSizeChangedListener(this)
             it.setOnNativeInvokeListener(this)
         }
-    }
-
-    override fun init() {
-        //native日志 todo  java.lang.UnsatisfiedLinkError: No implementation found for void tv.danmaku.ijk.media.player.IjkMediaPlayer.native_setLogLevel(int)
-//        IjkMediaPlayer.native_setLogLevel(if (isDebuggable) IjkMediaPlayer.IJK_LOG_INFO else IjkMediaPlayer.IJK_LOG_SILENT)
-        kernel = createKernel()
-        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN)
     }
 
     override fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>?) {
@@ -193,7 +185,7 @@ open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
     }
 
     override fun getTcpSpeed(): Long {
-        return kernel?.tcpSpeed.orDefault()
+        return kernel?.tcpSpeed ?: 0
     }
 
     override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
@@ -258,5 +250,10 @@ open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
         return true
     }
 
-
+    init {
+        //native日志 todo  java.lang.UnsatisfiedLinkError: No implementation found for void tv.danmaku.ijk.media.player.IjkMediaPlayer.native_setLogLevel(int)
+//        IjkMediaPlayer.native_setLogLevel(if (isDebuggable) IjkMediaPlayer.IJK_LOG_INFO else IjkMediaPlayer.IJK_LOG_SILENT)
+        kernel = createKernel()
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN)
+    }
 }

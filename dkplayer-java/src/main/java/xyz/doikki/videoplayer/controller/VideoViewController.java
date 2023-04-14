@@ -2,7 +2,7 @@ package xyz.doikki.videoplayer.controller;
 
 import androidx.annotation.IntRange;
 
-import xyz.doikki.videoplayer.DKManager;
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl;
 
 /**
  * 视图控制器
@@ -41,12 +41,7 @@ public interface VideoViewController {
      */
     void setFadeOutTime(@IntRange(from = 1) int timeout);
 
-    /**
-     * 启用设备角度传感器(用于自动横竖屏切换)，默认不启用
-     *
-     * @param enable true:开启，默认关闭
-     */
-    void setEnableOrientationSensor(boolean enable);
+
 
     /**
      * 设置锁定状态
@@ -68,7 +63,7 @@ public interface VideoViewController {
     boolean isFullScreen();
 
     /**
-     * 横竖屏切换:用来代理{@link VideoViewControl#toggleFullScreen()},即通过Controller调用VideoView的方法
+     * 横竖屏切换:用来代理{@link UNSVideoViewControl#toggleFullScreen()},即通过Controller调用VideoView的方法
      */
     boolean toggleFullScreen();
 
@@ -82,7 +77,7 @@ public interface VideoViewController {
     }
 
     /**
-     * 开始全屏:用来代理{@link VideoViewControl#startFullScreen(boolean)}} ,即通过Controller调用VideoView的方法
+     * 开始全屏:用来代理{@link UNSVideoViewControl#startFullScreen(boolean)}} ,即通过Controller调用VideoView的方法
      *
      * @return
      */
@@ -90,7 +85,7 @@ public interface VideoViewController {
 
 
     /**
-     * 结束全屏:用来代理{@link VideoViewControl#stopFullScreen()},即通过Controller调用VideoView的方法
+     * 结束全屏:用来代理{@link UNSVideoViewControl#stopFullScreen()},即通过Controller调用VideoView的方法
      *
      * @return
      */
@@ -107,22 +102,7 @@ public interface VideoViewController {
      */
     void stopUpdateProgress();
 
-    /**
-     * 设置是否适配刘海
-     *
-     * @param adaptCutout
-     */
-    void setAdaptCutout(boolean adaptCutout);
 
-    /**
-     * 是否需要适配刘海
-     */
-    boolean hasCutout();
-
-    /**
-     * 获取刘海的高度
-     */
-    int getCutoutHeight();
 
 
 }

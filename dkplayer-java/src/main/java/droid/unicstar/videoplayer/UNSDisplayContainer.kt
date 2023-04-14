@@ -14,21 +14,25 @@ import droid.unicstar.videoplayer.controller.UNSContainerControl
 import droid.unicstar.videoplayer.controller.UNSRenderControl
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.render.UNSRender
+import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper
+import droid.unicstar.videoplayer.widget.ScreenModeHandler
 import xyz.doikki.videoplayer.DKManager
 import xyz.doikki.videoplayer.R
-import droid.unicstar.videoplayer.widget.ScreenModeHandler
+import xyz.doikki.videoplayer.util.CutoutUtil
+import xyz.doikki.videoplayer.util.L
+import xyz.doikki.videoplayer.util.PlayerUtils
 import java.lang.ref.SoftReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * 本类职责：处理器视频显示相关的逻辑，包含Render、窗口模式、Controller三者相关功能；
+ * 本类职责：处理器视频显示相关的逻辑，包含Render、窗口模式、Controller、以及传感器自动旋转方向、刘海屏显示适配等
+ * （全部与播放器显示视图相关的逻辑，具体在window显示还是在activity内显示就不限定，播放器是游离的还是内嵌的也不限定）；
+ *
  * 不包括Player相关的依赖，这样便于视图层的复用和共用，也方便Player的各种灵活形态（共享的、全局的、局部的）都可以。
  * @see bindPlayer 通过该方法绑定对应的播放器
  *
- * Render部分：可使用的功能参考[UNSRenderControl]
- * 窗口模式部分：[isFullScreen]、[isTinyScreen]、[toggleFullScreen]、[startFullScreen]、[stopFullScreen]
- * [startTinyScreen]、[stopTinyScreen]、[startVideoViewFullScreen]、[stopVideoViewFullScreen]
- * 、[addOnScreenModeChangeListener]、[removeOnScreenModeChangeListener]
+ * Render部分：可使用的功能参考[UNSRenderControl]定义的方法
+ * 窗口模式部分：可使用功能参考[UNSContainerControl]定义定义的方法
  * Controller部分：
  *
  * @note todo 该控件设计上考虑可以使用ApplicationContext来创建使用，达到界面间共享（只是理论层面，还未测试）
@@ -42,7 +46,7 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     private var mBindActivityRef: SoftReference<Activity?>? = null
 
     //绑定的容器：即正常情况下显示播放器所属的容器
-    private var mBindContainer: SoftReference<FrameLayout?>? = null
+    private var mBindContainerRef: SoftReference<FrameLayout?>? = null
 
     /**
      * 控制器
@@ -54,12 +58,24 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     val render: UNSRender get() = mRender
 
     private val mOnScreenModeChangeListeners =
-        CopyOnWriteArrayList<UNSVideoView.OnScreenModeChangeListener>()
+        CopyOnWriteArrayList<UNSContainerControl.OnScreenModeChangeListener>()
 
     //屏幕模式切换帮助类
     private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
 
     private var mPlayerRef: SoftReference<UNSPlayerProxy?>? = null
+
+    //是否开启根据传感器获得的屏幕方向进入/退出全屏
+    private var mEnableOrientationSensor = DKManager.isOrientationSensorEnabled
+
+    //用户设置是否适配刘海屏
+    private var mAdaptCutout = DKManager.isAdaptCutout
+
+    //是否有刘海
+    private var mHasCutout: Boolean? = null
+
+    //刘海的高度
+    private var mCutoutHeight = 0
 
     private val mPlayerEventListener = object : UNSPlayer.EventListener {
         override fun onInfo(what: Int, extra: Int) {
@@ -77,8 +93,44 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         }
     }
 
+    private val mDeviceOrientationChangedListener =
+        object : DeviceOrientationSensorHelper.DeviceOrientationChangedListener {
+
+            override fun onDeviceDirectionChanged(@DeviceOrientationSensorHelper.DeviceDirection direction: Int) {
+                when (direction) {
+                    DeviceOrientationSensorHelper.DEVICE_DIRECTION_PORTRAIT -> {
+                        //切换为竖屏
+                        //todo lock lock的情况下不应该进行屏幕旋转
+//                        //屏幕锁定的情况
+//                        if (mLocked) return
+                        //没有开启设备方向监听的情况
+                        if (!mEnableOrientationSensor) return
+                        stopFullScreen()
+                    }
+                    DeviceOrientationSensorHelper.DEVICE_DIRECTION_LANDSCAPE -> {
+                        startFullScreen()
+                    }
+                    DeviceOrientationSensorHelper.DEVICE_DIRECTION_LANDSCAPE_REVERSED -> {
+                        startFullScreen(true)
+                    }
+                    DeviceOrientationSensorHelper.DEVICE_DIRECTION_UNKNOWN -> {
+                    }
+                }
+            }
+        }
+
+    //屏幕角度传感器监听
+    private val mOrientationSensorHelper: DeviceOrientationSensorHelper =
+        DeviceOrientationSensorHelper(context.applicationContext, null).also {
+            //开始监听设备方向
+            it.setDeviceOrientationChangedListener(mDeviceOrientationChangedListener)
+        }
+
     private val mPlayerStateListener = UNSPlayer.OnPlayStateChangeListener { playState ->
         when (playState) {
+            UNSPlayer.STATE_IDLE -> {
+                mOrientationSensorHelper.disable()
+            }
             UNSPlayer.STATE_PLAYING -> {
                 if (!this@UNSDisplayContainer.keepScreenOn)
                     this@UNSDisplayContainer.keepScreenOn = true
@@ -91,6 +143,7 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         videoController?.setPlayerState(playState)
     }
 
+
     /**
      * 获取渲染视图的名字
      */
@@ -99,9 +152,9 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     /**
      * 当前屏幕模式：普通、全屏、小窗口
      */
-    @UNSVideoView.ScreenMode
-    var screenMode: Int = UNSVideoView.SCREEN_MODE_NORMAL
-        private set(@UNSVideoView.ScreenMode screenMode) {
+    @ScreenMode
+    override var screenMode: Int = UNSVideoView.SCREEN_MODE_NORMAL
+        internal set(@ScreenMode screenMode) {
             if (field != screenMode) {
                 field = screenMode
                 notifyScreenModeChanged(screenMode)
@@ -112,12 +165,13 @@ open class UNSDisplayContainer @JvmOverloads constructor(
      * 绑定Activity
      */
     fun bindActivity(activity: Activity) {
-        if(activity == getActivity()){
+        if (activity == getActivity()) {
             logw("[DisplayContainer]bindActivity:the activity is same with current activity.ignore set.")
             return
         }
         //todo 绑定界面之后应该完善状态？
         mBindActivityRef = SoftReference(activity)
+        mOrientationSensorHelper.attachActivity(activity)
     }
 
     /**
@@ -125,13 +179,15 @@ open class UNSDisplayContainer @JvmOverloads constructor(
      */
     fun unbindActivity() {
         //todo 如果是小窗或者全屏，从界面中移除
-        mBindActivityRef
+        mBindActivityRef = null
+        mOrientationSensorHelper.detachActivity()
     }
 
     /**
      * 绑定所在的容器：即正常显示所在的容器
      */
     fun bindContainer(container: FrameLayout) {
+        mBindContainerRef = SoftReference(container)
         //todo 注意考虑从原来的容器中移除、并考虑当前的view状态
     }
 
@@ -203,38 +259,87 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     /**
      * 通知当前界面模式发生了变化
      */
-    private fun notifyScreenModeChanged(@UNSVideoView.ScreenMode screenMode: Int) {
+    private fun notifyScreenModeChanged(@ScreenMode screenMode: Int) {
         //todo 既然通过通知对外发布了screenmode的改变，是否就不应该再主动
         videoController?.setScreenMode(screenMode)
         mOnScreenModeChangeListeners.forEach {
             it.onScreenModeChanged(screenMode)
         }
+        setupOrientationSensorAndCutoutOnScreenModeChanged(screenMode)
+    }
+
+    /**
+     * 在屏幕模式改变了的情况下，调整传感器和刘海屏
+     *
+     * @param screenMode
+     */
+    private fun setupOrientationSensorAndCutoutOnScreenModeChanged(@ScreenMode screenMode: Int) {
+        //修改传感器
+        when (screenMode) {
+            UNSVideoView.SCREEN_MODE_NORMAL -> {
+                if (mEnableOrientationSensor) {
+                    mOrientationSensorHelper.enable()
+                } else {
+                    mOrientationSensorHelper.disable()
+                }
+                if (hasCutout()) {
+                    CutoutUtil.adaptCutout(context, false)
+                }
+            }
+            UNSVideoView.SCREEN_MODE_FULL -> {
+                //在全屏时强制监听设备方向
+                mOrientationSensorHelper.enable()
+                if (hasCutout()) {
+                    CutoutUtil.adaptCutout(context, true)
+                }
+            }
+            UNSVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()
+        }
+    }
+
+    /**
+     * 设置是否适配刘海屏
+     */
+    override fun setAdaptCutout(adaptCutout: Boolean) {
+        mAdaptCutout = adaptCutout
+    }
+
+    /**
+     * 是否有刘海屏
+     */
+    override fun hasCutout(): Boolean {
+        return mHasCutout.orDefault()
+    }
+
+    /**
+     * 刘海的高度
+     */
+    override fun getCutoutHeight(): Int {
+        return mCutoutHeight
     }
 
     /**
      * 添加屏幕模式变化监听
      */
-    fun addOnScreenModeChangeListener(listener: UNSVideoView.OnScreenModeChangeListener) {
+    override fun addOnScreenModeChangeListener(listener: UNSContainerControl.OnScreenModeChangeListener) {
         mOnScreenModeChangeListeners.add(listener)
     }
 
     /**
      * 移除屏幕模式变化监听
      */
-    fun removeOnScreenModeChangeListener(listener: UNSVideoView.OnScreenModeChangeListener) {
+    override fun removeOnScreenModeChangeListener(listener: UNSContainerControl.OnScreenModeChangeListener) {
         mOnScreenModeChangeListeners.remove(listener)
     }
 
-    /**
-     * 判断是否处于全屏状态（视图处于全屏）
-     */
+    override fun setEnableOrientationSensor(enable: Boolean) {
+        mEnableOrientationSensor = enable
+    }
+
     override fun isFullScreen(): Boolean {
         return screenMode == UNSVideoView.SCREEN_MODE_FULL
     }
 
-    /**
-     * 当前是否处于小屏状态（视图处于小屏）
-     */
     override fun isTinyScreen(): Boolean {
         return screenMode == UNSVideoView.SCREEN_MODE_TINY
     }
@@ -247,10 +352,9 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     }
 
     private inline fun requireContainer(methodName: () -> String): FrameLayout {
-        return mBindContainer?.get()
+        return mBindContainerRef?.get()
             ?: throw IllegalArgumentException("must invoke ${::bindContainer.name} method to bind activity before call method ${methodName.invoke()}")
     }
-
 
     /**
      * 横竖屏切换
@@ -370,6 +474,43 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         super.addFocusables(views, direction)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        checkCutout()
+    }
+
+    /**
+     * 检查是否需要适配刘海
+     */
+    private fun checkCutout() {
+        if (!mAdaptCutout || mCutoutHeight > 0) {
+            logd("[DisplayContainer]checkCutout: adaptCutout = $mAdaptCutout cutoutHeight=$mCutoutHeight")
+            return
+        }
+
+        val activity = getActivity()
+        if (activity != null && mHasCutout == null) {
+            mHasCutout = CutoutUtil.allowDisplayToCutout(activity)
+            if (mHasCutout.orDefault()) {
+                //竖屏下的状态栏高度可认为是刘海的高度
+                mCutoutHeight = PlayerUtils.getStatusBarHeightPortrait(context).toInt()
+            }
+        }
+        L.d("hasCutout: $mHasCutout cutout height: $mCutoutHeight")
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        val player = mPlayerRef?.get() ?: return
+        if (player.isPlaying() && (mEnableOrientationSensor || isFullScreen())) {
+            if (hasWindowFocus) {
+                postDelayed({ mOrientationSensorHelper.enable() }, 800)
+            } else {
+                mOrientationSensorHelper.disable()
+            }
+        }
+    }
+
     /**
      * 改变返回键逻辑，用于activity
      */
@@ -379,6 +520,8 @@ open class UNSDisplayContainer @JvmOverloads constructor(
 
     fun release() {
         mRender.release()
+        mOrientationSensorHelper.disable()
+        mOrientationSensorHelper.setDeviceOrientationChangedListener(null)
     }
 
     /**
@@ -405,12 +548,25 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         ta.recycle()
     }
 
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        //布局中加载完成的时候，判断下是否需要自动绑定Container
+        try {
+            val parent = this.parent
+            if(mBindContainerRef?.get() == null && parent is FrameLayout){
+                mBindContainerRef = SoftReference(parent)
+            }
+        }catch (e:Throwable){
+            e.printStackTrace()
+        }
+    }
 
     init {
         //如果当前容器是通过Activity上下文构建的，则默认绑定的界面为该Activity
         val activity = context.getActivityContext()
         if (activity != null) {
-            mBindActivityRef = SoftReference(activity)
+            bindActivity(activity)
         }
+        mRender.bindContainer(this)
     }
 }

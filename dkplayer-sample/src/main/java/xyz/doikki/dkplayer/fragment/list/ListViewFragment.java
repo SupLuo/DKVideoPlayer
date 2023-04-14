@@ -9,6 +9,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.adapter.VideoListViewAdapter;
 import xyz.doikki.dkplayer.adapter.listener.OnItemChildClickListener;
@@ -47,9 +48,9 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
     protected void initView() {
         super.initView();
         mVideoView = new UNSVideoView(getActivity());
-        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
             @Override
-            public void onPlayerStateChanged(int playState) {
+            public void onPlayStateChanged(int playState) {
                 if (playState == UNSPlayer.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mCurPosition = -1;
@@ -63,7 +64,7 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
         mTitleView = new TitleView(getActivity());
         mController.addControlComponent(mTitleView);
         mController.addControlComponent(new VodControlView(getActivity()));
-        mController.setEnableOrientationSensor(true);
+        mVideoView.setEnableOrientationSensor(true);
         mVideoView.setVideoController(mController);
 
         ListView listView = findViewById(R.id.lv);

@@ -10,6 +10,7 @@ import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videoplayer.DKManager
 import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.videoplayer.player.UNSPlayer
 import xyz.doikki.videoplayer.TVCompatible
 
 /**

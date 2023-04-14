@@ -9,6 +9,11 @@
         android:layout_height="wrap_content"
         android:text="@string/str_api_vod" />
     <Button
+        android:id="@+id/btn_vod2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/str_api_vod2" />
+    <Button
         android:id="@+id/btn_live"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

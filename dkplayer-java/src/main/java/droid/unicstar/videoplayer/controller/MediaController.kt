@@ -10,18 +10,14 @@ import android.widget.FrameLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.videoplayer.*
 import droid.unicstar.videoplayer.orDefault
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.removeAllByValue
 import droid.unicstar.videoplayer.toast
 import xyz.doikki.videoplayer.*
-import xyz.doikki.videoplayer.controller.VideoViewControl
 import xyz.doikki.videoplayer.controller.VideoViewController
 import xyz.doikki.videoplayer.controller.component.ControlComponent
-import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper
-import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper.DeviceDirection
-import droid.unicstar.videoplayer.widget.DeviceOrientationSensorHelper.DeviceOrientationChangedListener
 import xyz.doikki.videoplayer.util.*
 
 /**
@@ -49,8 +45,7 @@ import xyz.doikki.videoplayer.util.*
 open class MediaController @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr),
-    VideoViewController,
-    DeviceOrientationChangedListener {
+    VideoViewController{
 
     /**
      * 当前控制器中保存的所有控制组件
@@ -61,7 +56,7 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 绑定的播放器
      */
-    protected var mPlayer: VideoViewControl? = null
+    protected var mPlayer: UNSVideoViewControl? = null
 
     //是否处于锁定状态
     private var mLocked = false
@@ -104,37 +99,12 @@ open class MediaController @JvmOverloads constructor(
         override fun run() {
             val pos = updateProgress()
             if (mPlayer?.isPlaying().orDefault()) {
-                postDelayed(this, ((1000 - pos % 1000) / mPlayer?.speed.orDefault(1f)).toLong())
+                postDelayed(this, ((1000 - pos % 1000) / mPlayer?.getSpeed().orDefault(1f)).toLong())
             } else {
                 mProgressRefreshing = false
             }
         }
     }
-
-    /**
-     * 屏幕角度传感器监听
-     */
-    private val mOrientationSensorHelper: DeviceOrientationSensorHelper
-
-    /**
-     * 是否开启根据传感器获得的屏幕方向进入/退出全屏
-     */
-    private var mEnableOrientationSensor = false
-
-    /**
-     * 用户设置是否适配刘海屏
-     */
-    private var mAdaptCutout = false
-
-    /**
-     * 是否有刘海
-     */
-    private var mHasCutout: Boolean? = null
-
-    /**
-     * 刘海的高度
-     */
-    private var mCutoutHeight = 0
 
     /**
      * 控制器是否处于显示状态
@@ -144,18 +114,10 @@ open class MediaController @JvmOverloads constructor(
     @JvmField
     protected var mActivity: Activity? = null
 
-    val playerControl: VideoViewControl? get() = mPlayer
+    val playerControl: UNSVideoViewControl? get() = mPlayer
 
     init {
-        mOrientationSensorHelper = DeviceOrientationSensorHelper(
-            context.applicationContext, PlayerUtils.scanForActivity(context)
-        ).also {
-            //开始监听设备方向
-            it.setDeviceOrientationChangedListener(this)
-        }
 
-        mEnableOrientationSensor = DKManager.isOrientationSensorEnabled
-        mAdaptCutout = DKManager.isAdaptCutout
         mActivity = PlayerUtils.scanForActivity(context)
     }
 
@@ -181,7 +143,7 @@ open class MediaController @JvmOverloads constructor(
      * 重要：此方法用于将[UNSVideoView] 和控制器绑定
      */
     @CallSuper
-    open fun setMediaPlayer(mediaPlayer: VideoViewControl) {
+    open fun setMediaPlayer(mediaPlayer: UNSVideoViewControl) {
         mPlayer = mediaPlayer
         //绑定ControlComponent和Controller
         for ((component) in mControlComponents) {
@@ -319,18 +281,11 @@ open class MediaController @JvmOverloads constructor(
     }
 
     /**
-     * 启用设备角度传感器(用于自动横竖屏切换),默认不启用
-     */
-    override fun setEnableOrientationSensor(enableOrientation: Boolean) {
-        mEnableOrientationSensor = enableOrientation
-    }
-
-    /**
      * 设置当前[UNSVideoView]界面模式：竖屏、全屏、小窗模式等
      * 是当[UNSVideoView]修改视图之后，调用此方法向控制器同步状态
      */
     @CallSuper
-    open fun setScreenMode(@UNSVideoView.ScreenMode screenMode: Int) {
+    open fun setScreenMode(@ScreenMode screenMode: Int) {
         notifyScreenModeChanged(screenMode)
     }
 
@@ -346,7 +301,6 @@ open class MediaController @JvmOverloads constructor(
         }
         when (playState) {
             UNSPlayer.STATE_IDLE -> {
-                mOrientationSensorHelper.disable()
                 mLocked = false
                 mShowing = false
                 //由于游离组件是独立于控制器存在的，
@@ -437,48 +391,6 @@ open class MediaController @JvmOverloads constructor(
     }
 
     /**
-     * 设置是否适配刘海屏
-     */
-    override fun setAdaptCutout(adaptCutout: Boolean) {
-        mAdaptCutout = adaptCutout
-    }
-
-    /**
-     * 是否有刘海屏
-     */
-    override fun hasCutout(): Boolean {
-        return mHasCutout.orDefault()
-    }
-
-    /**
-     * 刘海的高度
-     */
-    override fun getCutoutHeight(): Int {
-        return mCutoutHeight
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        checkCutout()
-    }
-
-    /**
-     * 检查是否需要适配刘海
-     */
-    private fun checkCutout() {
-        if (!mAdaptCutout) return
-
-        if (mActivity != null && mHasCutout == null) {
-            mHasCutout = CutoutUtil.allowDisplayToCutout(mActivity)
-            if (mHasCutout.orDefault()) {
-                //竖屏下的状态栏高度可认为是刘海的高度
-                mCutoutHeight = PlayerUtils.getStatusBarHeightPortrait(mActivity).toInt()
-            }
-        }
-        L.d("hasCutout: $mHasCutout cutout height: $mCutoutHeight")
-    }
-
-    /**
      * 显示移动网络播放提示
      *
      * @return 返回显示移动网络播放提示的条件，false:不显示, true显示
@@ -511,39 +423,6 @@ open class MediaController @JvmOverloads constructor(
         }.orDefault(false)
     }
 
-    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
-        super.onWindowFocusChanged(hasWindowFocus)
-        val player = mPlayer ?: return
-        if (player.isPlaying() && (mEnableOrientationSensor || player.isFullScreen)) {
-            if (hasWindowFocus) {
-                postDelayed({ mOrientationSensorHelper.enable() }, 800)
-            } else {
-                mOrientationSensorHelper.disable()
-            }
-        }
-    }
-
-    @CallSuper
-    override fun onDeviceDirectionChanged(@DeviceDirection direction: Int) {
-        when (direction) {
-            DeviceOrientationSensorHelper.DEVICE_DIRECTION_PORTRAIT -> {
-                //切换为竖屏
-                //屏幕锁定的情况
-                if (mLocked) return
-                //没有开启设备方向监听的情况
-                if (!mEnableOrientationSensor) return
-                mPlayer?.stopFullScreen()
-            }
-            DeviceOrientationSensorHelper.DEVICE_DIRECTION_LANDSCAPE -> {
-                mPlayer?.startFullScreen()
-            }
-            DeviceOrientationSensorHelper.DEVICE_DIRECTION_LANDSCAPE_REVERSED -> {
-                mPlayer?.startFullScreen(true)
-            }
-            DeviceOrientationSensorHelper.DEVICE_DIRECTION_UNKNOWN -> {
-            }
-        }
-    }
 
     //------------------------ start handle event change ------------------------//
 
@@ -576,41 +455,12 @@ open class MediaController @JvmOverloads constructor(
      *
      * @param screenMode
      */
-    private fun notifyScreenModeChanged(@UNSVideoView.ScreenMode screenMode: Int) {
+    private fun notifyScreenModeChanged(@ScreenMode screenMode: Int) {
         for ((component) in mControlComponents) {
             component.onScreenModeChanged(screenMode)
         }
-        setupOrientationSensorAndCutoutOnScreenModeChanged(screenMode)
-        onScreenModeChanged(screenMode)
-    }
 
-    /**
-     * 在屏幕模式改变了的情况下，调整传感器和刘海屏
-     *
-     * @param screenMode
-     */
-    private fun setupOrientationSensorAndCutoutOnScreenModeChanged(@UNSVideoView.ScreenMode screenMode: Int) {
-        //修改传感器
-        when (screenMode) {
-            UNSVideoView.SCREEN_MODE_NORMAL -> {
-                if (mEnableOrientationSensor) {
-                    mOrientationSensorHelper.enable()
-                } else {
-                    mOrientationSensorHelper.disable()
-                }
-                if (hasCutout()) {
-                    CutoutUtil.adaptCutout(context, false)
-                }
-            }
-            UNSVideoView.SCREEN_MODE_FULL -> {
-                //在全屏时强制监听设备方向
-                mOrientationSensorHelper.enable()
-                if (hasCutout()) {
-                    CutoutUtil.adaptCutout(context, true)
-                }
-            }
-            UNSVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()
-        }
+        onScreenModeChanged(screenMode)
     }
 
     /**
@@ -682,7 +532,7 @@ open class MediaController @JvmOverloads constructor(
 
     protected inline fun <R> invokeOnPlayerAttached(
         showToast: Boolean = true,
-        block: (VideoViewControl) -> R
+        block: (UNSVideoViewControl) -> R
     ): R? {
         val player = mPlayer
         if (player == null) {

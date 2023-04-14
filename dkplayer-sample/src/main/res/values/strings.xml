@@ -5,6 +5,7 @@
     <string name="str_extend">扩展</string>
     <string name="str_pip">画中画</string>
     <string name="str_api_vod">点播</string>
+    <string name="str_api_vod2">两个播放器共享一个Render</string>
     <string name="str_api_live">直播</string>
     <string name="str_api_music">音乐</string>
     <string name="str_definition">清晰度切换</string>

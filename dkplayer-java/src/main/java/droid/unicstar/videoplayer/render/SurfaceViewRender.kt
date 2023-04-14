@@ -15,7 +15,7 @@ import droid.unicstar.videoplayer.logw
 import droid.unicstar.videoplayer.render.UNSRender.Companion.createShotBitmap
 import droid.unicstar.videoplayer.render.UNSRender.ScreenShotCallback
 import droid.unicstar.videoplayer.render.UNSRender.SurfaceListener
-import droid.unicstar.videoplayer.render.internal.RenderViewProxy
+import droid.unicstar.videoplayer.render.internal.RenderHelper
 import droid.unicstar.videoplayer.player.UNSPlayer
 import java.lang.ref.WeakReference
 
@@ -29,7 +29,7 @@ class SurfaceViewRender @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : SurfaceView(context, attrs), UNSRender {
 
-    private val mProxy: RenderViewProxy = RenderViewProxy.new(this)
+    private val mHelper: RenderHelper = RenderHelper.create(this)
     private var mSurfaceListener: SurfaceListener? = null
     private var mSurfaceHolder: SurfaceHolder? = null
     private var mPlayerRef: WeakReference<UNSPlayer>? = null
@@ -51,7 +51,6 @@ class SurfaceViewRender @JvmOverloads constructor(
                 "SurfaceViewRender",
                 "player=${mPlayer} ${this@SurfaceViewRender.hashCode()} mSurfaceHolder=${mSurfaceHolder} surfaceChanged($holder,$format,$w,$h)"
             )
-            mPlayer?.setDisplay(holder)
             if (holder != mSurfaceHolder) {
                 mSurfaceHolder = holder
                 mPlayer?.setDisplay(holder)
@@ -81,12 +80,16 @@ class SurfaceViewRender @JvmOverloads constructor(
         mPlayerRef = WeakReference(player)
         //当前SurfaceHolder不为空，则说明是重用render
         mSurfaceHolder?.let {
+            logd(
+                "SurfaceViewRender",
+                "bindPlayer surfaceHolder is not null,attach to player directly."
+            )
             player.setDisplay(it)
         }
     }
 
     override fun setVideoSize(videoWidth: Int, videoHeight: Int) {
-        mProxy.setVideoSize(videoWidth, videoHeight)
+        mHelper.setVideoSize(videoWidth, videoHeight)
     }
 
     override fun setSurfaceListener(listener: SurfaceListener?) {
@@ -94,7 +97,7 @@ class SurfaceViewRender @JvmOverloads constructor(
     }
 
     override fun setAspectRatioType(aspectRatioType: Int) {
-        mProxy.setAspectRatioType(aspectRatioType)
+        mHelper.setAspectRatioType(aspectRatioType)
     }
 
     override fun screenshot(highQuality: Boolean, callback: ScreenShotCallback) {
@@ -131,8 +134,8 @@ class SurfaceViewRender @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        mProxy.doMeasure(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(mProxy.measuredWidth, mProxy.measuredHeight)
+        mHelper.doMeasure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(mHelper.measuredWidth, mHelper.measuredHeight)
     }
 
     init {

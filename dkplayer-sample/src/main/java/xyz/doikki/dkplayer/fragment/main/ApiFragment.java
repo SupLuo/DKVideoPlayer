@@ -6,6 +6,7 @@ import android.view.View;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.api.ParallelPlayActivity;
 import xyz.doikki.dkplayer.activity.api.PlayRawAssetsActivity;
+import xyz.doikki.dkplayer.activity.api.Player2ShareRenderActivity;
 import xyz.doikki.dkplayer.activity.api.PlayerActivity;
 import xyz.doikki.dkplayer.fragment.BaseFragment;
 import xyz.doikki.dkplayer.util.DataUtil;
@@ -61,6 +62,8 @@ public class ApiFragment extends BaseFragment implements View.OnClickListener {
             case R.id.btn_vod:
                 PlayerActivity.start(getActivity(), VOD_URL, getString(R.string.str_api_vod), false, false);
                 break;
+            case R.id.btn_vod2:
+                Player2ShareRenderActivity.start(getActivity(), VOD_URL,"http://vfx.mtime.cn/Video/2019/03/18/mp4/190318214226685784.mp4", getString(R.string.str_api_vod2), false, false);
             case R.id.btn_live:
                 PlayerActivity.start(getActivity(), LIVE_URL, getString(R.string.str_api_live), true, false);
                 break;

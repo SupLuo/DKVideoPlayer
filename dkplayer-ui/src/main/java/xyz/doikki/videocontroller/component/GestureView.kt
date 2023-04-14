@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.videoplayer.player.UNSPlayer
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils

@@ -7,16 +7,18 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import droid.unicstar.videoplayer.render.internal.RenderHelper;
 import xyz.doikki.dkplayer.widget.render.gl2.chooser.GLConfigChooser;
 import xyz.doikki.dkplayer.widget.render.gl2.contextfactory.GLContextFactory;
 import xyz.doikki.dkplayer.widget.render.gl2.filter.GlFilter;
 import droid.unicstar.videoplayer.player.UNSPlayer;
 import droid.unicstar.videoplayer.render.UNSRender;
-import droid.unicstar.videoplayer.render.internal.RenderMeasureHelper;
 
 public class GLSurfaceRenderView2 extends GLSurfaceView implements UNSRender {
 
     private final GLVideoRenderer renderer;
+
+    private RenderHelper mHelper = RenderHelper.create(this);
 
     public GLSurfaceRenderView2(Context context) {
         this(context, null);
@@ -30,7 +32,6 @@ public class GLSurfaceRenderView2 extends GLSurfaceView implements UNSRender {
         setRenderer(renderer);
     }
 
-    private final RenderMeasureHelper mMeasureHelper = new RenderMeasureHelper();
 
     @Override
     public void bindPlayer(@NonNull UNSPlayer player) {
@@ -39,23 +40,18 @@ public class GLSurfaceRenderView2 extends GLSurfaceView implements UNSRender {
 
     @Override
     public void setVideoSize(int videoWidth, int videoHeight) {
-        if (videoWidth > 0 && videoHeight > 0) {
-            mMeasureHelper.setVideoSize(videoWidth, videoHeight);
-            requestLayout();
-        }
+        mHelper.setVideoSize(videoWidth, videoHeight);
     }
 
 
     @Override
     public void setVideoRotation(int degree) {
-        mMeasureHelper.videoRotationDegree = degree;
-        setRotation(degree);
+        mHelper.setVideoRotation(degree);
     }
 
     @Override
     public void setAspectRatioType(int aspectRatioType) {
-        mMeasureHelper.setAspectRatioType(aspectRatioType);
-        requestLayout();
+        mHelper.setAspectRatioType(aspectRatioType);
     }
 
     @Override
@@ -85,8 +81,8 @@ public class GLSurfaceRenderView2 extends GLSurfaceView implements UNSRender {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        mMeasureHelper.doMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(mMeasureHelper.getMeasuredWidth(), mMeasureHelper.getMeasuredHeight());
+        mHelper.doMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(mHelper.getMeasuredWidth(), mHelper.getMeasuredHeight());
     }
 
     @Override

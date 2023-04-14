@@ -7,7 +7,7 @@ import droid.unicstar.videoplayer.render.UNSRender
 import droid.unicstar.videoplayer.render.UNSRenderFactory
 
 /**
- * Render控制
+ * Render控制层提供的功能；具体由[droid.unicstar.videoplayer.UNSRenderProxy]实现
  */
 interface UNSRenderControl {
 

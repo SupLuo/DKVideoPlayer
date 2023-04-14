@@ -1,5 +1,6 @@
 package xyz.doikki.dkplayer.fragment.list;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.util.Utils;
 import xyz.doikki.dkplayer.widget.controller.PortraitWhenFullScreenController;
 import xyz.doikki.videocontroller.component.CompleteView;
@@ -16,9 +17,9 @@ public class RecyclerViewPortraitFragment extends RecyclerViewAutoPlayFragment {
     @Override
     protected void initVideoView() {
         mVideoView = new UNSVideoView(getActivity());
-        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
             @Override
-            public void onPlayerStateChanged(int playState) {
+            public void onPlayStateChanged(int playState) {
                 if (playState == UNSPlayer.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mLastPos = mCurPos;
@@ -34,7 +35,7 @@ public class RecyclerViewPortraitFragment extends RecyclerViewAutoPlayFragment {
         mTitleView = new TitleView(getActivity());
         mController.addControlComponent(mTitleView);
         mController.addControlComponent(new GestureView(getActivity()));
-        mController.setEnableOrientationSensor(true);
+        mVideoView.setEnableOrientationSensor(true);
         mVideoView.setVideoController(mController);
     }
 

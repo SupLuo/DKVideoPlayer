@@ -59,6 +59,13 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.api.Player2ShareRenderActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
+            android:exported="true"
+            android:windowSoftInputMode="stateHidden">
+        </activity>
         <activity
             android:name=".activity.extend.DanmakuActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"

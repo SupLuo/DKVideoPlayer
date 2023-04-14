@@ -17,6 +17,7 @@ import xyz.doikki.videocontroller.R
 import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.player.UNSPlayer
 
 /**
  * 播放器顶部标题栏
@@ -104,21 +105,25 @@ class TitleView @JvmOverloads constructor(
             mTitle.isSelected = false
         }
         val activity = this.activity ?: return
-        if (controller != null && controller.hasCutout()) {
-            val orientation = activity.requestedOrientation
-            val cutoutHeight = controller.cutoutHeight
-            when (orientation) {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                    mTitleContainer.setPadding(0, 0, 0, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
-                    mTitleContainer.setPadding(cutoutHeight, 0, 0, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
-                    mTitleContainer.setPadding(0, 0, cutoutHeight, 0)
+        player?.let {
+            player->
+            if (player.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                val cutoutHeight = player.getCutoutHeight()
+                when (orientation) {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                        mTitleContainer.setPadding(0, 0, 0, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                        mTitleContainer.setPadding(cutoutHeight, 0, 0, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
+                        mTitleContainer.setPadding(0, 0, cutoutHeight, 0)
+                    }
                 }
             }
         }
+
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {

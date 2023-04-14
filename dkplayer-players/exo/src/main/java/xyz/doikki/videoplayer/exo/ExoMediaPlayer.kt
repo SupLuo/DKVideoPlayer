@@ -32,36 +32,6 @@ open class ExoMediaPlayer(context: Context) : BaseUNSPlayer(), Player.Listener {
     private var mLoadControl: LoadControl? = null
     private var mRenderersFactory: RenderersFactory? = null
     private var mTrackSelector: TrackSelector? = null
-    override fun init() {
-        mInternalPlayer = ExoPlayer.Builder(
-            mAppContext,
-            (if (mRenderersFactory == null) DefaultRenderersFactory(mAppContext).also {
-                mRenderersFactory = it
-            } else mRenderersFactory)!!,
-            DefaultMediaSourceFactory(mAppContext),
-            (if (mTrackSelector == null) DefaultTrackSelector(mAppContext).also {
-                mTrackSelector = it
-            } else mTrackSelector)!!,
-            (if (mLoadControl == null) DefaultLoadControl().also {
-                mLoadControl = it
-            } else mLoadControl)!!,
-            DefaultBandwidthMeter.getSingletonInstance(mAppContext),
-            DefaultAnalyticsCollector(Clock.DEFAULT))
-            .build()
-        //准备好就开始播放
-        mInternalPlayer!!.playWhenReady = true
-
-        //播放器日志
-        if (isDebuggable && mTrackSelector is MappingTrackSelector) {
-            mInternalPlayer!!.addAnalyticsListener(
-                EventLogger(
-                    mTrackSelector as MappingTrackSelector?,
-                    "ExoPlayer"
-                )
-            )
-        }
-        mInternalPlayer!!.addListener(this)
-    }
 
     fun setTrackSelector(trackSelector: TrackSelector?) {
         mTrackSelector = trackSelector
@@ -242,5 +212,35 @@ open class ExoMediaPlayer(context: Context) : BaseUNSPlayer(), Player.Listener {
     init {
         mAppContext = context.applicationContext
         mMediaSourceHelper = ExoMediaSourceHelper.getInstance(context)
+
+
+        mInternalPlayer = ExoPlayer.Builder(
+            mAppContext,
+            (if (mRenderersFactory == null) DefaultRenderersFactory(mAppContext).also {
+                mRenderersFactory = it
+            } else mRenderersFactory)!!,
+            DefaultMediaSourceFactory(mAppContext),
+            (if (mTrackSelector == null) DefaultTrackSelector(mAppContext).also {
+                mTrackSelector = it
+            } else mTrackSelector)!!,
+            (if (mLoadControl == null) DefaultLoadControl().also {
+                mLoadControl = it
+            } else mLoadControl)!!,
+            DefaultBandwidthMeter.getSingletonInstance(mAppContext),
+            DefaultAnalyticsCollector(Clock.DEFAULT))
+            .build()
+        //准备好就开始播放
+        mInternalPlayer!!.playWhenReady = true
+
+        //播放器日志
+        if (isDebuggable && mTrackSelector is MappingTrackSelector) {
+            mInternalPlayer!!.addAnalyticsListener(
+                EventLogger(
+                    mTrackSelector as MappingTrackSelector?,
+                    "ExoPlayer"
+                )
+            )
+        }
+        mInternalPlayer!!.addListener(this)
     }
 }

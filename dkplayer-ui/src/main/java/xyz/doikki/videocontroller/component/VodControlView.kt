@@ -18,6 +18,7 @@ import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.util.PlayerUtils
 import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.player.UNSPlayer
 
 /**
  * 点播底部控制栏
@@ -180,31 +181,34 @@ open class VodControlView @JvmOverloads constructor(
         }
 
         val activity = this.activity ?: return
-        val controller = mController ?: return
         val bottomContainer = mBottomContainer
         val bottomProgress = mBottomProgress
 
         //底部容器和进度都为空，则不用处理后续逻辑
         if (bottomContainer == null && bottomProgress == null)
             return
-        if (controller.hasCutout()) {
-            val orientation = activity.requestedOrientation
-            val cutoutHeight = controller.cutoutHeight
-            when (orientation) {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                    bottomContainer?.setPadding(0, 0, 0, 0)
-                    bottomProgress?.setPadding(0, 0, 0, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
-                    bottomContainer?.setPadding(cutoutHeight, 0, 0, 0)
-                    bottomProgress?.setPadding(cutoutHeight, 0, 0, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
-                    bottomContainer?.setPadding(0, 0, cutoutHeight, 0)
-                    bottomProgress?.setPadding(0, 0, cutoutHeight, 0)
+        player?.let {
+            player->
+            if (player.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                val cutoutHeight = player.getCutoutHeight()
+                when (orientation) {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                        bottomContainer?.setPadding(0, 0, 0, 0)
+                        bottomProgress?.setPadding(0, 0, 0, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                        bottomContainer?.setPadding(cutoutHeight, 0, 0, 0)
+                        bottomProgress?.setPadding(cutoutHeight, 0, 0, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
+                        bottomContainer?.setPadding(0, 0, cutoutHeight, 0)
+                        bottomProgress?.setPadding(0, 0, cutoutHeight, 0)
+                    }
                 }
             }
         }
+
     }
 
 

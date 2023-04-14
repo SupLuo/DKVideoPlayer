@@ -3,99 +3,33 @@ package droid.unicstar.videoplayer
 import android.app.Activity
 import android.content.Context
 import android.content.res.AssetFileDescriptor
+import android.net.Uri
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import androidx.annotation.FloatRange
-import androidx.annotation.IntDef
-import droid.unicstar.videoplayer.controller.UNSRenderControl
-import droid.unicstar.videoplayer.player.UNSPlayer
-import droid.unicstar.videoplayer.player.UNSPlayer.Companion.STATE_PREPARING
-import droid.unicstar.videoplayer.render.AspectRatioType
-import droid.unicstar.videoplayer.render.UNSRender
-import xyz.doikki.videoplayer.ProgressManager
 import droid.unicstar.videoplayer.controller.MediaController
 import droid.unicstar.videoplayer.controller.UNSContainerControl
-import xyz.doikki.videoplayer.controller.VideoViewControl
-import droid.unicstar.videoplayer.widget.AudioFocusHelper
+import droid.unicstar.videoplayer.controller.UNSPlayerControl
+import droid.unicstar.videoplayer.controller.UNSRenderControl
+import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.videoplayer.render.AspectRatioType
 import droid.unicstar.videoplayer.widget.ScreenModeHandler
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl
 
 /**
- * 播放器&播放视图  内部包含了对应的[UNSPlayer]和 [UNSRender]，因此由本类提供这两者的功能能力
- *  本类的数据目前是在内部提供了一个容器，让容器去添加Render和Controller，这样便于界面切换
- *
- * Created by Doikki on 2017/4/7.
- *
- *
- * update by luochao on 2022/9/16
- * @see UNSVideoView.playerName
- * @see UNSVideoView.renderName
- * @see UNSVideoView.currentState
- * @see UNSVideoView.screenMode
- * @see UNSVideoView.release
- * @see UNSVideoView.setEnableAudioFocus
- * @see UNSVideoView.setPlayerFactory
- * @see UNSVideoView.setRenderViewFactory
- * @see UNSVideoView.setPlayerBackgroundColor
- * @see UNSVideoView.setProgressManager
- * @see UNSVideoView.addOnStateChangeListener
- * @see UNSVideoView.removeOnStateChangeListener
- * @see UNSVideoView.clearOnStateChangeListeners
- * @see UNSVideoView.setVideoController
- * @see UNSVideoView.setDataSource
- * @see UNSVideoView.start
- * @see UNSVideoView.pause
- * @see UNSVideoView.getDuration
- * @see UNSVideoView.getCurrentPosition
- * @see UNSVideoView.getBufferedPercentage
- * @see UNSVideoView.seekTo
- * @see UNSVideoView.isPlaying
- * @see UNSVideoView.setVolume
- * @see UNSVideoView.replay
- * @see UNSVideoView.setLooping
- * @see UNSVideoView.resume
- * @see UNSVideoView.speed
- * @see UNSVideoView.setAspectRatioType
- * @see UNSVideoView.screenshot
- * @see UNSVideoView.setMute
- * @see UNSVideoView.isMute
- * @see UNSVideoView.setRotation
- * @see UNSVideoView.getVideoSize
- * @see UNSVideoView.getTcpSpeed
- * @see UNSVideoView.setMirrorRotation
- * @see UNSVideoView.isFullScreen
- * @see UNSVideoView.isTinyScreen
- * @see UNSVideoView.toggleFullScreen
- * @see UNSVideoView.startFullScreen
- * @see UNSVideoView.stopFullScreen
- * @see UNSVideoView.startVideoViewFullScreen
- * @see UNSVideoView.stopVideoViewFullScreen
- * @see UNSVideoView.startTinyScreen
- * @see UNSVideoView.stopTinyScreen
+ * 本类职责，只是一个壳子，用于访问播放内核和视图层面的功能，不包含任何实际的状态持有
+ * 设计的目的是壳子是可以随意替换的，内部的组件保持所有状态和实现所有的功能；
  */
 open class UNSVideoView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
+    //播放器
+    private val mPlayer: UNSPlayerProxy = UNSPlayerProxy(context),
     private val mDisplayContainer: UNSDisplayContainer = UNSDisplayContainer(context)
-) : FrameLayout(context, attrs), VideoViewControl,
+) : FrameLayout(context, attrs),
+    UNSVideoViewControl,
+    UNSPlayerControl by mPlayer,
     UNSRenderControl by mDisplayContainer,
     UNSContainerControl by mDisplayContainer {
-
-    /**
-     * 屏幕状态发生变化容器
-     */
-    fun interface OnScreenModeChangeListener {
-        fun onScreenModeChanged(@ScreenMode screenMode: Int)
-    }
-
-    /**
-     * 屏幕模式
-     */
-    @IntDef(SCREEN_MODE_NORMAL, SCREEN_MODE_FULL, SCREEN_MODE_TINY)
-    @Retention(AnnotationRetention.SOURCE)
-    annotation class ScreenMode
-
-    //播放器
-    private val mPlayer: UNSPlayerProxy
 
     private val mActivity: Activity get() = mPreferredActivity!!
 
@@ -112,48 +46,61 @@ open class UNSVideoView @JvmOverloads constructor(
      */
     val renderName: String get() = mDisplayContainer.renderName
 
-    private val mStateChangeListener = UNSPlayer.OnPlayStateChangeListener { playState ->
-        when (playState) {
-            STATE_PREPARING -> {
-                attachMediaController()
-            }
-        }
-    }
+    /**
+     * 真正的播放器内核
+     */
+    protected val kernel: UNSPlayer? get() = mPlayer.kernel
+
+//    private val mStateChangeListener = UNSPlayer.OnPlayStateChangeListener { playState ->
+//        when (playState) {
+//            STATE_PREPARING -> {
+//                attachMediaController()
+//            }
+//        }
+//    }
 
     /**
-     * 添加屏幕变化监听
+     * 设置播放地址
+     * @param path 播放地址
      */
-    fun addOnScreenModeChangeListener(listener: OnScreenModeChangeListener) {
-        mDisplayContainer.addOnScreenModeChangeListener(listener)
-    }
-
-    /**
-     * 移除屏幕模式变化监听
-     */
-    fun removeOnScreenModeChangeListener(listener: OnScreenModeChangeListener) {
-        mDisplayContainer.removeOnScreenModeChangeListener(listener)
-    }
-
-    /*************START 代理MediaPlayer的方法 */
-
     fun setDataSource(path: String) {
         mPlayer.setDataSource(context, path)
     }
 
+    /**
+     * 设置播放地址
+     *
+     * @param path    播放地址
+     * @param headers 播放地址请求头
+     */
     fun setDataSource(path: String, headers: Map<String, String>?) {
         mPlayer.setDataSource(context, path, headers)
     }
 
+    /**
+     * 设置播放地址
+     *
+     * @param uri    the Content URI of the data you want to play
+     */
+    fun setDataSource(uri: Uri) {
+        mPlayer.setDataSource(context, uri)
+    }
+
+    /**
+     * 设置播放地址
+     *
+     * @param uri    the Content URI of the data you want to play
+     * @param headers 播放地址请求头
+     */
+    fun setDataSource(uri: Uri, headers: Map<String, String>?) {
+        mPlayer.setDataSource(context, uri, headers)
+    }
+
+    /**
+     * 用于播放raw和asset里面的视频文件
+     */
     fun setDataSource(fd: AssetFileDescriptor) {
         mPlayer.setDataSource(fd)
-    }
-
-    fun prepareAsync() {
-        mPlayer.prepareAsync()
-    }
-
-    private fun attachMediaController() {
-        mDisplayContainer.bindPlayer(mPlayer)
     }
 
     /**
@@ -166,72 +113,22 @@ open class UNSVideoView @JvmOverloads constructor(
 
     override fun replay(resetPosition: Boolean) {
         mPlayer.replay(resetPosition)
+        attachMediaController()
     }
 
-    override fun pause() {
-        mPlayer.pause()
-    }
-
-    /**
-     * 继续播放
-     */
-    open fun resume() {
-        mPlayer.resume()
+    private fun attachMediaController() {
+        mDisplayContainer.bindPlayer(mPlayer)
     }
 
     /**
      * 释放播放器
+     * 如果是共享的播放器，在确实需要释放的时候才调用哦
      */
     open fun release() {
+        //todo 考虑共享播放器释放问题，应该需要从全局去移除
         mPlayer.release()
         //释放render
         mDisplayContainer.release()
-    }
-
-    override fun getDuration(): Long {
-        return mPlayer.getDuration()
-    }
-
-    override fun getCurrentPosition(): Long {
-        return mPlayer.getCurrentPosition()
-    }
-
-    override fun getBufferedPercentage(): Int {
-        return mPlayer.getBufferedPercentage()
-    }
-
-    override fun seekTo(msec: Long) {
-        mPlayer.seekTo(msec)
-    }
-
-    override fun isPlaying(): Boolean {
-        return mPlayer.isPlaying()
-    }
-
-    fun setVolume(
-        @FloatRange(from = 0.0, to = 1.0) leftVolume: Float,
-        @FloatRange(from = 0.0, to = 1.0) rightVolume: Float
-    ) {
-        mPlayer.setVolume(leftVolume, rightVolume)
-    }
-    /*************END 播放器相关的代码  */
-
-
-    /**--***********对外访问的方法*/
-
-    /**
-     * 循环播放， 默认不循环播放
-     */
-    fun setLooping(looping: Boolean) {
-        mPlayer.setLooping(looping)
-    }
-
-    /**
-     * 是否开启AudioFocus监听， 默认开启，用于监听其它地方是否获取音频焦点，如果有其它地方获取了
-     * 音频焦点，此播放器将做出相应反应，具体实现见[AudioFocusHelper]
-     */
-    fun setEnableAudioFocus(enableAudioFocus: Boolean) {
-        mPlayer.setEnableAudioFocus(enableAudioFocus)
     }
 
     /**
@@ -242,131 +139,12 @@ open class UNSVideoView @JvmOverloads constructor(
     }
 
     /**
-     * 设置进度管理器，用于保存播放进度
-     */
-    fun setProgressManager(progressManager: ProgressManager?) {
-        mPlayer.setProgressManager(progressManager)
-    }
-
-    /**
      * 设置控制器，传null表示移除控制器
      */
     fun setVideoController(mediaController: MediaController?) {
         mediaController?.setMediaPlayer(this)
         mDisplayContainer.setVideoController(mediaController)
     }
-
-    /*************START VideoViewControl  */
-    override var speed: Float
-        get() {
-            return mPlayer.getSpeed()
-        }
-        set(value) {
-            mPlayer.setSpeed(value)
-        }
-
-    /**
-     * 设置静音
-     * @param isMute true:静音 false：相反
-     */
-    override fun setMute(isMute: Boolean) {
-        mPlayer.setMute(isMute)
-    }
-
-    /**
-     * 是否处于静音状态
-     */
-    override fun isMute(): Boolean {
-        return mPlayer.isMute()
-    }
-
-    /**
-     * 获取缓冲速度
-     */
-    override fun getTcpSpeed(): Long {
-        return mPlayer.getTcpSpeed()
-    }
-
-//    /*************START WindowModeControl  */
-//    /**
-//     * 判断是否处于全屏状态（视图处于全屏）
-//     */
-//    fun isFullScreen(): Boolean {
-//        return mDisplayContainer.isFullScreen()
-//    }
-//
-//    /**
-//     * 当前是否处于小屏状态（视图处于小屏）
-//     */
-//    fun isTinyScreen(): Boolean {
-//        return mDisplayContainer.isTinyScreen()
-//    }
-//
-//    /**
-//     * 横竖屏切换
-//     * @return
-//     * @note 由于设计上支持界面间共享播放器，因此需要明确指定[Activity]对象
-//     */
-//    fun toggleFullScreen(activity: Activity = mActivity): Boolean {
-//        return mDisplayContainer.toggleFullScreen(activity, this)
-//    }
-//
-//    /**
-//     * 开始全屏
-//     */
-//    @JvmOverloads
-//    fun startFullScreen(
-//        activity: Activity = mActivity,
-//        isLandscapeReversed: Boolean = false
-//    ): Boolean {
-//        return mDisplayContainer.startFullScreen(activity, isLandscapeReversed)
-//    }
-//
-//    /**
-//     * 整个播放视图（Render、Controller）全屏
-//     * @param activity 在指定界面全屏
-//     */
-//    @JvmOverloads
-//    fun startVideoViewFullScreen(
-//        activity: Activity = mActivity,
-//        tryHideSystemBar: Boolean = true
-//    ): Boolean {
-//        return mDisplayContainer.startVideoViewFullScreen(activity, tryHideSystemBar)
-//    }
-//
-//    /**
-//     * 停止全屏
-//     */
-//    @SuppressLint("SourceLockedOrientationActivity")
-//    @JvmOverloads
-//    fun stopFullScreen(activity: Activity? = mPreferredActivity): Boolean {
-//        return mDisplayContainer.stopFullScreen(this, activity)
-//    }
-//
-//    /**
-//     * 整个播放视图（Render、Controller）退出全屏
-//     */
-//    @JvmOverloads
-//    fun stopVideoViewFullScreen(tryShowSystemBar: Boolean = true): Boolean {
-//        return mDisplayContainer.stopVideoViewFullScreen(this, tryShowSystemBar)
-//    }
-//
-//    /**
-//     * 开启小屏
-//     */
-//    @JvmOverloads
-//    fun startTinyScreen(activity: Activity = mActivity) {
-//        mDisplayContainer.startTinyScreen(activity)
-//    }
-//
-//    /**
-//     * 退出小屏
-//     */
-//    fun stopTinyScreen() {
-//        mDisplayContainer.stopTinyScreen(this)
-//    }
-//
-//    /*************END WindowModeControl  */
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
@@ -407,28 +185,27 @@ open class UNSVideoView @JvmOverloads constructor(
         /**
          * 普通模式
          */
-        const val SCREEN_MODE_NORMAL = 10
+        const val SCREEN_MODE_NORMAL = UNSContainerControl.SCREEN_MODE_NORMAL
 
         /**
          * 全屏模式
          */
-        const val SCREEN_MODE_FULL = 11
+        const val SCREEN_MODE_FULL = UNSContainerControl.SCREEN_MODE_FULL
 
         /**
          * 小窗模式
          */
-        const val SCREEN_MODE_TINY = 22
+        const val SCREEN_MODE_TINY = UNSContainerControl.SCREEN_MODE_TINY
     }
-
 
     init {
         //准备播放器容器
-        if(mDisplayContainer.parent != this){
+        if (mDisplayContainer.parent != this) {
             mDisplayContainer.removeFromParent()
             val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             this.addView(mDisplayContainer, params)
             attrs?.let {
-                mDisplayContainer.applyAttributes(context,attrs)
+                mDisplayContainer.applyAttributes(context, attrs)
             }
         }
 
@@ -436,11 +213,9 @@ open class UNSVideoView @JvmOverloads constructor(
         mDisplayContainer.bindContainer(this)
         //绑定界面
         val activity = context.getActivityContext()
-        if(activity != null){
+        if (activity != null) {
             mDisplayContainer.bindActivity(activity)
         }
-
-        mPlayer = UNSPlayerProxy(this.context)
-        mPlayer.addOnPlayStateChangeListener(mStateChangeListener)
+//        mPlayer.addOnPlayStateChangeListener(mStateChangeListener)
     }
 }

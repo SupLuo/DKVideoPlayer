@@ -25,9 +25,16 @@ public final class CutoutUtil {
      * 是否为允许全屏界面显示内容到刘海区域的刘海屏机型（与AndroidManifest中配置对应）
      */
     public static boolean allowDisplayToCutout(Activity activity) {
+        return allowDisplayToCutout(activity.getWindow());
+    }
+
+    /**
+     * 是否为允许全屏界面显示内容到刘海区域的刘海屏机型（与AndroidManifest中配置对应）
+     */
+    public static boolean allowDisplayToCutout(Window window) {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             // 9.0系统全屏界面默认会保留黑边，不允许显示内容到刘海区域
-            Window window = activity.getWindow();
             WindowInsets windowInsets = window.getDecorView().getRootWindowInsets();
             if (windowInsets == null) {
                 return false;
@@ -39,10 +46,11 @@ public final class CutoutUtil {
             List<Rect> boundingRects = displayCutout.getBoundingRects();
             return boundingRects.size() > 0;
         } else {
-            return hasCutoutHuawei(activity)
-                    || hasCutoutOPPO(activity)
-                    || hasCutoutVIVO(activity)
-                    || hasCutoutXIAOMI(activity);
+            Context context =     window.getContext();
+            return hasCutoutHuawei(context)
+                    || hasCutoutOPPO(context)
+                    || hasCutoutVIVO(context)
+                    || hasCutoutXIAOMI(context);
         }
     }
 
@@ -50,12 +58,12 @@ public final class CutoutUtil {
      * 是否是华为刘海屏机型
      */
     @SuppressWarnings("unchecked")
-    private static boolean hasCutoutHuawei(Activity activity) {
+    private static boolean hasCutoutHuawei(Context context) {
         if (!Build.MANUFACTURER.equalsIgnoreCase("HUAWEI")) {
             return false;
         }
         try {
-            ClassLoader cl = activity.getClassLoader();
+            ClassLoader cl = context.getClassLoader();
             Class HwNotchSizeUtil = cl.loadClass("com.huawei.android.util.HwNotchSizeUtil");
             if (HwNotchSizeUtil != null) {
                 Method get = HwNotchSizeUtil.getMethod("hasNotchInScreen");
@@ -70,11 +78,11 @@ public final class CutoutUtil {
     /**
      * 是否是oppo刘海屏机型
      */
-    private static boolean hasCutoutOPPO(Activity activity) {
+    private static boolean hasCutoutOPPO(Context context) {
         if (!Build.MANUFACTURER.equalsIgnoreCase("oppo")) {
             return false;
         }
-        return activity.getPackageManager().hasSystemFeature("com.oppo.feature.screen.heteromorphism");
+        return context.getPackageManager().hasSystemFeature("com.oppo.feature.screen.heteromorphism");
     }
 
     /**
@@ -82,12 +90,12 @@ public final class CutoutUtil {
      */
     @SuppressWarnings("unchecked")
     @SuppressLint("PrivateApi")
-    private static boolean hasCutoutVIVO(Activity activity) {
+    private static boolean hasCutoutVIVO(Context context) {
         if (!Build.MANUFACTURER.equalsIgnoreCase("vivo")) {
             return false;
         }
         try {
-            ClassLoader cl = activity.getClassLoader();
+            ClassLoader cl = context.getClassLoader();
             Class ftFeatureUtil = cl.loadClass("android.util.FtFeature");
             if (ftFeatureUtil != null) {
                 Method get = ftFeatureUtil.getMethod("isFeatureSupport", int.class);
@@ -104,12 +112,12 @@ public final class CutoutUtil {
      */
     @SuppressWarnings("unchecked")
     @SuppressLint("PrivateApi")
-    private static boolean hasCutoutXIAOMI(Activity activity) {
+    private static boolean hasCutoutXIAOMI(Context context) {
         if (!Build.MANUFACTURER.equalsIgnoreCase("xiaomi")) {
             return false;
         }
         try {
-            ClassLoader cl = activity.getClassLoader();
+            ClassLoader cl = context.getClassLoader();
             Class SystemProperties = cl.loadClass("android.os.SystemProperties");
             Class[] paramTypes = new Class[2];
             paramTypes[0] = String.class;

@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat;
 import droid.unicstar.videoplayer.UtilsKt;
 import droid.unicstar.videoplayer.UNSVideoView;
 import droid.unicstar.videoplayer.controller.MediaController;
-import xyz.doikki.videoplayer.controller.VideoViewControl;
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
 
 /**
@@ -67,7 +67,7 @@ public class DebugInfoView extends AppCompatTextView implements ControlComponent
      * Returns the debugging information string to be shown by the target {@link TextView}.
      */
     protected String getDebugString(int playState) {
-        VideoViewControl control = mController.getPlayerControl();
+        UNSVideoViewControl control = mController.getPlayerControl();
         if (control == null)
             return "";
         int[] videoSize = control.getVideoSize();

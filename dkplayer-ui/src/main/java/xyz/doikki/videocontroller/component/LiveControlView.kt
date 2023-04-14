@@ -12,6 +12,7 @@ import xyz.doikki.videocontroller.R
 import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.videoplayer.util.PlayerUtils
 import droid.unicstar.videoplayer.orDefault
+import droid.unicstar.videoplayer.player.UNSPlayer
 
 /**
  * 直播底部控制栏
@@ -58,23 +59,26 @@ class LiveControlView @JvmOverloads constructor(
             UNSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
             UNSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
         }
-        val activity = PlayerUtils.scanForActivity(context)
-        val controller = mController
-        if (activity != null && controller != null && controller.hasCutout()) {
-            val orientation = activity.requestedOrientation
-            val cutoutHeight = controller.cutoutHeight
-            when (orientation) {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                    mBottomContainer.setPadding(0, 0, 0, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
-                    mBottomContainer.setPadding(cutoutHeight, 0, 0, 0)
-                }
-                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
-                    mBottomContainer.setPadding(0, 0, cutoutHeight, 0)
+        val activity = PlayerUtils.scanForActivity(context)?:return
+        player?.let {
+            player->
+            if (player.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                val cutoutHeight = player.getCutoutHeight()
+                when (orientation) {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                        mBottomContainer.setPadding(0, 0, 0, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                        mBottomContainer.setPadding(cutoutHeight, 0, 0, 0)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
+                        mBottomContainer.setPadding(0, 0, cutoutHeight, 0)
+                    }
                 }
             }
         }
+
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {

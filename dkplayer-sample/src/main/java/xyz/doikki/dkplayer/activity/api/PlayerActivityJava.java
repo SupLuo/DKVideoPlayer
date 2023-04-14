@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.IntentKeys;
@@ -57,12 +58,12 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
     protected void initView() {
         super.initView();
         mVideoView = findViewById(R.id.player);
-
+        //根据屏幕方向自动进入/退出全屏
+        mVideoView.setEnableOrientationSensor(true);
         Intent intent = getIntent();
         if (intent != null) {
             StandardVideoController controller = new StandardVideoController(this);
-            //根据屏幕方向自动进入/退出全屏
-            controller.setEnableOrientationSensor(true);
+
 
             PrepareView prepareView = new PrepareView(this);//准备播放界面
             prepareView.setClickStart();
@@ -135,7 +136,7 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
             //保存播放进度
 //            mVideoView.setProgressManager(new ProgressManagerImpl());
             //播放状态监听
-            mVideoView.addOnStateChangeListener(mOnStateChangeListener);
+            mVideoView.addOnPlayStateChangeListener(mOnStateChangeListener);
 
             //临时切换播放核心，如需全局请通过VideoConfig配置，详见MyApplication
             //使用IjkPlayer解码
@@ -166,11 +167,9 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
         });
     }
 
-    private UNSVideoView.OnStateChangeListener mOnStateChangeListener = new UNSVideoView.OnStateChangeListener() {
-
-
+    private UNSPlayer.OnPlayStateChangeListener mOnStateChangeListener = new UNSPlayer.OnPlayStateChangeListener() {
         @Override
-        public void onPlayerStateChanged(int playState) {
+        public void onPlayStateChanged(int playState) {
             switch (playState) {
                 case UNSPlayer.STATE_IDLE:
                     break;
@@ -268,4 +267,6 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
             mVideoView.release();
         }
     }
+
+
 }

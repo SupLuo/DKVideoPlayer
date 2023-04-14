@@ -61,10 +61,11 @@ class CompleteView @JvmOverloads constructor(
         }
 
         val activity = activity ?: return
-        mController?.let { controller ->
-            if (controller.hasCutout()) {
+
+        player?.let { player ->
+            if (player.hasCutout()) {
                 val orientation = activity.requestedOrientation
-                val cutoutHeight = controller.cutoutHeight
+                val cutoutHeight = player.getCutoutHeight()
                 val sflp = mStopFullscreen.layoutParams as LayoutParams
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
@@ -109,17 +110,19 @@ class CompleteView @JvmOverloads constructor(
         //防止touch模式下，事件穿透
         isClickable = true
 
-        mStopFullscreen = findViewById(R.id.stop_fullscreen)
-        mStopFullscreen?.setOnClickListener {
-            mController?.let { controller ->
-                if (controller.isFullScreen) {
-                    val activity = activity
-                    if (activity != null && !activity.isFinishing) {
-                        controller.stopFullScreen()
+        mStopFullscreen = findViewById<View?>(R.id.stop_fullscreen)?.also {
+            it.setOnClickListener {
+                mController?.let { controller ->
+                    if (controller.isFullScreen) {
+                        val activity = activity
+                        if (activity != null && !activity.isFinishing) {
+                            controller.stopFullScreen()
+                        }
                     }
                 }
             }
         }
+
     }
 
 }

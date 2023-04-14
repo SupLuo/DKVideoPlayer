@@ -28,58 +28,54 @@ public class IjkVideoView extends UNSVideoView {
         super(context, attrs);
     }
 
-    public IjkVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
     {
         setPlayerFactory((UNSPlayerFactory<CustomIjkMediaPlayer>) context -> new CustomIjkMediaPlayer(context));
     }
 
-    private CustomIjkMediaPlayer mediaPlayer(){
-        return (CustomIjkMediaPlayer) getPlayer();
-    }
-
-    @Override
-    protected void preparePlayerOptions() {
-        super.preparePlayerOptions();
-        for (Map.Entry<String, Object> next : mPlayerOptions.entrySet()) {
-            String key = next.getKey();
-            Object value = next.getValue();
-            if (value instanceof String) {
-                mediaPlayer().setPlayerOption(key, (String) value);
-            } else if (value instanceof Long) {
-                mediaPlayer().setPlayerOption(key, (Long) value);
-            }
-        }
-        for (Map.Entry<String, Object> next : mFormatOptions.entrySet()) {
-            String key = next.getKey();
-            Object value = next.getValue();
-            if (value instanceof String) {
-                mediaPlayer().setFormatOption(key, (String) value);
-            } else if (value instanceof Long) {
-                mediaPlayer().setFormatOption(key, (Long) value);
-            }
-        }
-        for (Map.Entry<String, Object> next : mCodecOptions.entrySet()) {
-            String key = next.getKey();
-            Object value = next.getValue();
-            if (value instanceof String) {
-                mediaPlayer().setCodecOption(key, (String) value);
-            } else if (value instanceof Long) {
-                mediaPlayer().setCodecOption(key, (Long) value);
-            }
-        }
-        for (Map.Entry<String, Object> next : mSwsOptions.entrySet()) {
-            String key = next.getKey();
-            Object value = next.getValue();
-            if (value instanceof String) {
-                mediaPlayer().setSwsOption(key, (String) value);
-            } else if (value instanceof Long) {
-                mediaPlayer().setSwsOption(key, (Long) value);
-            }
-        }
-    }
+//    private CustomIjkMediaPlayer mediaPlayer(){
+//        return (CustomIjkMediaPlayer) getPlayer();
+//    }
+//
+//    @Override
+//    protected void preparePlayerOptions() {
+//        super.preparePlayerOptions();
+//        for (Map.Entry<String, Object> next : mPlayerOptions.entrySet()) {
+//            String key = next.getKey();
+//            Object value = next.getValue();
+//            if (value instanceof String) {
+//                mediaPlayer().setPlayerOption(key, (String) value);
+//            } else if (value instanceof Long) {
+//                mediaPlayer().setPlayerOption(key, (Long) value);
+//            }
+//        }
+//        for (Map.Entry<String, Object> next : mFormatOptions.entrySet()) {
+//            String key = next.getKey();
+//            Object value = next.getValue();
+//            if (value instanceof String) {
+//                mediaPlayer().setFormatOption(key, (String) value);
+//            } else if (value instanceof Long) {
+//                mediaPlayer().setFormatOption(key, (Long) value);
+//            }
+//        }
+//        for (Map.Entry<String, Object> next : mCodecOptions.entrySet()) {
+//            String key = next.getKey();
+//            Object value = next.getValue();
+//            if (value instanceof String) {
+//                mediaPlayer().setCodecOption(key, (String) value);
+//            } else if (value instanceof Long) {
+//                mediaPlayer().setCodecOption(key, (Long) value);
+//            }
+//        }
+//        for (Map.Entry<String, Object> next : mSwsOptions.entrySet()) {
+//            String key = next.getKey();
+//            Object value = next.getValue();
+//            if (value instanceof String) {
+//                mediaPlayer().setSwsOption(key, (String) value);
+//            } else if (value instanceof Long) {
+//                mediaPlayer().setSwsOption(key, (Long) value);
+//            }
+//        }
+//    }
 
     /**
      * 开启硬解

@@ -5,11 +5,11 @@ import android.content.pm.ActivityInfo
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import droid.unicstar.videoplayer.UNSVideoView
 import xyz.doikki.dkplayer.R
 import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.component.VodControlView
-import droid.unicstar.videoplayer.UNSVideoView
-import xyz.doikki.videoplayer.controller.VideoViewControl
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl
 
 class PortraitWhenFullScreenController @JvmOverloads constructor(
     context: Context,
@@ -27,10 +27,10 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
         addControlComponent(vodControlView)
     }
 
-    override fun setMediaPlayer(mediaPlayer: VideoViewControl) {
+    override fun setMediaPlayer(mediaPlayer: UNSVideoViewControl) {
         super.setMediaPlayer(mediaPlayer)
         //不监听设备方向
-        setEnableOrientationSensor(false)
+        mediaPlayer.setEnableOrientationSensor(false)
     }
 
     override fun toggleFullScreen(): Boolean {
@@ -47,7 +47,7 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        if (!mPlayer!!.isFullScreen) {
+        if (!mPlayer!!.isFullScreen()) {
             mPlayer!!.startVideoViewFullScreen()
             return true
         }
@@ -66,15 +66,19 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
     }
 
     private fun adjustView() {
-        if (mActivity != null && hasCutout()) {
-            val orientation = mActivity!!.requestedOrientation
-            val cutoutHeight = cutoutHeight
-            if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                setPadding(0, cutoutHeight, 0, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                setPadding(cutoutHeight, 0, 0, 0)
+
+        invokeOnPlayerAttached {
+            if (mActivity != null && it.hasCutout()) {
+                val orientation = mActivity!!.requestedOrientation
+                val cutoutHeight = it.getCutoutHeight()
+                if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    setPadding(0, cutoutHeight, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    setPadding(cutoutHeight, 0, 0, 0)
+                }
             }
         }
+
     }
 
     override fun onClick(v: View) {

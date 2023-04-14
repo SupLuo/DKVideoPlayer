@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.widget.CenteredImageSpan;
 import droid.unicstar.videoplayer.UNSVideoView;
@@ -55,26 +56,45 @@ public class DanmukuVideoView extends UNSVideoView {
         super(context, attrs);
     }
 
-    public DanmukuVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    {
+        addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+            @Override
+            public void onPlayStateChanged(int playState) {
+                if(playState == UNSPlayer.STATE_PLAYING){
+                    if (mDanmakuView != null && mDanmakuView.isPrepared() && mDanmakuView.isPaused()) {
+                        mDanmakuView.resume();
+                    }
+                }else if(playState == UNSPlayer.STATE_PAUSED){
+                    if (mDanmakuView != null && mDanmakuView.isPrepared()) {
+                        mDanmakuView.pause();
+                    }
+                }else if(playState == UNSPlayer.STATE_PLAYBACK_COMPLETED){
+                    if (mDanmakuView != null) {
+                        mDanmakuView.clearDanmakusOnScreen();
+                    }
+                }
+            }
+        });
     }
 
-    @Override
-    protected void ensurePlayer() {
-        super.ensurePlayer();
-        if (mDanmakuView == null) {
-            initDanMuView();
-        }
-        mDisplayContainer.removeView(mDanmakuView);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParams.topMargin = (int) PlayerUtils.getStatusBarHeight(getContext());
-        mDisplayContainer.addView(mDanmakuView, layoutParams);
-        //将控制器提到最顶层，如果有的话
-        MediaController controller = getVideoController();
-        if (controller != null) {
-            controller.bringToFront();
-        }
-    }
+//todo
+//
+//    @Override
+//    protected void ensurePlayer() {
+//        super.ensurePlayer();
+//        if (mDanmakuView == null) {
+//            initDanMuView();
+//        }
+//        mDisplayContainer.removeView(mDanmakuView);
+//        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//        layoutParams.topMargin = (int) PlayerUtils.getStatusBarHeight(getContext());
+//        mDisplayContainer.addView(mDanmakuView, layoutParams);
+//        //将控制器提到最顶层，如果有的话
+//        MediaController controller = getVideoController();
+//        if (controller != null) {
+//            controller.bringToFront();
+//        }
+//    }
 
     @Override
     public void replay(boolean resetPosition) {
@@ -85,23 +105,6 @@ public class DanmukuVideoView extends UNSVideoView {
         }
     }
 
-    @Override
-    protected void startInPlaybackState() {
-        super.startInPlaybackState();
-        if (mDanmakuView != null && mDanmakuView.isPrepared() && mDanmakuView.isPaused()) {
-            mDanmakuView.resume();
-        }
-    }
-
-    @Override
-    public void pause() {
-        super.pause();
-        if (isInPlaybackState()) {
-            if (mDanmakuView != null && mDanmakuView.isPrepared()) {
-                mDanmakuView.pause();
-            }
-        }
-    }
 
     @Override
     public void resume() {
@@ -124,16 +127,8 @@ public class DanmukuVideoView extends UNSVideoView {
     @Override
     public void seekTo(long pos) {
         super.seekTo(pos);
-        if (isInPlaybackState()) {
+        if (isPlaying()) {
             if (mDanmakuView != null) mDanmakuView.seekTo(pos);
-        }
-    }
-
-    @Override
-    public void onCompletion() {
-        super.onCompletion();
-        if (mDanmakuView != null) {
-            mDanmakuView.clearDanmakusOnScreen();
         }
     }
 

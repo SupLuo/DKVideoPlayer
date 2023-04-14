@@ -3,6 +3,8 @@ package xyz.doikki.dkplayer.activity.extend;
 import android.widget.Toast;
 
 import com.danikula.videocache.HttpProxyCacheServer;
+
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
@@ -57,9 +59,9 @@ public class ADActivity extends BaseActivity<UNSVideoView> {
         mVideoView.setVideoController(mController);
 
         //监听播放结束
-        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
             @Override
-            public void onPlayerStateChanged(int playState) {
+            public void onPlayStateChanged(int playState) {
                 if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
                     playVideo();
                 }

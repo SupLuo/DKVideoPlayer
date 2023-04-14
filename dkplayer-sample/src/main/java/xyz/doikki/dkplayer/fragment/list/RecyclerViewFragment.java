@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.MainActivity;
 import xyz.doikki.dkplayer.adapter.VideoRecyclerViewAdapter;
@@ -100,9 +101,9 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
 
     protected void initVideoView() {
         mVideoView = new UNSVideoView(getActivity());
-        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
             @Override
-            public void onPlayerStateChanged(int playState) {
+            public void onPlayStateChanged(int playState) {
                 //监听VideoViewManager释放，重置状态
                 if (playState == UNSPlayer.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
@@ -120,7 +121,7 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
         mController.addControlComponent(mTitleView);
         mController.addControlComponent(new VodControlView(getActivity()));
         mController.addControlComponent(new GestureView(getActivity()));
-        mController.setEnableOrientationSensor(true);
+        mVideoView.setEnableOrientationSensor(true);
         mVideoView.setVideoController(mController);
     }
 

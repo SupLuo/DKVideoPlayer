@@ -3,9 +3,9 @@ package xyz.doikki.videoplayer.controller.component
 import android.view.View
 import android.view.animation.Animation
 import xyz.doikki.videoplayer.DKManager
-import droid.unicstar.videoplayer.UNSVideoView.ScreenMode
+import droid.unicstar.videoplayer.ScreenMode
 import droid.unicstar.videoplayer.controller.MediaController
-import xyz.doikki.videoplayer.controller.VideoViewControl
+import droid.unicstar.videoplayer.controller.UNSVideoViewControl
 
 /**
  * 控制器中的控制组件
@@ -20,7 +20,7 @@ interface ControlComponent {
     /**
      * 绑定了播放器:用于先绑定controller之后，再绑定的播放器情况
      */
-    fun onPlayerAttached(player: VideoViewControl) {}
+    fun onPlayerAttached(player: UNSVideoViewControl) {}
 
     /**
      * 如果 ControlComponent 是 View，返回当前控件（this）即可；如果不是，返回null

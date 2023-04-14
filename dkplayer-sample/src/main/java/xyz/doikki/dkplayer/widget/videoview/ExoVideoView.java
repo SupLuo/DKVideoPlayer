@@ -40,44 +40,33 @@ public class ExoVideoView extends UNSVideoView {
         super(context, attrs);
     }
 
-    public ExoVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
     {
         //由于传递了泛型，必须将CustomExoMediaPlayer设置进来，否者报错
         setPlayerFactory(new UNSPlayerFactory<CustomExoMediaPlayer>() {
             @Override
             public CustomExoMediaPlayer create(Context context) {
-                return new CustomExoMediaPlayer(context);
+                CustomExoMediaPlayer player =  new CustomExoMediaPlayer(context);
+                player.setLoadControl(mLoadControl);
+                player.setRenderersFactory(mRenderersFactory);
+                player.setTrackSelector(mTrackSelector);
+                return player;
             }
         });
         mHelper = ExoMediaSourceHelper.getInstance(getContext());
     }
 
     private CustomExoMediaPlayer mediaPlayer() {
-        return (CustomExoMediaPlayer) getPlayer();
+        return (CustomExoMediaPlayer) getKernel();
     }
 
-    @NonNull
-    @Override
-    protected UNSPlayer createPlayer() {
-        UNSPlayer player =  super.createPlayer();
-        CustomExoMediaPlayer mp = (CustomExoMediaPlayer) player;
-        mp.setLoadControl(mLoadControl);
-        mp.setRenderersFactory(mRenderersFactory);
-        mp.setTrackSelector(mTrackSelector);
-        return player;
-    }
-
-    @Override
-    protected void prepareKernelDataSource() {
-        if (mMediaSource != null) {
-            mediaPlayer().setDataSource(mMediaSource);
-            mediaPlayer().prepareAsync();
-            setCurrentState(STATE_PREPARING);
-        }
-    }
+//    @Override
+//    protected void prepareKernelDataSource() {
+//        if (mMediaSource != null) {
+//            mediaPlayer().setDataSource(mMediaSource);
+//            mediaPlayer().prepareAsync();
+//            setCurrentState(STATE_PREPARING);
+//        }
+//    }
 
     /**
      * 设置ExoPlayer的MediaSource
@@ -86,15 +75,12 @@ public class ExoVideoView extends UNSVideoView {
         mMediaSource = mediaSource;
     }
 
-    @Override
-    public void setDataSource(@NonNull String path, @Nullable Map<String, String> headers) {
-        mMediaSource = mHelper.getMediaSource(path, headers, mIsCacheEnabled);
-    }
 
-    @Override
-    public void setDataSource(@NonNull AssetFileDescriptor fd) {
-        super.setDataSource(fd);
-    }
+//    @Override
+//    public void setDataSource(@NonNull String path, @Nullable Map<String, String> headers) {
+//        mMediaSource = mHelper.getMediaSource(path, headers, mIsCacheEnabled);
+//    }
+
 
     /**
      * 是否打开缓存

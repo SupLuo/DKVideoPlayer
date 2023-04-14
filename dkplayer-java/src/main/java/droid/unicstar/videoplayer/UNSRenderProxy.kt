@@ -15,13 +15,13 @@ import droid.unicstar.videoplayer.render.UNSRenderFactory
 import xyz.doikki.videoplayer.DKManager
 
 /**
+ * 视频渲染层代理：在渲染层基础功能的情况下（旋转、镜像旋转、截屏、比例缩放），新增图层切换、工厂切换、渲染层是否重用等功能控制
  * 在使用之前，必须调用[bindContainer]指定容器
+ *
  */
-class UNSRenderProxy() : UNSRender, UNSRenderControl {
+class UNSRenderProxy : UNSRender, UNSRenderControl {
 
-    /**
-     * Render所在的容器，必须指定
-     */
+    //Render所在的容器，必须指定
     private lateinit var mContainer: FrameLayout
 
     private inline val mContext: Context get() = mContainer.context
@@ -110,7 +110,7 @@ class UNSRenderProxy() : UNSRender, UNSRenderControl {
     private fun attachRender(player: UNSPlayer) {
         logd("[RenderProxy]:attachRender")
         val render = mRender ?: createRender()
-        logd("[RenderProxy]:attachRender render=$render")
+        logd("[RenderProxy]:attachRender render=$render hashCode=${render.hashCode()}")
         render.bindPlayer(player)
     }
 
@@ -172,14 +172,18 @@ class UNSRenderProxy() : UNSRender, UNSRenderControl {
         get() = mRender?.view
 
     override fun bindPlayer(player: UNSPlayer?) {
-        logd("[RenderProxy]:bindPlayer")
+        logd("[RenderProxy]:bindPlayer renderReusable=$mRenderReusable currentRenderHashCode=${mRender.hashCode()}")
         if (!mRenderReusable) {//不重用render，则立即释放当前的render
             logd("[RenderProxy]:releaseCurrentRender renderReusable=$mRenderReusable")
             releaseCurrentRender()
         }
         mAttachedPlayer = player
-        if (player != null)
+        if (player != null) {
+            logd("[RenderProxy]:bindPlayer player not null,try attach render to player.")
             attachRender(player)
+        }else{
+            logd("[RenderProxy]:bindPlayer player is null,ignore.")
+        }
     }
 
     override fun setSurfaceListener(listener: UNSRender.SurfaceListener?) {

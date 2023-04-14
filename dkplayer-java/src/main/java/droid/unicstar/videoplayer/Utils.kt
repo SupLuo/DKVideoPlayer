@@ -68,17 +68,17 @@ internal inline fun <T> T.tryIgnore(action: T.() -> Unit): Throwable? {
     }
 }
 
-internal inline fun Boolean?.orDefault(def: Boolean = false): Boolean {
+ inline fun Boolean?.orDefault(def: Boolean = false): Boolean {
     return this ?: def
 }
 
-internal inline fun Int?.orDefault(def: Int = 0) = this ?: def
+ inline fun Int?.orDefault(def: Int = 0) = this ?: def
 internal inline fun Float?.orDefault(def: Float = 0f) = this ?: def
 internal inline fun Long?.orDefault(def: Long = 0) = this ?: def
 internal inline fun Double?.orDefault(def: Double = 0.0) = this ?: def
 internal inline fun <T> T?.orDefault(default: T): T = this ?: default
 internal inline fun <T> T?.orDefault(initializer: () -> T): T = this ?: initializer()
-internal inline fun <reified K> Map<*, *>.loopKeyWhen(block: (K) -> Unit) {
+ inline fun <reified K> Map<*, *>.loopKeyWhen(block: (K) -> Unit) {
     for ((key) in this) {
         if (key is K) {
             block(key)
@@ -114,7 +114,7 @@ internal inline fun <V> MutableMap<*, V>.removeAllByValue(filter: (V) -> Boolean
     }
 }
 
-internal inline var View.isVisible: Boolean
+ inline var View.isVisible: Boolean
     get() = visibility == View.VISIBLE
     set(value) {
         visibility = if (value) View.VISIBLE else View.GONE
@@ -150,7 +150,7 @@ internal inline fun Context.toast(message: String, length: Int = Toast.LENGTH_SH
     Toast.makeText(this, message, length).show()
 }
 
-internal inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
+ inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, messageId, length).show()
 }
 
@@ -159,11 +159,11 @@ internal inline fun View.toast(message: String, length: Int = Toast.LENGTH_SHORT
     context.toast(message, length)
 }
 
-internal inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
+ inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
     context.toast(messageId, length)
 }
 
-internal fun TextView.setTextOrGone(message: CharSequence?) {
+ fun TextView.setTextOrGone(message: CharSequence?) {
     visibility = if (message.isNullOrEmpty()) {
         View.GONE
     } else {
@@ -187,7 +187,7 @@ internal val View.canTakeFocus: Boolean
 /**
  * Returns a string containing player state debugging information.
  */
-internal fun screenMode2str(@UNSVideoView.ScreenMode mode: Int): String? {
+internal fun screenMode2str(@ScreenMode mode: Int): String? {
     val playerStateString: String = when (mode) {
         UNSVideoView.SCREEN_MODE_NORMAL -> "normal"
         UNSVideoView.SCREEN_MODE_FULL -> "full screen"

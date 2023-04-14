@@ -124,6 +124,7 @@ class JustFullscreenPlayScene private constructor(
          * 本方法会创建一个[UNSVideoView]播放器并调用[Activity.setContentView]进行设置
          * 必须在[Activity.onCreate]方法或之后调用
          */
+        @JvmOverloads
         @JvmStatic
         fun create(
             activity: ComponentActivity,

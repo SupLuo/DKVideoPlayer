@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.videocontroller.StandardVideoController;
@@ -104,9 +105,9 @@ public class AndroidOPiPActivity extends AppCompatActivity {
         mController.addDefaultControlComponent(getString(R.string.str_pip_android_o), false);
         mVideoView.setVideoController(mController);
         mVideoView.start();
-        mVideoView.addOnStateChangeListener(new UNSVideoView.OnStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
             @Override
-            public void onPlayerStateChanged(int playState) {
+            public void onPlayStateChanged(int playState) {
                 switch (playState) {
                     case UNSPlayer.STATE_PAUSED:
                         updatePictureInPictureActions(

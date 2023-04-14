@@ -36,6 +36,7 @@ import xyz.doikki.videoplayer.util.L
 class PlayerActivity : BaseActivity<UNSVideoView>() {
 
     private lateinit var controller: StandardVideoController
+
     private val renderView by lazy {
         GLSurfaceRenderView2(this)
     }
@@ -54,13 +55,14 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
             }
         }
         mVideoView = findViewById(R.id.player)
+        //根据屏幕方向自动进入/退出全屏
+        mVideoView.setEnableOrientationSensor(true)
         intent?.let {
             controller = TVVideoController(this)
 //            controller.post {
 //                controller.requestFocus()
 //            }
-            //根据屏幕方向自动进入/退出全屏
-            controller.setEnableOrientationSensor(true)
+
             val prepareView = PrepareView(this) //准备播放界面
             prepareView.setClickStart()
             val thumb = prepareView.findViewById<ImageView>(R.id.thumb) //封面图
@@ -129,7 +131,7 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
             //保存播放进度
 //            mVideoView.setProgressManager(ProgressManagerImpl())
             //播放状态监听
-            mVideoView.addOnStateChangeListener(mOnStateChangeListener)
+            mVideoView.addOnPlayStateChangeListener (mOnStateChangeListener)
 
             // 临时切换RenderView, 如需全局请通过VideoConfig配置，详见MyApplication
             if (intent.getBooleanExtra(IntentKeys.CUSTOM_RENDER, false)) {
@@ -198,36 +200,32 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
         }
     }
 
-    private val mOnStateChangeListener: UNSVideoView.OnStateChangeListener =
-        object : UNSVideoView.OnStateChangeListener {
-
-            override fun onPlayerStateChanged(playState: Int) {
-                when (playState) {
-                    UNSPlayer.STATE_IDLE -> {
-                    }
-                    UNSPlayer.STATE_PREPARING -> {
-                    }
-                    UNSPlayer.STATE_PREPARED -> {
-                    }
-                    UNSPlayer.STATE_PLAYING -> {
-                        //需在此时获取视频宽高
-                        val videoSize = mVideoView!!.videoSize
-                        L.d("视频宽：" + videoSize[0])
-                        L.d("视频高：" + videoSize[1])
-                    }
-                    UNSPlayer.STATE_PAUSED -> {
-                    }
-                    UNSPlayer.STATE_BUFFERING -> {
-                        isBuff = true
-                        lastBTime = System.currentTimeMillis()
-                    }
-                    UNSPlayer.STATE_BUFFERED -> {
-                        isBuff = false
-                    }
-                    UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
-                    }
-                    UNSPlayer.STATE_ERROR -> {
-                    }
+    private val mOnStateChangeListener: UNSPlayer.OnPlayStateChangeListener = UNSPlayer.OnPlayStateChangeListener { playState ->
+            when (playState) {
+                UNSPlayer.STATE_IDLE -> {
+                }
+                UNSPlayer.STATE_PREPARING -> {
+                }
+                UNSPlayer.STATE_PREPARED -> {
+                }
+                UNSPlayer.STATE_PLAYING -> {
+                    //需在此时获取视频宽高
+                    val videoSize = mVideoView.getVideoSize()
+                    L.d("视频宽：" + videoSize[0])
+                    L.d("视频高：" + videoSize[1])
+                }
+                UNSPlayer.STATE_PAUSED -> {
+                }
+                UNSPlayer.STATE_BUFFERING -> {
+                    isBuff = true
+                    lastBTime = System.currentTimeMillis()
+                }
+                UNSPlayer.STATE_BUFFERED -> {
+                    isBuff = false
+                }
+                UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
+                }
+                UNSPlayer.STATE_ERROR -> {
                 }
             }
         }
@@ -241,11 +239,11 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
             R.id.scale_original -> mVideoView!!.setAspectRatioType(AspectRatioType.SCALE_ORIGINAL)
             R.id.scale_match_parent -> mVideoView!!.setAspectRatioType(AspectRatioType.MATCH_PARENT)
             R.id.scale_center_crop -> mVideoView!!.setAspectRatioType(AspectRatioType.CENTER_CROP)
-            R.id.speed_0_5 -> mVideoView!!.speed = 0.5f
-            R.id.speed_0_75 -> mVideoView!!.speed = 0.75f
-            R.id.speed_1_0 -> mVideoView!!.speed = 1.0f
-            R.id.speed_1_5 -> mVideoView!!.speed = 1.5f
-            R.id.speed_2_0 -> mVideoView!!.speed = 2.0f
+            R.id.speed_0_5 -> mVideoView!!.setSpeed(0.5f)
+            R.id.speed_0_75 -> mVideoView!!.setSpeed(0.75f)
+            R.id.speed_1_0 -> mVideoView!!.setSpeed(1.0f)
+            R.id.speed_1_5 -> mVideoView!!.setSpeed(1.5f)
+            R.id.speed_2_0 -> mVideoView!!.setSpeed(2.0f)
             R.id.rotate90 -> mVideoView.setVideoRotation(90)
             R.id.rotate180 -> mVideoView.setVideoRotation(180)
             R.id.rotate270 -> mVideoView.setVideoRotation(270)
@@ -268,7 +266,7 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
             R.id.texture_render->{
                 mVideoView!!.setRenderViewFactory(UNSRenderFactory.textureViewRenderFactory())
             }
-            R.id.btn_mute -> mVideoView!!.isMute = !mVideoView!!.isMute
+            R.id.btn_mute -> mVideoView!!.setMute(!mVideoView!!.isMute())
         }
     }
 
@@ -276,9 +274,14 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
         super.onPause()
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView!!.currentState == UNSPlayer.STATE_PREPARING) {
+        if (mVideoView .currentState == UNSPlayer.STATE_PREPARING) {
             mVideoView!!.release()
         }
+    }
+
+    override fun onDestroy() {
+        mVideoView.removeOnPlayStateChangeListener(mOnStateChangeListener)
+        super.onDestroy()
     }
 
     companion object {
@@ -300,5 +303,7 @@ class PlayerActivity : BaseActivity<UNSVideoView>() {
             intent.putExtra(IntentKeys.CUSTOM_RENDER, customRender)
             context.startActivity(intent)
         }
+
+
     }
 }

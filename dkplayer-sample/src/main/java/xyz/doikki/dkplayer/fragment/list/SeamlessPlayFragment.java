@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 
+import droid.unicstar.videoplayer.player.UNSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.list.DetailActivity;
 import xyz.doikki.dkplayer.adapter.VideoRecyclerViewAdapter;

@@ -152,6 +152,7 @@ interface UNSRender {
      * @param callback    回调
      * @see Bitmap.Config
      */
+    @PartialFunc(message = "SurfaceView在Android 7.0（24）版本及以后才支持")
     fun screenshot(highQuality: Boolean, callback: ScreenShotCallback)
 
 }
