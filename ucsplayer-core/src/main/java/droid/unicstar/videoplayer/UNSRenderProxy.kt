@@ -81,10 +81,7 @@ class UNSRenderProxy : UNSRender, UNSRenderControl {
         mContainer = container
     }
 
-    /**
-     * render是否可以重用
-     */
-    fun setRenderReusable(reusable: Boolean) {
+    override fun setRenderReusable(reusable: Boolean) {
         mRenderReusable = reusable
     }
 
@@ -240,7 +237,5 @@ class UNSRenderProxy : UNSRender, UNSRenderControl {
     override fun release() {
         mAttachedPlayer = null
         releaseCurrentRender()
-        //关闭屏幕常亮
-        mContainer.keepScreenOn = false
     }
 }

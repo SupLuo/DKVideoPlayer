@@ -63,7 +63,6 @@
         <activity
             android:name=".activity.api.Player2ShareRenderActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
-            android:exported="true"
             android:windowSoftInputMode="stateHidden">
         </activity>
         <activity

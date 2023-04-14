@@ -12,6 +12,11 @@ import droid.unicstar.videoplayer.render.UNSRenderFactory
 interface UNSRenderControl {
 
     /**
+     * 设置Render是否重用：即每次播放是否重新创建一个新的图层,默认[xyz.doikki.videoplayer.DKManager.isRenderReusable]
+     */
+    fun setRenderReusable(reusable: Boolean)
+
+    /**
      * 自定义RenderView，继承[UNSRenderFactory]实现自己的RenderView
      */
     fun setRenderViewFactory(factory: UNSRenderFactory?)

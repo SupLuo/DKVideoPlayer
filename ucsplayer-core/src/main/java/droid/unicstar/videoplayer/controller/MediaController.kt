@@ -11,14 +11,12 @@ import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import droid.unicstar.videoplayer.*
-import droid.unicstar.videoplayer.orDefault
 import droid.unicstar.videoplayer.player.UNSPlayer
-import droid.unicstar.videoplayer.removeAllByValue
-import droid.unicstar.videoplayer.toast
 import xyz.doikki.videoplayer.*
 import xyz.doikki.videoplayer.controller.VideoViewController
 import xyz.doikki.videoplayer.controller.component.ControlComponent
-import xyz.doikki.videoplayer.util.*
+import xyz.doikki.videoplayer.util.L
+import xyz.doikki.videoplayer.util.PlayerUtils
 
 /**
  * 控制器基类
@@ -45,7 +43,7 @@ import xyz.doikki.videoplayer.util.*
 open class MediaController @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr),
-    VideoViewController{
+    VideoViewController {
 
     /**
      * 当前控制器中保存的所有控制组件
@@ -99,7 +97,10 @@ open class MediaController @JvmOverloads constructor(
         override fun run() {
             val pos = updateProgress()
             if (mPlayer?.isPlaying().orDefault()) {
-                postDelayed(this, ((1000 - pos % 1000) / mPlayer?.getSpeed().orDefault(1f)).toLong())
+                postDelayed(
+                    this,
+                    ((1000 - pos % 1000) / mPlayer?.getSpeed().orDefault(1f)).toLong()
+                )
             } else {
                 mProgressRefreshing = false
             }
@@ -144,6 +145,8 @@ open class MediaController @JvmOverloads constructor(
      */
     @CallSuper
     open fun setMediaPlayer(mediaPlayer: UNSVideoViewControl) {
+        if (mPlayer == mediaPlayer)
+            return
         mPlayer = mediaPlayer
         //绑定ControlComponent和Controller
         for ((component) in mControlComponents) {
@@ -235,7 +238,7 @@ open class MediaController @JvmOverloads constructor(
 
     /***********START 关键方法代码 */
     override fun isFullScreen(): Boolean {
-        return invokeOnPlayerAttached {
+        return invokeOnPlayerAttached(false) {
             it.isFullScreen()
         }.orDefault()
     }
@@ -536,8 +539,10 @@ open class MediaController @JvmOverloads constructor(
     ): R? {
         val player = mPlayer
         if (player == null) {
-            if (showToast)
+            if (showToast) {
                 toast("请先调用setMediaPlayer方法绑定播放器.")
+            }
+            L.w("error on ${Thread.currentThread().stackTrace[2].methodName} method invoke.but throwable is ignored.")
             return null
         }
         return block.invoke(player)

@@ -49,6 +49,7 @@ public class ApiFragment extends BaseFragment implements View.OnClickListener {
     protected void initView() {
         super.initView();
         findViewById(R.id.btn_vod).setOnClickListener(this);
+        findViewById(R.id.btn_vod2).setOnClickListener(this);
         findViewById(R.id.btn_live).setOnClickListener(this);
         findViewById(R.id.btn_music).setOnClickListener(this);
         findViewById(R.id.btn_raw_assets).setOnClickListener(this);
@@ -63,7 +64,8 @@ public class ApiFragment extends BaseFragment implements View.OnClickListener {
                 PlayerActivity.start(getActivity(), VOD_URL, getString(R.string.str_api_vod), false, false);
                 break;
             case R.id.btn_vod2:
-                Player2ShareRenderActivity.start(getActivity(), VOD_URL,"http://vfx.mtime.cn/Video/2019/03/18/mp4/190318214226685784.mp4", getString(R.string.str_api_vod2), false, false);
+                Player2ShareRenderActivity.start(getActivity(), VOD_URL,"http://vfx.mtime.cn/Video/2019/03/18/mp4/190318214226685784.mp4", getString(R.string.str_api_vod2));
+                break;
             case R.id.btn_live:
                 PlayerActivity.start(getActivity(), LIVE_URL, getString(R.string.str_api_live), true, false);
                 break;

@@ -23,7 +23,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     compileOnly project.ext.annotation
-    api project(':dkplayer-java')
+    api project(':ucsplayer-core')
 
     implementation "androidx.appcompat:appcompat:1.2.0"
 }

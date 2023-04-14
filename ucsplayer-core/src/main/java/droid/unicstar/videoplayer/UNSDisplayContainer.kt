@@ -40,7 +40,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 open class UNSDisplayContainer @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null,
     private val mRender: UNSRenderProxy = UNSRenderProxy()
-) : FrameLayout(context, attrs), UNSRenderControl by mRender, UNSContainerControl {
+) : FrameLayout(context, attrs),UNSContainerControl, UNSRenderControl by mRender {
 
     //绑定的界面
     private var mBindActivityRef: SoftReference<Activity?>? = null
@@ -201,7 +201,7 @@ open class UNSDisplayContainer @JvmOverloads constructor(
     /**
      * 绑定播放器
      */
-    fun bindPlayer(player: UNSPlayerProxy) {
+    override fun bindPlayer(player: UNSPlayerProxy) {
         logd("[DisplayContainer]:bindPlayer")
         val currentPlayer = mPlayerRef?.get()
         if (currentPlayer != player) {
@@ -518,7 +518,9 @@ open class UNSDisplayContainer @JvmOverloads constructor(
         return videoController?.onBackPressed().orDefault()
     }
 
-    fun release() {
+    override fun release() {
+        //关闭屏幕常亮
+        keepScreenOn = false
         mRender.release()
         mOrientationSensorHelper.disable()
         mOrientationSensorHelper.setDeviceOrientationChangedListener(null)

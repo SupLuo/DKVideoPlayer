@@ -91,7 +91,7 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (!enableLock)
             return
-        invokeOnPlayerAttached { player ->
+        invokeOnPlayerAttached(showToast = false) { player ->
             if (player.isFullScreen()) {
                 if (isVisible) {
                     if (lockButton.visibility == GONE) {
@@ -129,7 +129,7 @@ open class StandardVideoController @JvmOverloads constructor(
             }
         }
 
-        invokeOnPlayerAttached {
+        invokeOnPlayerAttached(false) {
             val activity = mActivity ?: return
             if (it.hasCutout()) {
                 val orientation = activity.requestedOrientation

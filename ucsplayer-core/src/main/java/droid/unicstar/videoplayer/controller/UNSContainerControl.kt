@@ -1,11 +1,12 @@
 package droid.unicstar.videoplayer.controller
 
 import droid.unicstar.videoplayer.ScreenMode
+import droid.unicstar.videoplayer.UNSPlayerProxy
 
 /**
  * 整个播放器视图所在容器控制层提供的功能；具体由[droid.unicstar.videoplayer.UNSDisplayContainer]实现
  */
-interface UNSContainerControl {
+interface UNSContainerControl : UNSRenderControl {
 
     companion object {
 
@@ -31,6 +32,16 @@ interface UNSContainerControl {
     fun interface OnScreenModeChangeListener {
         fun onScreenModeChanged(@ScreenMode screenMode: Int)
     }
+
+    /**
+     * 绑定播放器
+     */
+    fun bindPlayer(player: UNSPlayerProxy)
+
+    /**
+     * 释放资源
+     */
+    fun release()
 
     @ScreenMode
     val screenMode: Int

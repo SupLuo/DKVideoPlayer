@@ -556,7 +556,6 @@ open class UNSPlayerProxy(private val context: Context) : UNSPlayer, UNSPlayerCo
         return mPlayer ?: throw IllegalStateException("请先创建播放器（prepareMediaPlayer）")
     }
 
-
     /**
      * 获取已保存的当前播放进度
      *

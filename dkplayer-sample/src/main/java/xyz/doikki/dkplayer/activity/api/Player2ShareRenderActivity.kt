@@ -12,6 +12,8 @@ import droid.unicstar.videoplayer.UNSVideoView
 import droid.unicstar.videoplayer.player.UNSPlayer
 import droid.unicstar.videoplayer.render.AspectRatioType
 import droid.unicstar.videoplayer.render.UNSRenderFactory
+import droid.unicstar.player.usecase.DoublePlayerUseCase
+import droid.unicstar.player.usecase.UCSUseCase
 import xyz.doikki.dkplayer.R
 import xyz.doikki.dkplayer.activity.BaseActivity
 import xyz.doikki.dkplayer.util.IntentKeys
@@ -30,10 +32,19 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
 
     private lateinit var controller: StandardVideoController
 
-    private val mPlay1: UNSPlayerProxy = UNSPlayerProxy(this)
-    private val mPlay2: UNSPlayerProxy = UNSPlayerProxy(this)
-    private var mCurrentPlayer: UNSPlayerProxy? = null
+    private val mPlay1: UNSPlayerProxy by lazy {
+        UNSPlayerProxy(this)
+    }
+    private val mPlay2: UNSPlayerProxy by lazy {
+        UNSPlayerProxy(this)
+    }
     private lateinit var mPlayerContainer: UNSDisplayContainer
+
+    private val mScene: DoublePlayerUseCase by lazy {
+        UCSUseCase.newDoublePlayerScene(mPlay1, mPlay2, mPlayerContainer).also {
+            it.bindLifecycleOwner(this)
+        }
+    }
 
     override fun getLayoutResId() = R.layout.activity_player2_share_render
 
@@ -85,11 +96,9 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
             val url2 = it.getStringExtra(IntentKeys.URL2)
             mPlay1.setDataSource(this, url!!)
             mPlay2.setDataSource(this, url2!!)
-            mCurrentPlayer = mPlay1
-            mPlayerContainer.bindPlayer(mPlay1)
-            //播放状态监听
-            mCurrentPlayer!!.addOnPlayStateChangeListener(mOnStateChangeListener)
-            mCurrentPlayer!!.start()
+            mScene.playOne()
+            mPlay1.addOnPlayStateChangeListener(mOnStateChangeListener)
+            mPlay2.addOnPlayStateChangeListener(mOnStateChangeListener)
         }
         loadingAssistRunnable.run()
     }
@@ -147,16 +156,10 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
     fun onButtonClick(view: View) {
         when (view.id) {
             R.id.use_play1 -> {
-                mPlay2.pause()
-                mPlay1.resume()
-                mCurrentPlayer = mPlay1
-                mPlayerContainer.bindPlayer(mCurrentPlayer!!)
+                mScene.playOne()
             }
             R.id.use_play2 -> {
-                mPlay1.pause()
-                mPlay2.resume()
-                mCurrentPlayer = mPlay2
-                mPlayerContainer.bindPlayer(mCurrentPlayer!!)
+                mScene.playTwo()
             }
             R.id.scale_default -> mPlayerContainer.setAspectRatioType(AspectRatioType.DEFAULT_SCALE)
             R.id.scale_189 -> mPlayerContainer.setAspectRatioType(AspectRatioType.SCALE_18_9)
@@ -165,11 +168,11 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
             R.id.scale_original -> mPlayerContainer.setAspectRatioType(AspectRatioType.SCALE_ORIGINAL)
             R.id.scale_match_parent -> mPlayerContainer.setAspectRatioType(AspectRatioType.MATCH_PARENT)
             R.id.scale_center_crop -> mPlayerContainer.setAspectRatioType(AspectRatioType.CENTER_CROP)
-            R.id.speed_0_5 -> mCurrentPlayer?.setSpeed(0.5f)
-            R.id.speed_0_75 -> mCurrentPlayer?.setSpeed(0.75f)
-            R.id.speed_1_0 -> mCurrentPlayer?.setSpeed(1.0f)
-            R.id.speed_1_5 -> mCurrentPlayer?.setSpeed(1.5f)
-            R.id.speed_2_0 -> mCurrentPlayer?.setSpeed(2.0f)
+            R.id.speed_0_5 -> mScene.currentPlayer?.setSpeed(0.5f)
+            R.id.speed_0_75 -> mScene.currentPlayer?.setSpeed(0.75f)
+            R.id.speed_1_0 -> mScene.currentPlayer?.setSpeed(1.0f)
+            R.id.speed_1_5 -> mScene.currentPlayer?.setSpeed(1.5f)
+            R.id.speed_2_0 -> mScene.currentPlayer?.setSpeed(2.0f)
             R.id.rotate90 -> mPlayerContainer.setVideoRotation(90)
             R.id.rotate180 -> mPlayerContainer.setVideoRotation(180)
             R.id.rotate270 -> mPlayerContainer.setVideoRotation(270)
@@ -196,22 +199,6 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
-        //防止进入后台后视频还在播放
-        if (mCurrentPlayer?.currentState == UNSPlayer.STATE_PREPARING) {
-            mCurrentPlayer?.release()
-        }
-    }
-
-    override fun onDestroy() {
-        mPlay1.release()
-        mPlay2.release()
-        mPlayerContainer.release()
-        super.onDestroy()
-    }
-
     companion object {
         private const val THUMB =
             "https://cms-bucket.nosdn.127.net/eb411c2810f04ffa8aaafc42052b233820180418095416.jpeg"
@@ -229,6 +216,5 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
             intent.putExtra(IntentKeys.TITLE, title)
             context.startActivity(intent)
         }
-
     }
 }

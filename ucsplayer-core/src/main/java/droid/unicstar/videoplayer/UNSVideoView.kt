@@ -28,7 +28,6 @@ open class UNSVideoView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs),
     UNSVideoViewControl,
     UNSPlayerControl by mPlayer,
-    UNSRenderControl by mDisplayContainer,
     UNSContainerControl by mDisplayContainer {
 
     private val mActivity: Activity get() = mPreferredActivity!!
@@ -124,7 +123,7 @@ open class UNSVideoView @JvmOverloads constructor(
      * 释放播放器
      * 如果是共享的播放器，在确实需要释放的时候才调用哦
      */
-    open fun release() {
+    override fun release() {
         //todo 考虑共享播放器释放问题，应该需要从全局去移除
         mPlayer.release()
         //释放render

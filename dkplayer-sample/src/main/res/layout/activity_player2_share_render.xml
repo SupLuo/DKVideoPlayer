@@ -1,270 +1,292 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:id="@+id/root"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:orientation="vertical"-->
+<!--    tools:context=".activity.api.PlayerActivityJava">-->
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".activity.api.PlayerActivityJava">
+    android:layout_height="match_parent">
 
-    <droid.unicstar.videoplayer.UNSDisplayContainer
-        android:id="@+id/player_container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#ff00ff"
-        app:playerBackgroundColor="@android:color/black"
-        app:layout_constraintDimensionRatio="16:10"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/player">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <droid.unicstar.videoplayer.UNSDisplayContainer
+                android:id="@+id/player_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="#ff00ff"
+                app:layout_constraintDimensionRatio="16:10"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:playerBackgroundColor="@android:color/black" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击下面切换不同播放器" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/use_play1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="默认" />
-
-                <Button
-                    android:id="@+id/use_play2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="18:9" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/scale_default"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="默认" />
-
-                <Button
-                    android:id="@+id/scale_189"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="18:9" />
-                <Button
-                    android:id="@+id/scale_169"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="16:9" />
-
-                <Button
-                    android:id="@+id/scale_43"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="4:3" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/scale_original"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="原始大小" />
-
-                <Button
-                    android:id="@+id/scale_match_parent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="填充" />
-
-                <Button
-                    android:id="@+id/scale_center_crop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="居中裁剪" />
-            </LinearLayout>
-
-            <TextView
+            <Button
+                android:id="@+id/use_play1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="播放速度：" />
+                android:onClick="onButtonClick"
+                android:text="使用播放器1"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/speed_0_5"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="0.5" />
-
-                <Button
-                    android:id="@+id/speed_0_75"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="0.75" />
-
-                <Button
-                    android:id="@+id/speed_1_0"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="1.0" />
-
-                <Button
-                    android:id="@+id/speed_1_5"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="1.5" />
-
-                <Button
-                    android:id="@+id/speed_2_0"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="2.0" />
-            </LinearLayout>
-
-            <TextView
+            <Button
+                android:id="@+id/use_play2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="旋转角度：（由于目前只是强制改变了显示界面的旋转角度，而实际的界面没有旋转，因此测试的结果看起来存在问题：）" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/rotate90"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="90°" />
-
-                <Button
-                    android:id="@+id/rotate180"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="180°" />
-
-                <Button
-                    android:id="@+id/rotate270"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="270°" />
-
-                <Button
-                    android:id="@+id/rotate60"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="60" />
-
-                <Button
-                    android:id="@+id/rotate0"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:padding="0dp"
-                    android:text="0°" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/mirror_rotate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="镜像旋转" />
-
-                <Button
-                    android:id="@+id/screen_shot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="@string/str_screen_shot" />
-                <Button
-                    android:id="@+id/btn_mute"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="静音" />
-            </LinearLayout>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="更改render：" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/surface_render"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="SurfaceView" />
-
-                <Button
-                    android:id="@+id/texture_render"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onButtonClick"
-                    android:text="TextureView" />
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/iv_screen_shot"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content" />
-
-
-
+                android:onClick="onButtonClick"
+                android:text="使用播放器2"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
         </LinearLayout>
 
-    </ScrollView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="画面比例：" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/scale_default"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="默认" />
+
+            <Button
+                android:id="@+id/scale_189"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="18:9" />
+
+            <Button
+                android:id="@+id/scale_169"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="16:9" />
+
+            <Button
+                android:id="@+id/scale_43"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="4:3" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/scale_original"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="原始大小" />
+
+            <Button
+                android:id="@+id/scale_match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="填充" />
+
+            <Button
+                android:id="@+id/scale_center_crop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="居中裁剪" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放速度：" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/speed_0_5"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="0.5" />
+
+            <Button
+                android:id="@+id/speed_0_75"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="0.75" />
+
+            <Button
+                android:id="@+id/speed_1_0"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="1.0" />
+
+            <Button
+                android:id="@+id/speed_1_5"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="1.5" />
+
+            <Button
+                android:id="@+id/speed_2_0"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="2.0" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="旋转角度：（由于目前只是强制改变了显示界面的旋转角度，而实际的界面没有旋转，因此测试的结果看起来存在问题：）" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/rotate90"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="90°" />
+
+            <Button
+                android:id="@+id/rotate180"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="180°" />
+
+            <Button
+                android:id="@+id/rotate270"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="270°" />
+
+            <Button
+                android:id="@+id/rotate60"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="60" />
+
+            <Button
+                android:id="@+id/rotate0"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:padding="0dp"
+                android:text="0°" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/mirror_rotate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="镜像旋转" />
+
+            <Button
+                android:id="@+id/screen_shot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="@string/str_screen_shot" />
+
+            <Button
+                android:id="@+id/btn_mute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="静音" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="更改render：" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/surface_render"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="SurfaceView" />
+
+            <Button
+                android:id="@+id/texture_render"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onButtonClick"
+                android:text="TextureView" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_screen_shot"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+</ScrollView>
+
+    <!--</androidx.constraintlayout.widget.ConstraintLayout>-->
