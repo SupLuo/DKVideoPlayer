@@ -9,11 +9,11 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.player.UCSVideoView
 import xyz.doikki.videoplayer.TVCompatible
-import droid.unicstar.videoplayer.isVisible
-import droid.unicstar.videoplayer.orDefault
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.player.isVisible
+import droid.unicstar.player.orDefault
+import droid.unicstar.player.player.UCSPlayer
 
 /**
  * 自动播放完成界面
@@ -40,7 +40,7 @@ class CompleteView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
+        if (playState == UCSPlayer.STATE_PLAYBACK_COMPLETED) {
             visibility = VISIBLE
             mStopFullscreen?.isVisible = mController?.isFullScreen.orDefault()
             bringToFront()
@@ -54,18 +54,19 @@ class CompleteView @JvmOverloads constructor(
         //退出全屏按钮没指定
         mStopFullscreen ?: return
 
-        if (screenMode == UNSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == UCSVideoView.SCREEN_MODE_FULL) {
             mStopFullscreen.visibility = VISIBLE
-        } else if (screenMode == UNSVideoView.SCREEN_MODE_NORMAL) {
+        } else if (screenMode == UCSVideoView.SCREEN_MODE_NORMAL) {
             mStopFullscreen.visibility = GONE
         }
 
         val activity = activity ?: return
 
-        player?.let { player ->
-            if (player.hasCutout()) {
+
+        containerControl?.let { containerControl ->
+            if (containerControl.hasCutout()) {
                 val orientation = activity.requestedOrientation
-                val cutoutHeight = player.getCutoutHeight()
+                val cutoutHeight = containerControl.getCutoutHeight()
                 val sflp = mStopFullscreen.layoutParams as LayoutParams
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {

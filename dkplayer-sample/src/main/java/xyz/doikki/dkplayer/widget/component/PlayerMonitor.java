@@ -5,8 +5,8 @@ import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
 
-import droid.unicstar.videoplayer.UtilsKt;
-import droid.unicstar.videoplayer.controller.MediaController;
+import droid.unicstar.player.UtilsKt;
+import droid.unicstar.player.controller.MediaController;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
 import xyz.doikki.videoplayer.util.L;
 

@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import master.flame.danmaku.controller.DrawHandler;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
 import master.flame.danmaku.danmaku.model.DanmakuTimer;
@@ -31,8 +31,7 @@ import master.flame.danmaku.ui.widget.DanmakuView;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.widget.CenteredImageSpan;
 import xyz.doikki.videoplayer.BuildConfig;
-import droid.unicstar.videoplayer.UNSVideoView;
-import droid.unicstar.videoplayer.controller.MediaController;
+import droid.unicstar.player.controller.MediaController;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
 import xyz.doikki.videoplayer.util.PlayerUtils;
 
@@ -115,26 +114,26 @@ public class MyDanmakuView extends DanmakuView implements ControlComponent {
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSPlayer.STATE_IDLE:
+            case UCSPlayer.STATE_IDLE:
                 release();
                 break;
-            case UNSPlayer.STATE_PREPARING:
+            case UCSPlayer.STATE_PREPARING:
                 if (isPrepared()) {
                     restart();
                 }
                 prepare(mParser, mContext);
                 break;
-            case UNSPlayer.STATE_PLAYING:
+            case UCSPlayer.STATE_PLAYING:
                 if (isPrepared() && isPaused()) {
                     resume();
                 }
                 break;
-            case UNSPlayer.STATE_PAUSED:
+            case UCSPlayer.STATE_PAUSED:
                 if (isPrepared()) {
                     pause();
                 }
                 break;
-            case UNSPlayer.STATE_PLAYBACK_COMPLETED:
+            case UCSPlayer.STATE_PLAYBACK_COMPLETED:
                 clear();
                 clearDanmakusOnScreen();
                 break;

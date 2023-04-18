@@ -9,10 +9,10 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.player.UCSVideoView
 import xyz.doikki.videoplayer.util.PlayerUtils
-import droid.unicstar.videoplayer.orDefault
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.player.orDefault
+import droid.unicstar.player.player.UCSPlayer
 
 /**
  * 直播底部控制栏
@@ -44,11 +44,11 @@ class LiveControlView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            UNSPlayer.STATE_IDLE, UNSPlayer.STATE_PREPARED_BUT_ABORT, UNSPlayer.STATE_PREPARING, UNSPlayer.STATE_PREPARED, UNSPlayer.STATE_ERROR, UNSPlayer.STATE_PLAYBACK_COMPLETED -> visibility =
+            UCSPlayer.STATE_IDLE, UCSPlayer.STATE_PREPARED_BUT_ABORT, UCSPlayer.STATE_PREPARING, UCSPlayer.STATE_PREPARED, UCSPlayer.STATE_ERROR, UCSPlayer.STATE_PLAYBACK_COMPLETED -> visibility =
                 GONE
-            UNSPlayer.STATE_PLAYING -> mPlayButton.isSelected = true
-            UNSPlayer.STATE_PAUSED -> mPlayButton.isSelected = false
-            UNSPlayer.STATE_BUFFERING, UNSPlayer.STATE_BUFFERED -> mPlayButton.isSelected =
+            UCSPlayer.STATE_PLAYING -> mPlayButton.isSelected = true
+            UCSPlayer.STATE_PAUSED -> mPlayButton.isSelected = false
+            UCSPlayer.STATE_BUFFERING, UCSPlayer.STATE_BUFFERED -> mPlayButton.isSelected =
                 mController?.playerControl?.isPlaying().orDefault()
         }
     }
@@ -56,15 +56,15 @@ class LiveControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            UNSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
-            UNSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
+            UCSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
+            UCSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
         }
         val activity = PlayerUtils.scanForActivity(context)?:return
-        player?.let {
-            player->
-            if (player.hasCutout()) {
+        containerControl?.let {
+                containerControl->
+            if (containerControl.hasCutout()) {
                 val orientation = activity.requestedOrientation
-                val cutoutHeight = player.getCutoutHeight()
+                val cutoutHeight = containerControl.getCutoutHeight()
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
                         mBottomContainer.setPadding(0, 0, 0, 0)

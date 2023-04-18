@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.MainActivity;
 import xyz.doikki.dkplayer.adapter.VideoRecyclerViewAdapter;
@@ -27,7 +27,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 /**
  * RecyclerView demo
@@ -39,7 +39,7 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLinearLayoutManager;
 
-    protected UNSVideoView mVideoView;
+    protected UCSVideoView mVideoView;
     protected StandardVideoController mController;
     protected ErrorView mErrorView;
     protected CompleteView mCompleteView;
@@ -100,12 +100,12 @@ public class RecyclerViewFragment extends BaseFragment implements OnItemChildCli
     }
 
     protected void initVideoView() {
-        mVideoView = new UNSVideoView(getActivity());
-        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        mVideoView = new UCSVideoView(getActivity());
+        mVideoView.addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
                 //监听VideoViewManager释放，重置状态
-                if (playState == UNSPlayer.STATE_IDLE) {
+                if (playState == UCSPlayer.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mLastPos = mCurPos;
                     mCurPos = -1;

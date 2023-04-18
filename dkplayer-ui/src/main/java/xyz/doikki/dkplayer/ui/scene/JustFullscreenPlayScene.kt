@@ -10,8 +10,8 @@ import androidx.activity.ComponentActivity
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
-import droid.unicstar.videoplayer.UNSVideoView
-import droid.unicstar.videoplayer.controller.MediaController
+import droid.unicstar.player.UCSVideoView
+import droid.unicstar.player.controller.MediaController
 import xyz.doikki.videoplayer.util.CutoutUtil
 import xyz.doikki.videoplayer.util.PlayerUtils
 
@@ -20,7 +20,7 @@ import xyz.doikki.videoplayer.util.PlayerUtils
  */
 class JustFullscreenPlayScene private constructor(
     val activity: ComponentActivity,
-    private val videoView: UNSVideoView,
+    private val videoView: UCSVideoView,
     autoRequestOrientation: Boolean
 ) : BasePlayScene() {
 
@@ -77,7 +77,7 @@ class JustFullscreenPlayScene private constructor(
         controller.findViewById<View?>(R.id.back)?.setOnClickListener(click)
     }
 
-    override fun getVideoView(): UNSVideoView {
+    override fun getVideoView(): UCSVideoView {
         return videoView
     }
 
@@ -121,7 +121,7 @@ class JustFullscreenPlayScene private constructor(
     companion object {
 
         /**
-         * 本方法会创建一个[UNSVideoView]播放器并调用[Activity.setContentView]进行设置
+         * 本方法会创建一个[UCSVideoView]播放器并调用[Activity.setContentView]进行设置
          * 必须在[Activity.onCreate]方法或之后调用
          */
         @JvmOverloads
@@ -132,7 +132,7 @@ class JustFullscreenPlayScene private constructor(
         ): JustFullscreenPlayScene {
             val currentState = activity.lifecycle.currentState
             println("LifecycleObserver:isAtLeast2-2 $currentState")
-            val videoView = UNSVideoView(activity).also {
+            val videoView = UCSVideoView(activity).also {
                 it.layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
@@ -146,7 +146,7 @@ class JustFullscreenPlayScene private constructor(
         @JvmStatic
         fun create(
             activity: ComponentActivity,
-            videoView: UNSVideoView,
+            videoView: UCSVideoView,
             autoRequestOrientation: Boolean = true
         ): JustFullscreenPlayScene {
             return JustFullscreenPlayScene(activity, videoView, autoRequestOrientation)

@@ -13,10 +13,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.videocontroller.component.BaseControlComponent;
-import droid.unicstar.videoplayer.UNSVideoView;
 import xyz.doikki.videoplayer.util.L;
 
 public class TikTokView extends BaseControlComponent {
@@ -83,24 +82,24 @@ public class TikTokView extends BaseControlComponent {
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSPlayer.STATE_IDLE:
+            case UCSPlayer.STATE_IDLE:
                 L.e("STATE_IDLE " + hashCode());
                 thumb.setVisibility(VISIBLE);
                 break;
-            case UNSPlayer.STATE_PLAYING:
+            case UCSPlayer.STATE_PLAYING:
                 L.e("STATE_PLAYING " + hashCode());
                 thumb.setVisibility(GONE);
                 mPlayBtn.setVisibility(GONE);
                 break;
-            case UNSPlayer.STATE_PAUSED:
+            case UCSPlayer.STATE_PAUSED:
                 L.e("STATE_PAUSED " + hashCode());
                 thumb.setVisibility(GONE);
                 mPlayBtn.setVisibility(VISIBLE);
                 break;
-            case UNSPlayer.STATE_PREPARED:
+            case UCSPlayer.STATE_PREPARED:
                 L.e("STATE_PREPARED " + hashCode());
                 break;
-            case UNSPlayer.STATE_ERROR:
+            case UCSPlayer.STATE_ERROR:
                 L.e("STATE_ERROR " + hashCode());
                 Toast.makeText(getContext(), R.string.dkplayer_error_message, Toast.LENGTH_SHORT).show();
                 break;

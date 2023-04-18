@@ -9,7 +9,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.adapter.VideoListViewAdapter;
 import xyz.doikki.dkplayer.adapter.listener.OnItemChildClickListener;
@@ -24,7 +24,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 /**
  * ListView demo，不推荐，建议使用{@link RecyclerViewFragment}
@@ -34,7 +34,7 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
     private List<VideoBean> mVideos = new ArrayList<>();
     private VideoListViewAdapter mAdapter;
 
-    private UNSVideoView mVideoView;
+    private UCSVideoView mVideoView;
     private StandardVideoController mController;
     private int mCurPosition = -1;
     private TitleView mTitleView;
@@ -47,11 +47,11 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
     @Override
     protected void initView() {
         super.initView();
-        mVideoView = new UNSVideoView(getActivity());
-        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        mVideoView = new UCSVideoView(getActivity());
+        mVideoView.addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
-                if (playState == UNSPlayer.STATE_IDLE) {
+                if (playState == UCSPlayer.STATE_IDLE) {
                     Utils.removeViewFormParent(mVideoView);
                     mCurPosition = -1;
                 }
@@ -164,7 +164,9 @@ public class ListViewFragment extends BaseFragment implements OnItemChildClickLi
         //请点进去看isDissociate的解释
         mController.addControlComponent(viewHolder.mPrepareView, true);
         Utils.removeViewFormParent(mVideoView);
-        viewHolder.mPlayerContainer.addView(mVideoView, 0);
+//        viewHolder.mPlayerContainer.addView(mVideoView, 0);
+
+        viewHolder.mPlayerContainer.addView(mVideoView);
         //播放之前将VideoView添加到VideoViewManager以便在别的页面也能操作它
         getVideoViewManager().add(mVideoView, Tag.LIST);
         mVideoView.setDataSource(videoBean.getUrl());

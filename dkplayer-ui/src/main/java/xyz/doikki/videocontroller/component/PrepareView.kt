@@ -8,9 +8,8 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import xyz.doikki.videoplayer.DKManager
-import droid.unicstar.videoplayer.UNSVideoView
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.player.UCSPlayerManager
+import droid.unicstar.player.player.UCSPlayer
 import xyz.doikki.videoplayer.TVCompatible
 
 /**
@@ -42,17 +41,18 @@ class PrepareView @JvmOverloads constructor(
     }
 
     override fun onPlayStateChanged(playState: Int) {
+        println("ssssssssssssssssssssssssssssss playState=$playState")
         when (playState) {
-            UNSPlayer.STATE_PREPARING -> {
+            UCSPlayer.STATE_PREPARING -> {
                 bringToFront()
                 visibility = VISIBLE
                 mStartPlay.visibility = GONE
                 mNetWarning.visibility = GONE
                 mLoading.visibility = VISIBLE
             }
-            UNSPlayer.STATE_PLAYING, UNSPlayer.STATE_PAUSED, UNSPlayer.STATE_ERROR, UNSPlayer.STATE_BUFFERING, UNSPlayer.STATE_BUFFERED, UNSPlayer.STATE_PLAYBACK_COMPLETED ->
+            UCSPlayer.STATE_PLAYING, UCSPlayer.STATE_PAUSED, UCSPlayer.STATE_ERROR, UCSPlayer.STATE_BUFFERING, UCSPlayer.STATE_BUFFERED, UCSPlayer.STATE_PLAYBACK_COMPLETED ->
                 visibility = GONE
-            UNSPlayer.STATE_IDLE -> {
+            UCSPlayer.STATE_IDLE -> {
                 visibility = VISIBLE
                 bringToFront()
                 mLoading.visibility = GONE
@@ -60,7 +60,7 @@ class PrepareView @JvmOverloads constructor(
                 mStartPlay.visibility = VISIBLE
                 mThumb.visibility = VISIBLE
             }
-            UNSPlayer.STATE_PREPARED_BUT_ABORT -> {
+            UCSPlayer.STATE_PREPARED_BUT_ABORT -> {
                 visibility = VISIBLE
                 mNetWarning.visibility = VISIBLE
                 mNetWarning.bringToFront()
@@ -80,7 +80,7 @@ class PrepareView @JvmOverloads constructor(
         mNetWarning = findViewById(R.id.net_warning_layout)
         findViewById<View?>(R.id.status_btn)?.setOnClickListener {
             mNetWarning.visibility = GONE
-            DKManager.isPlayOnMobileNetwork = true
+            UCSPlayerManager.isPlayOnMobileNetwork = true
             mController?.playerControl?.start()
         }
     }

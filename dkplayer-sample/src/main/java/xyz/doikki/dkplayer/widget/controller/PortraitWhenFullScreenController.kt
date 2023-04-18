@@ -5,11 +5,11 @@ import android.content.pm.ActivityInfo
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.player.UCSVideoView
+import droid.unicstar.player.controller.UCSContainerControl
 import xyz.doikki.dkplayer.R
 import xyz.doikki.videocontroller.StandardVideoController
 import xyz.doikki.videocontroller.component.VodControlView
-import droid.unicstar.videoplayer.controller.UNSVideoViewControl
 
 class PortraitWhenFullScreenController @JvmOverloads constructor(
     context: Context,
@@ -27,10 +27,10 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
         addControlComponent(vodControlView)
     }
 
-    override fun setMediaPlayer(mediaPlayer: UNSVideoViewControl) {
-        super.setMediaPlayer(mediaPlayer)
+    override fun bindContainer(container: UCSContainerControl) {
+        super.bindContainer(container)
         //不监听设备方向
-        mediaPlayer.setEnableOrientationSensor(false)
+        container.setEnableOrientationSensor(false)
     }
 
     override fun toggleFullScreen(): Boolean {
@@ -47,9 +47,11 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        if (!mPlayer!!.isFullScreen()) {
-            mPlayer!!.startVideoViewFullScreen()
-            return true
+        containerControl?.let {
+            if (!it.isFullScreen()) {
+                it.startVideoViewFullScreen()
+                return true
+            }
         }
         toggleShowState()
         return true
@@ -57,7 +59,7 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
 
     override fun onScreenModeChanged(screenMode: Int) {
         super.onScreenModeChanged(screenMode)
-        if (screenMode == UNSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == UCSVideoView.SCREEN_MODE_FULL) {
             mFullScreen.isSelected = false
         } else {
             hide()
@@ -67,7 +69,7 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
 
     private fun adjustView() {
 
-        invokeOnPlayerAttached {
+        invokeOnContainerAttached {
             if (mActivity != null && it.hasCutout()) {
                 val orientation = mActivity!!.requestedOrientation
                 val cutoutHeight = it.getCutoutHeight()
@@ -93,10 +95,10 @@ class PortraitWhenFullScreenController @JvmOverloads constructor(
             stopFullScreen()
         } else if (i == R.id.thumb) {
             mPlayer!!.start()
-            mPlayer!!.startVideoViewFullScreen()
+            mContainerControl?.startVideoViewFullScreen()
         } else if (i == R.id.iv_replay) {
             mPlayer!!.replay(true)
-            mPlayer!!.startVideoViewFullScreen()
+            mContainerControl?.startVideoViewFullScreen()
         }
     }
 }

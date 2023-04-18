@@ -7,13 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import xyz.doikki.dkplayer.widget.player.CustomIjkMediaPlayer;
-import droid.unicstar.videoplayer.UNSVideoView;
-import droid.unicstar.videoplayer.player.UNSPlayerFactory;
+import droid.unicstar.player.UCSVideoView;
+import droid.unicstar.player.player.UCSPlayerFactory;
 
-public class IjkVideoView extends UNSVideoView {
+public class IjkVideoView extends UCSVideoView {
 
     private final HashMap<String, Object> mPlayerOptions = new HashMap<>();
     private final HashMap<String, Object> mFormatOptions = new HashMap<>();
@@ -29,7 +28,7 @@ public class IjkVideoView extends UNSVideoView {
     }
 
     {
-        setPlayerFactory((UNSPlayerFactory<CustomIjkMediaPlayer>) context -> new CustomIjkMediaPlayer(context));
+        setPlayerFactory((UCSPlayerFactory<CustomIjkMediaPlayer>) context -> new CustomIjkMediaPlayer(context));
     }
 
 //    private CustomIjkMediaPlayer mediaPlayer(){

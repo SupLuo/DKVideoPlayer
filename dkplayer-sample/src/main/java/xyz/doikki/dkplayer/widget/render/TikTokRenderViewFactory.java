@@ -2,18 +2,18 @@ package xyz.doikki.dkplayer.widget.render;
 
 import android.content.Context;
 
-import droid.unicstar.videoplayer.render.UNSRender;
-import droid.unicstar.videoplayer.render.UNSRenderFactory;
-import droid.unicstar.videoplayer.render.TextureViewRender;
+import droid.unicstar.player.render.UCSRender;
+import droid.unicstar.player.render.UCSRenderFactory;
+import droid.unicstar.player.render.TextureViewRender;
 
-public class TikTokRenderViewFactory implements UNSRenderFactory {
+public class TikTokRenderViewFactory implements UCSRenderFactory {
 
     public static TikTokRenderViewFactory create() {
         return new TikTokRenderViewFactory();
     }
 
     @Override
-    public UNSRender create(Context context) {
+    public UCSRender create(Context context) {
         return new TikTokRenderView(new TextureViewRender(context));
     }
 }

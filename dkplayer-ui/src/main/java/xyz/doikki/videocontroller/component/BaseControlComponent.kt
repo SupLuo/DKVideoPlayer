@@ -6,8 +6,9 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import droid.unicstar.videoplayer.controller.MediaController
-import droid.unicstar.videoplayer.controller.UNSVideoViewControl
+import droid.unicstar.player.controller.MediaController
+import droid.unicstar.player.controller.UCSContainerControl
+import droid.unicstar.player.controller.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils
 
@@ -19,7 +20,9 @@ abstract class BaseControlComponent @JvmOverloads constructor(
 
     protected var mController: MediaController? = null
 
-    protected val player: UNSVideoViewControl? get() = mController?.playerControl
+    val playerControl: UCSPlayerControl? get() = mController?.playerControl
+
+    val containerControl: UCSContainerControl? get() = mController?.containerControl
 
     protected val layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
 

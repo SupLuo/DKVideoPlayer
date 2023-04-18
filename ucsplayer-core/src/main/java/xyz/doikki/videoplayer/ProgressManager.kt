@@ -1,6 +1,6 @@
 package xyz.doikki.videoplayer
 
-import droid.unicstar.videoplayer.widget.DefaultProgressManager
+import droid.unicstar.player.widget.DefaultProgressManager
 
 /**
  * 播放进度管理器，继承此接口实现自己的进度管理器。

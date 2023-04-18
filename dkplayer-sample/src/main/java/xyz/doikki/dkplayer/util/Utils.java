@@ -11,8 +11,8 @@ import android.widget.FrameLayout;
 
 import java.lang.reflect.Field;
 
-import droid.unicstar.videoplayer.UNSVideoView;
-import droid.unicstar.videoplayer.controller.MediaController;
+import droid.unicstar.player.UCSVideoView;
+import droid.unicstar.player.controller.MediaController;
 
 public final class Utils {
 
@@ -25,8 +25,8 @@ public final class Utils {
             Field mPlayerControlField = controlWrapper.getClass().getDeclaredField("mPlayer");
             mPlayerControlField.setAccessible(true);
             Object playerControl = mPlayerControlField.get(controlWrapper);
-            if (playerControl instanceof UNSVideoView) {
-                playerFactory = getCurrentPlayerFactoryInVideoView((UNSVideoView) playerControl);
+            if (playerControl instanceof UCSVideoView) {
+                playerFactory = getCurrentPlayerFactoryInVideoView((UCSVideoView) playerControl);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,7 +34,7 @@ public final class Utils {
         return playerFactory;
     }
 
-    public static Object getCurrentPlayerFactoryInVideoView(UNSVideoView videoView) {
+    public static Object getCurrentPlayerFactoryInVideoView(UCSVideoView videoView) {
         Object playerFactory = null;
         try {
             Field mPlayerFactoryField = videoView.getClass().getDeclaredField("mPlayerFactory");

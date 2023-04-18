@@ -5,9 +5,9 @@ import androidx.multidex.MultiDexApplication;
 import com.danikula.videocache.Logger;
 
 import xyz.doikki.videoplayer.BuildConfig;
-import xyz.doikki.videoplayer.DKManager;
+import droid.unicstar.player.UCSPlayerManager;
 import xyz.doikki.videoplayer.ijk.IjkPlayerFactory;
-import droid.unicstar.videoplayer.render.UNSRenderFactory;
+import droid.unicstar.player.render.UCSRenderFactory;
 
 /**
  * app
@@ -23,10 +23,10 @@ public class MyApplication extends MultiDexApplication {
         super.onCreate();
         instance = this;
         //播放器配置，注意：此为全局配置，按需开启
-        DKManager.setDebuggable(BuildConfig.DEBUG);
-        DKManager.setRenderFactory(UNSRenderFactory.surfaceViewRenderFactory());
+        UCSPlayerManager.setDebuggable(BuildConfig.DEBUG);
+        UCSPlayerManager.setRenderFactory(UCSRenderFactory.surfaceViewRenderFactory());
 //        DKManager.setRenderFactory(RenderFactory.surfaceViewRenderFactory());
-        DKManager.setPlayerFactory(IjkPlayerFactory.create());
+        UCSPlayerManager.setPlayerFactory(IjkPlayerFactory.create());
 
 //        DKManager.setConfig(VideoViewConfig.newBuilder()
 //                .setLogEnabled(BuildConfig.DEBUG) //调试的时候请打开日志，方便排错

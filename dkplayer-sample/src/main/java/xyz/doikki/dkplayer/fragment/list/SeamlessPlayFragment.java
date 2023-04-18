@@ -10,7 +10,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.list.DetailActivity;
 import xyz.doikki.dkplayer.adapter.VideoRecyclerViewAdapter;
@@ -18,7 +18,6 @@ import xyz.doikki.dkplayer.bean.VideoBean;
 import xyz.doikki.dkplayer.util.IntentKeys;
 import xyz.doikki.dkplayer.util.Tag;
 import xyz.doikki.dkplayer.util.Utils;
-import droid.unicstar.videoplayer.UNSVideoView;
 
 /**
  * 无缝播放
@@ -52,7 +51,7 @@ public class SeamlessPlayFragment extends RecyclerViewAutoPlayFragment {
                 //无需无缝播放，把相应数据传到详情页
                 mVideoView.release();
                 //需要把控制器还原
-                mController.setPlayerState(UNSPlayer.STATE_IDLE);
+                mController.setPlayerState(UCSPlayer.STATE_IDLE);
                 bundle.putBoolean(IntentKeys.SEAMLESS_PLAY, false);
                 bundle.putString(IntentKeys.URL, videoBean.getUrl());
                 bundle.putString(IntentKeys.TITLE, videoBean.getTitle());

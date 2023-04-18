@@ -11,18 +11,15 @@ import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.widget.CenteredImageSpan;
-import droid.unicstar.videoplayer.UNSVideoView;
-import droid.unicstar.videoplayer.controller.MediaController;
+import droid.unicstar.player.UCSVideoView;
 import xyz.doikki.videoplayer.util.PlayerUtils;
 import xyz.doikki.videoplayer.BuildConfig;
 
@@ -42,7 +39,7 @@ import master.flame.danmaku.ui.widget.DanmakuView;
  * @deprecated 推荐 {@link xyz.doikki.dkplayer.widget.component.MyDanmakuView}
  */
 @Deprecated
-public class DanmukuVideoView extends UNSVideoView {
+public class DanmukuVideoView extends UCSVideoView {
     private DanmakuView mDanmakuView;
     private DanmakuContext mContext;
     private BaseDanmakuParser mParser;
@@ -57,18 +54,18 @@ public class DanmukuVideoView extends UNSVideoView {
     }
 
     {
-        addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
-                if(playState == UNSPlayer.STATE_PLAYING){
+                if(playState == UCSPlayer.STATE_PLAYING){
                     if (mDanmakuView != null && mDanmakuView.isPrepared() && mDanmakuView.isPaused()) {
                         mDanmakuView.resume();
                     }
-                }else if(playState == UNSPlayer.STATE_PAUSED){
+                }else if(playState == UCSPlayer.STATE_PAUSED){
                     if (mDanmakuView != null && mDanmakuView.isPrepared()) {
                         mDanmakuView.pause();
                     }
-                }else if(playState == UNSPlayer.STATE_PLAYBACK_COMPLETED){
+                }else if(playState == UCSPlayer.STATE_PLAYBACK_COMPLETED){
                     if (mDanmakuView != null) {
                         mDanmakuView.clearDanmakusOnScreen();
                     }

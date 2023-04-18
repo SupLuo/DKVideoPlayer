@@ -7,14 +7,14 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import droid.unicstar.videoplayer.render.internal.RenderHelper;
+import droid.unicstar.player.render.internal.RenderHelper;
 import xyz.doikki.dkplayer.widget.render.gl2.chooser.GLConfigChooser;
 import xyz.doikki.dkplayer.widget.render.gl2.contextfactory.GLContextFactory;
 import xyz.doikki.dkplayer.widget.render.gl2.filter.GlFilter;
-import droid.unicstar.videoplayer.player.UNSPlayer;
-import droid.unicstar.videoplayer.render.UNSRender;
+import droid.unicstar.player.player.UCSPlayer;
+import droid.unicstar.player.render.UCSRender;
 
-public class GLSurfaceRenderView2 extends GLSurfaceView implements UNSRender {
+public class GLSurfaceRenderView2 extends GLSurfaceView implements UCSRender {
 
     private final GLVideoRenderer renderer;
 
@@ -34,7 +34,7 @@ public class GLSurfaceRenderView2 extends GLSurfaceView implements UNSRender {
 
 
     @Override
-    public void bindPlayer(@NonNull UNSPlayer player) {
+    public void bindPlayer(@NonNull UCSPlayer player) {
         this.renderer.setPlayer(player);
     }
 

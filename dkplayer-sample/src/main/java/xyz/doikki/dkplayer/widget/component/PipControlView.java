@@ -12,11 +12,10 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.util.PIPManager;
 import xyz.doikki.videocontroller.component.BaseControlComponent;
-import droid.unicstar.videoplayer.UNSVideoView;
 
 public class PipControlView extends BaseControlComponent implements View.OnClickListener {
 
@@ -80,37 +79,37 @@ public class PipControlView extends BaseControlComponent implements View.OnClick
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSPlayer.STATE_IDLE:
-            case UNSPlayer.STATE_PAUSED:
+            case UCSPlayer.STATE_IDLE:
+            case UCSPlayer.STATE_PAUSED:
                 mPlay.setSelected(false);
                 mPlay.setVisibility(VISIBLE);
                 mLoading.setVisibility(GONE);
                 break;
-            case UNSPlayer.STATE_PLAYING:
+            case UCSPlayer.STATE_PLAYING:
                 mPlay.setSelected(true);
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 break;
-            case UNSPlayer.STATE_PREPARING:
-            case UNSPlayer.STATE_BUFFERING:
+            case UCSPlayer.STATE_PREPARING:
+            case UCSPlayer.STATE_BUFFERING:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(VISIBLE);
                 break;
-            case UNSPlayer.STATE_PREPARED:
+            case UCSPlayer.STATE_PREPARED:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
                 break;
-            case UNSPlayer.STATE_ERROR:
+            case UCSPlayer.STATE_ERROR:
                 mLoading.setVisibility(GONE);
                 mPlay.setVisibility(GONE);
                 bringToFront();
                 break;
-            case UNSPlayer.STATE_BUFFERED:
+            case UCSPlayer.STATE_BUFFERED:
                 mPlay.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
-                mPlay.setSelected(getPlayer().isPlaying());
+                mPlay.setSelected(getPlayerControl().isPlaying());
                 break;
-            case UNSPlayer.STATE_PLAYBACK_COMPLETED:
+            case UCSPlayer.STATE_PLAYBACK_COMPLETED:
                 bringToFront();
                 break;
         }

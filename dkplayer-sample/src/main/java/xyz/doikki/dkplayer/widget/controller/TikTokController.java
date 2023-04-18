@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import xyz.doikki.dkplayer.widget.component.DebugInfoView;
-import droid.unicstar.videoplayer.controller.MediaController;
+import droid.unicstar.player.controller.MediaController;
 
 /**
  * 抖音

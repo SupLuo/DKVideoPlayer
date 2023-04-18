@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.IntentKeys;
@@ -27,9 +27,9 @@ import xyz.doikki.videocontroller.component.LiveControlView;
 import xyz.doikki.videocontroller.component.PrepareView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.UNSVideoView;
-import droid.unicstar.videoplayer.render.AspectRatioType;
-import droid.unicstar.videoplayer.render.UNSRender;
+import droid.unicstar.player.UCSVideoView;
+import droid.unicstar.player.render.AspectRatioType;
+import droid.unicstar.player.render.UCSRender;
 import xyz.doikki.videoplayer.util.L;
 
 /**
@@ -37,7 +37,7 @@ import xyz.doikki.videoplayer.util.L;
  * Created by Doikki on 2017/4/7.
  */
 
-public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
+public class PlayerActivityJava extends BaseActivity<UCSVideoView> {
 
     private static final String THUMB = "https://cms-bucket.nosdn.127.net/eb411c2810f04ffa8aaafc42052b233820180418095416.jpeg";
 
@@ -167,31 +167,31 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
         });
     }
 
-    private UNSPlayer.OnPlayStateChangeListener mOnStateChangeListener = new UNSPlayer.OnPlayStateChangeListener() {
+    private UCSPlayer.OnPlayStateChangeListener mOnStateChangeListener = new UCSPlayer.OnPlayStateChangeListener() {
         @Override
         public void onPlayStateChanged(int playState) {
             switch (playState) {
-                case UNSPlayer.STATE_IDLE:
+                case UCSPlayer.STATE_IDLE:
                     break;
-                case UNSPlayer.STATE_PREPARING:
+                case UCSPlayer.STATE_PREPARING:
                     break;
-                case UNSPlayer.STATE_PREPARED:
+                case UCSPlayer.STATE_PREPARED:
                     break;
-                case UNSPlayer.STATE_PLAYING:
+                case UCSPlayer.STATE_PLAYING:
                     //需在此时获取视频宽高
                     int[] videoSize = mVideoView.getVideoSize();
                     L.d("视频宽：" + videoSize[0]);
                     L.d("视频高：" + videoSize[1]);
                     break;
-                case UNSPlayer.STATE_PAUSED:
+                case UCSPlayer.STATE_PAUSED:
                     break;
-                case UNSPlayer.STATE_BUFFERING:
+                case UCSPlayer.STATE_BUFFERING:
                     break;
-                case UNSPlayer.STATE_BUFFERED:
+                case UCSPlayer.STATE_BUFFERED:
                     break;
-                case UNSPlayer.STATE_PLAYBACK_COMPLETED:
+                case UCSPlayer.STATE_PLAYBACK_COMPLETED:
                     break;
-                case UNSPlayer.STATE_ERROR:
+                case UCSPlayer.STATE_ERROR:
                     break;
             }
         }
@@ -239,7 +239,7 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
 
             case R.id.screen_shot:
                 ImageView imageView = findViewById(R.id.iv_screen_shot);
-                 mVideoView.screenshot(new UNSRender.ScreenShotCallback() {
+                 mVideoView.screenshot(new UCSRender.ScreenShotCallback() {
                     @Override
                     public void onScreenShotResult(@Nullable Bitmap bmp) {
                         imageView.setImageBitmap(bmp);
@@ -263,7 +263,7 @@ public class PlayerActivityJava extends BaseActivity<UNSVideoView> {
         super.onPause();
         //如果视频还在准备就 activity 就进入了后台，建议直接将 VideoView release
         //防止进入后台后视频还在播放
-        if (mVideoView.getCurrentState() == UNSPlayer.STATE_PREPARING) {
+        if (mVideoView.getCurrentState() == UCSPlayer.STATE_PREPARING) {
             mVideoView.release();
         }
     }

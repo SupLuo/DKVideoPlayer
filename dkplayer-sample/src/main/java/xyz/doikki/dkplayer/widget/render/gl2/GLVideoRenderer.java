@@ -20,7 +20,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import xyz.doikki.dkplayer.widget.render.gl2.filter.GlFilter;
 import xyz.doikki.dkplayer.widget.render.gl2.filter.GlLookUpTableFilter;
 import xyz.doikki.dkplayer.widget.render.gl2.filter.GlPreviewFilter;
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 
 class GLVideoRenderer extends GLFrameBufferObjectRenderer implements SurfaceTexture.OnFrameAvailableListener {
 
@@ -47,7 +47,7 @@ class GLVideoRenderer extends GLFrameBufferObjectRenderer implements SurfaceText
 
     private float aspectRatio = 1f;
 
-    private UNSPlayer player;
+    private UCSPlayer player;
 
     GLVideoRenderer(GLSurfaceRenderView2 glPreview) {
         super();
@@ -177,7 +177,7 @@ class GLVideoRenderer extends GLFrameBufferObjectRenderer implements SurfaceText
         glPreview.requestRender();
     }
 
-    void setPlayer(UNSPlayer player) {
+    void setPlayer(UCSPlayer player) {
         this.player = player;
     }
 

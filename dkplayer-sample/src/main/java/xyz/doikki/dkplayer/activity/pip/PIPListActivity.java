@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.adapter.VideoRecyclerViewAdapter;
@@ -30,7 +30,7 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 /**
  * 悬浮播放终极版
@@ -40,7 +40,7 @@ import droid.unicstar.videoplayer.UNSVideoView;
 public class PIPListActivity extends BaseActivity implements OnItemChildClickListener {
 
     private PIPManager mPIPManager;
-    private UNSVideoView mVideoView;
+    private UCSVideoView mVideoView;
     private StandardVideoController mController;
     private List<VideoBean> mVideos;
     private LinearLayoutManager mLinearLayoutManager;
@@ -99,7 +99,7 @@ public class PIPListActivity extends BaseActivity implements OnItemChildClickLis
                 int position = holder.mPosition;
                 if (position == mPIPManager.getPlayingPosition()) {
                     startFloatWindow();
-                    mController.setPlayerState(UNSPlayer.STATE_IDLE);
+                    mController.setPlayerState(UCSPlayer.STATE_IDLE);
                 }
             }
         });

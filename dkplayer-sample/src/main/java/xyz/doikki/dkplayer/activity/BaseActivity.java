@@ -14,15 +14,15 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
 import xyz.doikki.dkplayer.R;
-import droid.unicstar.videoplayer.UNSVideoView;
-import xyz.doikki.videoplayer.DKManager;
+import droid.unicstar.player.UCSVideoView;
+import droid.unicstar.player.UCSPlayerManager;
 
 /**
  * 页面以及播放器共有逻辑封装
  * @param <T>
  */
 @SuppressLint("Registered")
-public class BaseActivity<T extends UNSVideoView> extends AppCompatActivity {
+public class BaseActivity<T extends UCSVideoView> extends AppCompatActivity {
 
     protected T mVideoView;
 
@@ -42,8 +42,8 @@ public class BaseActivity<T extends UNSVideoView> extends AppCompatActivity {
         return true;
     }
 
-    protected DKManager getVideoViewManager() {
-        return DKManager.INSTANCE;
+    protected UCSPlayerManager getVideoViewManager() {
+        return UCSPlayerManager.INSTANCE;
     }
 
     @Override

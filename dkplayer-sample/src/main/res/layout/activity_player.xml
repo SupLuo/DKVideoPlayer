@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".activity.api.PlayerActivityJava">
 
-    <droid.unicstar.videoplayer.UNSVideoView
+    <droid.unicstar.player.UCSVideoView
         android:id="@+id/player"
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -9,15 +9,15 @@ import android.view.animation.Animation
 import android.widget.ProgressBar
 import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
+import droid.unicstar.player.UCSVideoView
+import droid.unicstar.player.player.UCSPlayer
+import droid.unicstar.player.toast
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videocontroller.component.*
-import xyz.doikki.videoplayer.DKManager
-import droid.unicstar.videoplayer.UNSVideoView
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.player.UCSPlayerManager
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.GestureVideoController
 import xyz.doikki.videoplayer.util.PlayerUtils
-import droid.unicstar.videoplayer.toast
 
 /**
  * 直播/点播控制器
@@ -37,7 +37,7 @@ open class StandardVideoController @JvmOverloads constructor(
     protected val loadingIndicator: ProgressBar?
     private var isBuffering = false
 
-    var enableLock: Boolean = !DKManager.isTelevisionUiMode
+    var enableLock: Boolean = !UCSPlayerManager.isTelevisionUiMode
 
     init {
         if (layoutId > 0)
@@ -91,20 +91,18 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (!enableLock)
             return
-        invokeOnPlayerAttached(showToast = false) { player ->
-            if (player.isFullScreen()) {
-                if (isVisible) {
-                    if (lockButton.visibility == GONE) {
-                        lockButton.visibility = VISIBLE
-                        if (anim != null) {
-                            lockButton.startAnimation(anim)
-                        }
-                    }
-                } else {
-                    lockButton.visibility = GONE
+        if (isFullScreen()) {
+            if (isVisible) {
+                if (lockButton.visibility == GONE) {
+                    lockButton.visibility = VISIBLE
                     if (anim != null) {
                         lockButton.startAnimation(anim)
                     }
+                }
+            } else {
+                lockButton.visibility = GONE
+                if (anim != null) {
+                    lockButton.startAnimation(anim)
                 }
             }
         }
@@ -115,21 +113,21 @@ open class StandardVideoController @JvmOverloads constructor(
         if (!enableLock)
             return
         when (screenMode) {
-            UNSVideoView.SCREEN_MODE_NORMAL -> {
+            UCSVideoView.SCREEN_MODE_NORMAL -> {
                 layoutParams = LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 lockButton.visibility = GONE
             }
-            UNSVideoView.SCREEN_MODE_FULL -> if (isShowing) {
+            UCSVideoView.SCREEN_MODE_FULL -> if (isShowing) {
                 lockButton.visibility = VISIBLE
             } else {
                 lockButton.visibility = GONE
             }
         }
 
-        invokeOnPlayerAttached(false) {
+        invokeOnContainerAttached(false) {
             val activity = mActivity ?: return
             if (it.hasCutout()) {
                 val orientation = activity.requestedOrientation
@@ -157,25 +155,25 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onPlayerStateChanged(playState: Int) {
         super.onPlayerStateChanged(playState)
         when (playState) {
-            UNSPlayer.STATE_IDLE -> {
+            UCSPlayer.STATE_IDLE -> {
                 lockButton.isSelected = false
                 loadingIndicator?.visibility = GONE
             }
-            UNSPlayer.STATE_PLAYING, UNSPlayer.STATE_PAUSED, UNSPlayer.STATE_PREPARED, UNSPlayer.STATE_ERROR, UNSPlayer.STATE_BUFFERED -> {
-                if (playState == UNSPlayer.STATE_BUFFERED) {
+            UCSPlayer.STATE_PLAYING, UCSPlayer.STATE_PAUSED, UCSPlayer.STATE_PREPARED, UCSPlayer.STATE_ERROR, UCSPlayer.STATE_BUFFERED -> {
+                if (playState == UCSPlayer.STATE_BUFFERED) {
                     isBuffering = false
                 }
                 if (!isBuffering) {
                     loadingIndicator?.visibility = GONE
                 }
             }
-            UNSPlayer.STATE_PREPARING, UNSPlayer.STATE_BUFFERING -> {
+            UCSPlayer.STATE_PREPARING, UCSPlayer.STATE_BUFFERING -> {
                 loadingIndicator?.visibility = VISIBLE
-                if (playState == UNSPlayer.STATE_BUFFERING) {
+                if (playState == UCSPlayer.STATE_BUFFERING) {
                     isBuffering = true
                 }
             }
-            UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
+            UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 loadingIndicator?.visibility = GONE
                 lockButton.visibility = GONE
                 lockButton.isSelected = false
@@ -189,13 +187,11 @@ open class StandardVideoController @JvmOverloads constructor(
             toast(R.string.dkplayer_lock_tip)
             return true
         }
-        return invokeOnPlayerAttached {
-            if (it.isFullScreen()) {
-                stopFullScreen()
-            } else {
-                super.onBackPressed()
-            }
-        } ?: super.onBackPressed()
+        return if (isFullScreen()) {
+            stopFullScreen()
+        } else {
+            super.onBackPressed()
+        }
 //        return if (controlWrapper!!.isFullScreen) {
 //            stopFullScreen()
 //        } else super.onBackPressed()

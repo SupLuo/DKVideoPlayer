@@ -1,7 +1,6 @@
 package xyz.doikki.dkplayer.widget.videoview;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
@@ -12,15 +11,12 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 
-import java.util.Map;
-
 import xyz.doikki.dkplayer.widget.player.CustomExoMediaPlayer;
-import droid.unicstar.videoplayer.player.UNSPlayer;
-import droid.unicstar.videoplayer.player.UNSPlayerFactory;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.player.UCSPlayerFactory;
+import droid.unicstar.player.UCSVideoView;
 import xyz.doikki.videoplayer.exo.ExoMediaSourceHelper;
 
-public class ExoVideoView extends UNSVideoView {
+public class ExoVideoView extends UCSVideoView {
 
     private MediaSource mMediaSource;
 
@@ -42,7 +38,7 @@ public class ExoVideoView extends UNSVideoView {
 
     {
         //由于传递了泛型，必须将CustomExoMediaPlayer设置进来，否者报错
-        setPlayerFactory(new UNSPlayerFactory<CustomExoMediaPlayer>() {
+        setPlayerFactory(new UCSPlayerFactory<CustomExoMediaPlayer>() {
             @Override
             public CustomExoMediaPlayer create(Context context) {
                 CustomExoMediaPlayer player =  new CustomExoMediaPlayer(context);

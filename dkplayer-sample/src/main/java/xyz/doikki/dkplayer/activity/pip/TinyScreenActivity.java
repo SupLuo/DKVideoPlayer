@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.adapter.VideoRecyclerViewAdapter;
@@ -23,13 +23,13 @@ import xyz.doikki.videocontroller.component.ErrorView;
 import xyz.doikki.videocontroller.component.GestureView;
 import xyz.doikki.videocontroller.component.TitleView;
 import xyz.doikki.videocontroller.component.VodControlView;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 /**
  * 小窗播放
  * Created by Doikki on 2017/5/31.
  */
-public class TinyScreenActivity extends BaseActivity<UNSVideoView> implements OnItemChildClickListener {
+public class TinyScreenActivity extends BaseActivity<UCSVideoView> implements OnItemChildClickListener {
 
     private StandardVideoController mController;
     private List<VideoBean> mVideos;
@@ -49,11 +49,11 @@ public class TinyScreenActivity extends BaseActivity<UNSVideoView> implements On
 
     @Override
     protected void initView() {
-        mVideoView = new UNSVideoView(this);
-        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        mVideoView = new UCSVideoView(this);
+        mVideoView.addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
-                if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
+                if (playState == UCSPlayer.STATE_PLAYBACK_COMPLETED) {
                     if (mVideoView.isTinyScreen()) {
                         mVideoView.stopTinyScreen();
                         releaseVideoView();
@@ -101,7 +101,7 @@ public class TinyScreenActivity extends BaseActivity<UNSVideoView> implements On
                 if (position == mCurPos && !mVideoView.isFullScreen()) {
                     mVideoView.startTinyScreen();
                     mVideoView.setVideoController(null);
-                    mController.setPlayerState(UNSPlayer.STATE_IDLE);
+                    mController.setPlayerState(UCSPlayer.STATE_IDLE);
                 }
             }
         });

@@ -3,20 +3,20 @@ package xyz.doikki.dkplayer.activity.extend;
 import android.os.Handler;
 import android.view.View;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.dkplayer.widget.component.MyDanmakuView;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 /**
  * 弹幕播放
  * Created by Doikki on 17-6-11.
  */
 
-public class DanmakuActivity extends BaseActivity<UNSVideoView> {
+public class DanmakuActivity extends BaseActivity<UCSVideoView> {
 
     private MyDanmakuView mMyDanmakuView;
 
@@ -42,12 +42,12 @@ public class DanmakuActivity extends BaseActivity<UNSVideoView> {
         mVideoView.setDataSource(DataUtil.SAMPLE_URL);
         mVideoView.start();
 
-        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
-                if (playState == UNSPlayer.STATE_PREPARED) {
+                if (playState == UCSPlayer.STATE_PREPARED) {
                     simulateDanmu();
-                } else if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
+                } else if (playState == UCSPlayer.STATE_PLAYBACK_COMPLETED) {
                     mHandler.removeCallbacksAndMessages(null);
                 }
             }

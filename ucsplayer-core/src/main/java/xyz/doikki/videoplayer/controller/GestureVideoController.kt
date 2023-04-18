@@ -8,12 +8,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
-import droid.unicstar.videoplayer.UNSVideoView
-import droid.unicstar.videoplayer.INVALIDATE_SEEK_POSITION
-import droid.unicstar.videoplayer.ScreenMode
-import droid.unicstar.videoplayer.controller.MediaController
+import droid.unicstar.player.UCSVideoView
+import droid.unicstar.player.INVALIDATE_SEEK_POSITION
+import droid.unicstar.player.ScreenMode
+import droid.unicstar.player.controller.MediaController
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
-import droid.unicstar.videoplayer.getActivityContext
+import droid.unicstar.player.getActivityContext
 import xyz.doikki.videoplayer.util.PlayerUtils
 import kotlin.math.abs
 
@@ -88,9 +88,9 @@ abstract class GestureVideoController @JvmOverloads constructor(
 
     override fun setScreenMode(@ScreenMode playerState: Int) {
         super.setScreenMode(playerState)
-        if (playerState == UNSVideoView.SCREEN_MODE_NORMAL) {
+        if (playerState == UCSVideoView.SCREEN_MODE_NORMAL) {
             mCanSlide = mGestureInPortraitEnabled
-        } else if (playerState == UNSVideoView.SCREEN_MODE_FULL) {
+        } else if (playerState == UCSVideoView.SCREEN_MODE_FULL) {
             mCanSlide = true
         }
     }

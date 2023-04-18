@@ -4,21 +4,21 @@ import android.widget.Toast;
 
 import com.danikula.videocache.HttpProxyCacheServer;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.activity.BaseActivity;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.dkplayer.util.cache.ProxyVideoCacheManager;
 import xyz.doikki.dkplayer.widget.component.AdControlView;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 /**
  * 广告
  * Created by Doikki on 2017/4/7.
  */
 
-public class ADActivity extends BaseActivity<UNSVideoView> {
+public class ADActivity extends BaseActivity<UCSVideoView> {
 
     private static final String URL_AD = "https://gslb.miaopai.com/stream/IR3oMYDhrON5huCmf7sHCfnU5YKEkgO2.mp4";
 
@@ -59,10 +59,10 @@ public class ADActivity extends BaseActivity<UNSVideoView> {
         mVideoView.setVideoController(mController);
 
         //监听播放结束
-        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
-                if (playState == UNSPlayer.STATE_PLAYBACK_COMPLETED) {
+                if (playState == UCSPlayer.STATE_PLAYBACK_COMPLETED) {
                     playVideo();
                 }
             }

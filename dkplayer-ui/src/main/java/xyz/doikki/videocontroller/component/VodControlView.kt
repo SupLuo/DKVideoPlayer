@@ -14,11 +14,11 @@ import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.player.UCSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.util.PlayerUtils
-import droid.unicstar.videoplayer.orDefault
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.player.orDefault
+import droid.unicstar.player.player.UCSPlayer
 
 /**
  * 点播底部控制栏
@@ -83,7 +83,7 @@ open class VodControlView @JvmOverloads constructor(
         override fun onStopTrackingTouch(seekBar: SeekBar) {
             try {
                 mController?.let { controller ->
-                    val player = this@VodControlView.player ?: return@let
+                    val player = this@VodControlView.playerControl ?: return@let
                     val duration = player.getDuration()
                     val newPosition = duration * seekBar.progress / seekBar.max
                     player.seekTo(newPosition.toInt().toLong())
@@ -129,7 +129,7 @@ open class VodControlView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            UNSPlayer.STATE_IDLE, UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
+            UCSPlayer.STATE_IDLE, UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 visibility = GONE
                 mBottomProgress?.let {
                     it.progress = 0
@@ -140,9 +140,9 @@ open class VodControlView @JvmOverloads constructor(
                     it.secondaryProgress = 0
                 }
             }
-            UNSPlayer.STATE_PREPARED_BUT_ABORT, UNSPlayer.STATE_PREPARING,
-            UNSPlayer.STATE_PREPARED, UNSPlayer.STATE_ERROR -> visibility = GONE
-            UNSPlayer.STATE_PLAYING -> {
+            UCSPlayer.STATE_PREPARED_BUT_ABORT, UCSPlayer.STATE_PREPARING,
+            UCSPlayer.STATE_PREPARED, UCSPlayer.STATE_ERROR -> visibility = GONE
+            UCSPlayer.STATE_PLAYING -> {
                 mPlayButton?.isSelected = true
                 if (showBottomProgress) {
                     if (mController?.isShowing.orDefault()) {
@@ -159,14 +159,14 @@ open class VodControlView @JvmOverloads constructor(
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
-            UNSPlayer.STATE_PAUSED -> mPlayButton?.isSelected = false
-            UNSPlayer.STATE_BUFFERING -> {
-                mPlayButton?.isSelected = player?.isPlaying().orDefault()
+            UCSPlayer.STATE_PAUSED -> mPlayButton?.isSelected = false
+            UCSPlayer.STATE_BUFFERING -> {
+                mPlayButton?.isSelected = playerControl?.isPlaying().orDefault()
                 // 停止刷新进度
                 mController?.stopUpdateProgress()
             }
-            UNSPlayer.STATE_BUFFERED -> {
-                mPlayButton?.isSelected = player?.isPlaying().orDefault()
+            UCSPlayer.STATE_BUFFERED -> {
+                mPlayButton?.isSelected = playerControl?.isPlaying().orDefault()
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
@@ -176,8 +176,8 @@ open class VodControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            UNSVideoView.SCREEN_MODE_NORMAL -> mFullScreen?.isSelected = false
-            UNSVideoView.SCREEN_MODE_FULL -> mFullScreen?.isSelected = true
+            UCSVideoView.SCREEN_MODE_NORMAL -> mFullScreen?.isSelected = false
+            UCSVideoView.SCREEN_MODE_FULL -> mFullScreen?.isSelected = true
         }
 
         val activity = this.activity ?: return
@@ -187,7 +187,7 @@ open class VodControlView @JvmOverloads constructor(
         //底部容器和进度都为空，则不用处理后续逻辑
         if (bottomContainer == null && bottomProgress == null)
             return
-        player?.let {
+        containerControl?.let {
             player->
             if (player.hasCutout()) {
                 val orientation = activity.requestedOrientation
@@ -238,7 +238,7 @@ open class VodControlView @JvmOverloads constructor(
             } else {
                 seekBar.isEnabled = false
             }
-            val percent = player?.getBufferedPercentage().orDefault()
+            val percent = playerControl?.getBufferedPercentage().orDefault()
             if (percent >= 95) { //解决缓冲进度不能100%问题
                 seekBar.secondaryProgress = seekBar.max
                 mBottomProgress?.secondaryProgress = mBottomProgress?.max.orDefault(100)

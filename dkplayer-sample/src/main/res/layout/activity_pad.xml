@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <droid.unicstar.videoplayer.UNSVideoView
+    <droid.unicstar.player.UCSVideoView
         android:id="@+id/video_view"
         android:layout_width="400dp"
         android:layout_height="240dp"/>

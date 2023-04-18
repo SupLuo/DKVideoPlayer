@@ -4,14 +4,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.player.UCSVideoView
 
 /**
  * @see bindLifecycle 绑定生命周期，如果绑定了生命周期，则在onPause的时候，会自动暂停播放，在界面销毁的时候释放播放器
  */
 abstract class BasePlayScene() : LifecycleObserver {
 
-    abstract fun getVideoView(): UNSVideoView?
+    abstract fun getVideoView(): UCSVideoView?
 
     /**
      * 此方法用于恢复播放

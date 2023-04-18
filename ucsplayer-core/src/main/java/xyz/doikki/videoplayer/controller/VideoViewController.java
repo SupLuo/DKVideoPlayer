@@ -2,7 +2,7 @@ package xyz.doikki.videoplayer.controller;
 
 import androidx.annotation.IntRange;
 
-import droid.unicstar.videoplayer.controller.UNSVideoViewControl;
+import droid.unicstar.player.controller.UCSVideoViewControl;
 
 /**
  * 视图控制器
@@ -63,7 +63,7 @@ public interface VideoViewController {
     boolean isFullScreen();
 
     /**
-     * 横竖屏切换:用来代理{@link UNSVideoViewControl#toggleFullScreen()},即通过Controller调用VideoView的方法
+     * 横竖屏切换:用来代理{@link UCSVideoViewControl#toggleFullScreen()},即通过Controller调用VideoView的方法
      */
     boolean toggleFullScreen();
 
@@ -77,7 +77,7 @@ public interface VideoViewController {
     }
 
     /**
-     * 开始全屏:用来代理{@link UNSVideoViewControl#startFullScreen(boolean)}} ,即通过Controller调用VideoView的方法
+     * 开始全屏:用来代理{@link UCSVideoViewControl#startFullScreen(boolean)}} ,即通过Controller调用VideoView的方法
      *
      * @return
      */
@@ -85,7 +85,7 @@ public interface VideoViewController {
 
 
     /**
-     * 结束全屏:用来代理{@link UNSVideoViewControl#stopFullScreen()},即通过Controller调用VideoView的方法
+     * 结束全屏:用来代理{@link UCSVideoViewControl#stopFullScreen()},即通过Controller调用VideoView的方法
      *
      * @return
      */

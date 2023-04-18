@@ -1,7 +1,7 @@
 package droid.unicstar.player.usecase
 
-import droid.unicstar.videoplayer.UNSPlayerProxy
-import droid.unicstar.videoplayer.controller.UNSContainerControl
+import droid.unicstar.player.UCSPlayerProxy
+import droid.unicstar.player.controller.UCSContainerControl
 
 object UCSUseCase {
 
@@ -10,9 +10,9 @@ object UCSUseCase {
      */
     @JvmStatic
     fun newDoublePlayerScene(
-        one: UNSPlayerProxy,
-        two: UNSPlayerProxy,
-        container: UNSContainerControl
+        one: UCSPlayerProxy,
+        two: UCSPlayerProxy,
+        container: UCSContainerControl
     ): DoublePlayerUseCase {
         return DoublePlayerUseCase(one, two, container)
     }

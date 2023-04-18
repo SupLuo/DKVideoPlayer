@@ -6,12 +6,12 @@ import android.os.Handler
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import droid.unicstar.videoplayer.UNSDisplayContainer
-import droid.unicstar.videoplayer.UNSPlayerProxy
-import droid.unicstar.videoplayer.UNSVideoView
-import droid.unicstar.videoplayer.player.UNSPlayer
-import droid.unicstar.videoplayer.render.AspectRatioType
-import droid.unicstar.videoplayer.render.UNSRenderFactory
+import droid.unicstar.player.UCSDisplayContainer
+import droid.unicstar.player.UCSPlayerProxy
+import droid.unicstar.player.UCSVideoView
+import droid.unicstar.player.player.UCSPlayer
+import droid.unicstar.player.render.AspectRatioType
+import droid.unicstar.player.render.UCSRenderFactory
 import droid.unicstar.player.usecase.DoublePlayerUseCase
 import droid.unicstar.player.usecase.UCSUseCase
 import xyz.doikki.dkplayer.R
@@ -28,17 +28,17 @@ import xyz.doikki.videoplayer.util.L
  * 播放器演示
  * Created by Doikki on 2017/4/7.
  */
-class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
+class Player2ShareRenderActivity : BaseActivity<UCSVideoView>() {
 
     private lateinit var controller: StandardVideoController
 
-    private val mPlay1: UNSPlayerProxy by lazy {
-        UNSPlayerProxy(this)
+    private val mPlay1: UCSPlayerProxy by lazy {
+        UCSPlayerProxy(this)
     }
-    private val mPlay2: UNSPlayerProxy by lazy {
-        UNSPlayerProxy(this)
+    private val mPlay2: UCSPlayerProxy by lazy {
+        UCSPlayerProxy(this)
     }
-    private lateinit var mPlayerContainer: UNSDisplayContainer
+    private lateinit var mPlayerContainer: UCSDisplayContainer
 
     private val mScene: DoublePlayerUseCase by lazy {
         UCSUseCase.newDoublePlayerScene(mPlay1, mPlay2, mPlayerContainer).also {
@@ -122,33 +122,33 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
         }
     }
 
-    private val mOnStateChangeListener: UNSPlayer.OnPlayStateChangeListener =
-        UNSPlayer.OnPlayStateChangeListener { playState ->
+    private val mOnStateChangeListener: UCSPlayer.OnPlayStateChangeListener =
+        UCSPlayer.OnPlayStateChangeListener { playState ->
             when (playState) {
-                UNSPlayer.STATE_IDLE -> {
+                UCSPlayer.STATE_IDLE -> {
                 }
-                UNSPlayer.STATE_PREPARING -> {
+                UCSPlayer.STATE_PREPARING -> {
                 }
-                UNSPlayer.STATE_PREPARED -> {
+                UCSPlayer.STATE_PREPARED -> {
                 }
-                UNSPlayer.STATE_PLAYING -> {
+                UCSPlayer.STATE_PLAYING -> {
                     //需在此时获取视频宽高
                     val videoSize = mPlayerContainer.getVideoSize()
                     L.d("视频宽：" + videoSize[0])
                     L.d("视频高：" + videoSize[1])
                 }
-                UNSPlayer.STATE_PAUSED -> {
+                UCSPlayer.STATE_PAUSED -> {
                 }
-                UNSPlayer.STATE_BUFFERING -> {
+                UCSPlayer.STATE_BUFFERING -> {
                     isBuff = true
                     lastBTime = System.currentTimeMillis()
                 }
-                UNSPlayer.STATE_BUFFERED -> {
+                UCSPlayer.STATE_BUFFERED -> {
                     isBuff = false
                 }
-                UNSPlayer.STATE_PLAYBACK_COMPLETED -> {
+                UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 }
-                UNSPlayer.STATE_ERROR -> {
+                UCSPlayer.STATE_ERROR -> {
                 }
             }
         }
@@ -190,10 +190,10 @@ class Player2ShareRenderActivity : BaseActivity<UNSVideoView>() {
                 i++
             }
             R.id.surface_render -> {
-                mPlayerContainer.setRenderViewFactory(UNSRenderFactory.surfaceViewRenderFactory())
+                mPlayerContainer.setRenderViewFactory(UCSRenderFactory.surfaceViewRenderFactory())
             }
             R.id.texture_render -> {
-                mPlayerContainer.setRenderViewFactory(UNSRenderFactory.textureViewRenderFactory())
+                mPlayerContainer.setRenderViewFactory(UCSRenderFactory.textureViewRenderFactory())
             }
 
         }

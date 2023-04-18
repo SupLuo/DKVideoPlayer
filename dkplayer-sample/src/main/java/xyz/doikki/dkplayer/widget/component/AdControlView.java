@@ -10,10 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.videocontroller.component.BaseControlComponent;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 
 public class AdControlView extends BaseControlComponent implements View.OnClickListener {
@@ -62,11 +62,11 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
-            case UNSPlayer.STATE_PLAYING:
+            case UCSPlayer.STATE_PLAYING:
                 getMController().startUpdateProgress();
                 mPlayButton.setSelected(true);
                 break;
-            case UNSPlayer.STATE_PAUSED:
+            case UCSPlayer.STATE_PAUSED:
                 mPlayButton.setSelected(false);
                 break;
         }
@@ -75,11 +75,11 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
     @Override
     public void onScreenModeChanged(int screenMode) {
         switch (screenMode) {
-            case UNSVideoView.SCREEN_MODE_NORMAL:
+            case UCSVideoView.SCREEN_MODE_NORMAL:
                 mBack.setVisibility(GONE);
                 mFullScreen.setSelected(false);
                 break;
-            case UNSVideoView.SCREEN_MODE_FULL:
+            case UCSVideoView.SCREEN_MODE_FULL:
                 mBack.setVisibility(VISIBLE);
                 mFullScreen.setSelected(true);
                 break;
@@ -117,8 +117,8 @@ public class AdControlView extends BaseControlComponent implements View.OnClickL
 
     private void doMute() {
 
-        getPlayer().setMute(!getPlayer().isMute());
-        mVolume.setImageResource(getPlayer().isMute() ? R.drawable.dkplayer_ic_action_volume_up : R.drawable.dkplayer_ic_action_volume_off);
+        getPlayerControl().setMute(!getPlayerControl().isMute());
+        mVolume.setImageResource(getPlayerControl().isMute() ? R.drawable.dkplayer_ic_action_volume_up : R.drawable.dkplayer_ic_action_volume_off);
     }
 
     /**

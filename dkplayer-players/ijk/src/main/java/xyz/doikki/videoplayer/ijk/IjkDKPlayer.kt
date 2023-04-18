@@ -11,11 +11,11 @@ import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer.OnNativeInvokeListener
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
-import droid.unicstar.videoplayer.player.BaseUNSPlayer
-import droid.unicstar.videoplayer.player.UNSPlayer
-import droid.unicstar.videoplayer.player.CSPlayerException
+import droid.unicstar.player.player.BaseUCSPlayer
+import droid.unicstar.player.player.UCSPlayer
+import droid.unicstar.player.player.UCSPlayerException
 
-open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
+open class IjkDKPlayer(private val appContext: Context) : BaseUCSPlayer(),
     IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnInfoListener,
     IMediaPlayer.OnBufferingUpdateListener, IMediaPlayer.OnPreparedListener,
     IMediaPlayer.OnVideoSizeChangedListener, OnNativeInvokeListener {
@@ -190,7 +190,7 @@ open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
 
     override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
         mEventListener!!.onError(
-            CSPlayerException(
+            UCSPlayerException(
                 what,
                 extra
             )
@@ -215,7 +215,7 @@ open class IjkDKPlayer(private val appContext: Context) : BaseUNSPlayer(),
         mEventListener!!.onPrepared()
         // 修复播放纯音频时状态出错问题
         if (!isVideo) {
-            mEventListener!!.onInfo(UNSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
+            mEventListener!!.onInfo(UCSPlayer.MEDIA_INFO_VIDEO_RENDERING_START, 0)
         }
     }
 

@@ -4,21 +4,25 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import droid.unicstar.videoplayer.UNSPlayerProxy
-import droid.unicstar.videoplayer.controller.UNSContainerControl
+import droid.unicstar.player.UCSPlayerProxy
+import droid.unicstar.player.controller.UCSContainerControl
 
 /**
  * 双播放器场景：两个播放器共享同一个视图
+ * @param mOne 第一个播放器
+ * @param mtw
+ * @see playOne 使用第一个播放器进行播放
+ * @see playTwo 使用第二个播放器进行播放
  */
 class DoublePlayerUseCase(
-    private val mOne: UNSPlayerProxy,
-    private val mTwo: UNSPlayerProxy,
-    private val mContainer: UNSContainerControl
+    private val mOne: UCSPlayerProxy,
+    private val mTwo: UCSPlayerProxy,
+    private val mContainer: UCSContainerControl
 ) : LifecycleObserver {
 
-    private var mCurrent: UNSPlayerProxy? = null
+    private var mCurrent: UCSPlayerProxy? = null
 
-    val currentPlayer: UNSPlayerProxy? get() = mCurrent
+    val currentPlayer: UCSPlayerProxy? get() = mCurrent
 
     fun bindLifecycleOwner(owner: LifecycleOwner) {
         owner.lifecycle.addObserver(this)
@@ -27,24 +31,24 @@ class DoublePlayerUseCase(
     /**
      * 使用第一个进行播放
      */
-    fun playOne() {
+    fun playOne(seekMsec: Long = 0) {
         if (mCurrent == mOne)
             return
         unfocus(mTwo)
-        focus(mOne)
+        focus(mOne, seekMsec)
     }
 
     /**
      * 使用第二个进行播放
      */
-    fun playTwo() {
+    fun playTwo(seekMsec: Long = 0) {
         if (mCurrent == mTwo)
             return
         unfocus(mOne)
-        focus(mTwo)
+        focus(mTwo, seekMsec)
     }
 
-    private fun unfocus(player: UNSPlayerProxy) {
+    private fun unfocus(player: UCSPlayerProxy) {
         if (player.isPlaying()) {
             player.pause()
             player.setDisplay(null)
@@ -52,12 +56,16 @@ class DoublePlayerUseCase(
         }
     }
 
-    private fun focus(player: UNSPlayerProxy) {
+    private fun focus(player: UCSPlayerProxy, seekMsec: Long = 0) {
+        mContainer.bindPlayer(player)
+        mCurrent = player
         if (!player.isPlaying()) {
             player.resume()
         }
-        mContainer.bindPlayer(player)
-        mCurrent = player
+
+        if (seekMsec > 0) {
+            player.seekTo(seekMsec)
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)

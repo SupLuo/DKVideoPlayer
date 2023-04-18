@@ -14,10 +14,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.videoplayer.UNSVideoView
+import droid.unicstar.player.UCSVideoView
 import xyz.doikki.videoplayer.TVCompatible
-import droid.unicstar.videoplayer.orDefault
-import droid.unicstar.videoplayer.player.UNSPlayer
+import droid.unicstar.player.orDefault
+import droid.unicstar.player.player.UCSPlayer
 
 /**
  * 播放器顶部标题栏
@@ -85,16 +85,16 @@ class TitleView @JvmOverloads constructor(
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            UNSPlayer.STATE_IDLE, UNSPlayer.STATE_PREPARED_BUT_ABORT,
-            UNSPlayer.STATE_PREPARING, UNSPlayer.STATE_PREPARED,
-            UNSPlayer.STATE_ERROR, UNSPlayer.STATE_PLAYBACK_COMPLETED -> visibility = GONE
+            UCSPlayer.STATE_IDLE, UCSPlayer.STATE_PREPARED_BUT_ABORT,
+            UCSPlayer.STATE_PREPARING, UCSPlayer.STATE_PREPARED,
+            UCSPlayer.STATE_ERROR, UCSPlayer.STATE_PLAYBACK_COMPLETED -> visibility = GONE
         }
     }
 
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         val controller = this.mController
-        if (screenMode == UNSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == UCSVideoView.SCREEN_MODE_FULL) {
             if (controller != null && controller.isShowing && !controller.isLocked) {
                 visibility = VISIBLE
 //                mSysTime.text = PlayerUtils.getCurrentSystemTime()
@@ -105,11 +105,11 @@ class TitleView @JvmOverloads constructor(
             mTitle.isSelected = false
         }
         val activity = this.activity ?: return
-        player?.let {
-            player->
-            if (player.hasCutout()) {
+        containerControl?.let {
+                containerControl->
+            if (containerControl.hasCutout()) {
                 val orientation = activity.requestedOrientation
-                val cutoutHeight = player.getCutoutHeight()
+                val cutoutHeight = containerControl.getCutoutHeight()
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
                         mTitleContainer.setPadding(0, 0, 0, 0)

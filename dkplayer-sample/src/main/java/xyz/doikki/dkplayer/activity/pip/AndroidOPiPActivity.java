@@ -22,11 +22,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import droid.unicstar.videoplayer.player.UNSPlayer;
+import droid.unicstar.player.player.UCSPlayer;
 import xyz.doikki.dkplayer.R;
 import xyz.doikki.dkplayer.util.DataUtil;
 import xyz.doikki.videocontroller.StandardVideoController;
-import droid.unicstar.videoplayer.UNSVideoView;
+import droid.unicstar.player.UCSVideoView;
 
 import java.util.ArrayList;
 
@@ -88,7 +88,7 @@ public class AndroidOPiPActivity extends AppCompatActivity {
      */
     private BroadcastReceiver mReceiver;
 
-    private UNSVideoView mVideoView;
+    private UCSVideoView mVideoView;
     private StandardVideoController mController;
     private int mWidthPixels;
 
@@ -105,19 +105,19 @@ public class AndroidOPiPActivity extends AppCompatActivity {
         mController.addDefaultControlComponent(getString(R.string.str_pip_android_o), false);
         mVideoView.setVideoController(mController);
         mVideoView.start();
-        mVideoView.addOnPlayStateChangeListener(new UNSPlayer.OnPlayStateChangeListener() {
+        mVideoView.addOnPlayStateChangeListener(new UCSPlayer.OnPlayStateChangeListener() {
             @Override
             public void onPlayStateChanged(int playState) {
                 switch (playState) {
-                    case UNSPlayer.STATE_PAUSED:
+                    case UCSPlayer.STATE_PAUSED:
                         updatePictureInPictureActions(
                                 R.drawable.dkplayer_ic_action_play_arrow, "播放", CONTROL_TYPE_PLAY, REQUEST_PLAY);
                         break;
-                    case UNSPlayer.STATE_PLAYING:
+                    case UCSPlayer.STATE_PLAYING:
                         updatePictureInPictureActions(
                                 R.drawable.dkplayer_ic_action_pause, "暂停", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
                         break;
-                    case UNSPlayer.STATE_PLAYBACK_COMPLETED:
+                    case UCSPlayer.STATE_PLAYBACK_COMPLETED:
                         updatePictureInPictureActions(
                                 R.drawable.dkplayer_ic_action_replay, "重新播放", CONTROL_TYPE_REPLAY, REQUEST_REPLAY);
                         break;

@@ -13,10 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 
-import droid.unicstar.videoplayer.UtilsKt;
-import droid.unicstar.videoplayer.UNSVideoView;
-import droid.unicstar.videoplayer.controller.MediaController;
-import droid.unicstar.videoplayer.controller.UNSVideoViewControl;
+import droid.unicstar.player.UCSDisplayContainer;
+import droid.unicstar.player.UCSPlayerProxy;
+import droid.unicstar.player.UtilsKt;
+import droid.unicstar.player.controller.MediaController;
+import droid.unicstar.player.controller.UCSContainerControl;
+import droid.unicstar.player.controller.UCSPlayerControl;
 import xyz.doikki.videoplayer.controller.component.ControlComponent;
 
 /**
@@ -67,14 +69,19 @@ public class DebugInfoView extends AppCompatTextView implements ControlComponent
      * Returns the debugging information string to be shown by the target {@link TextView}.
      */
     protected String getDebugString(int playState) {
-        UNSVideoViewControl control = mController.getPlayerControl();
+        UCSPlayerControl control = mController.getPlayerControl();
+        UCSContainerControl containerControl = mController.getContainerControl();
         if (control == null)
             return "";
-        int[] videoSize = control.getVideoSize();
-        UNSVideoView videoView = (UNSVideoView) mController.getPlayerControl();
+        int[] videoSize = containerControl.getVideoSize();
         StringBuilder sb = new StringBuilder();
-        sb.append("player:").append(videoView.getPlayerName()).append("   ")
-                .append("render:").append(videoView.getRenderName()).append("\n");
+        if (control instanceof UCSPlayerProxy) {
+            sb.append("player:").append(((UCSPlayerProxy) control).getPlayerName()).append("   ");
+        }
+
+        if (containerControl instanceof UCSDisplayContainer) {
+            sb.append("render:").append(((UCSDisplayContainer) containerControl).getRenderName()).append("\n");
+        }
         sb.append(UtilsKt.playState2str(playState)).append("  ")
                 .append("video width:").append(videoSize[0])
                 .append(",height:").append(videoSize[1]);

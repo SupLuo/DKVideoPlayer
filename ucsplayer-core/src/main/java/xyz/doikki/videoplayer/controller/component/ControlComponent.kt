@@ -2,10 +2,10 @@ package xyz.doikki.videoplayer.controller.component
 
 import android.view.View
 import android.view.animation.Animation
-import xyz.doikki.videoplayer.DKManager
-import droid.unicstar.videoplayer.ScreenMode
-import droid.unicstar.videoplayer.controller.MediaController
-import droid.unicstar.videoplayer.controller.UNSVideoViewControl
+import droid.unicstar.player.UCSPlayerManager
+import droid.unicstar.player.ScreenMode
+import droid.unicstar.player.controller.MediaController
+import droid.unicstar.player.controller.UCSPlayerControl
 
 /**
  * 控制器中的控制组件
@@ -20,7 +20,12 @@ interface ControlComponent {
     /**
      * 绑定了播放器:用于先绑定controller之后，再绑定的播放器情况
      */
-    fun onPlayerAttached(player: UNSVideoViewControl) {}
+    fun onPlayerAttached(player: UCSPlayerControl) {}
+
+    /**
+     * 绑定了容器控制器
+     */
+    fun onContainerAttached(containerControl: UCSPlayerControl){}
 
     /**
      * 如果 ControlComponent 是 View，返回当前控件（this）即可；如果不是，返回null
@@ -33,7 +38,7 @@ interface ControlComponent {
      * @return
      */
     fun isTelevisionUiMode(): Boolean {
-        return DKManager.isTelevisionUiMode
+        return UCSPlayerManager.isTelevisionUiMode
     }
 
     /**
