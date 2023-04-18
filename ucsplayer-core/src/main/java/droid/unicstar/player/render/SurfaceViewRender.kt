@@ -142,5 +142,11 @@ class SurfaceViewRender @JvmOverloads constructor(
         val surfaceHolder = holder
         surfaceHolder.addCallback(mSurfaceHolderCallback)
         surfaceHolder.setFormat(PixelFormat.RGBA_8888)
+
+//        /**
+//         * 解决surface黑屏问题
+//         */
+//        setZOrderOnTop(true)
+//        surfaceHolder.setFormat(PixelFormat.TRANSLUCENT)
     }
 }
