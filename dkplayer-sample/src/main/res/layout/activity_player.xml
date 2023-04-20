@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#ff00ff"
-        app:playerBackgroundColor="@android:color/black"
+        app:ucsp_playerBackgroundColor="@android:color/black"
         app:layout_constraintDimensionRatio="16:10"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

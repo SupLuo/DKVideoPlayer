@@ -133,7 +133,7 @@ internal inline val Activity.contentView: ViewGroup? get() = findViewById(androi
 /**
  * 从Context中获取Activity上下文
  */
-internal fun Context.getActivityContext(): Activity? {
+ fun Context.getActivityContext(): Activity? {
     if (this is Activity) {
         return this
     } else if (this is ContextWrapper) {

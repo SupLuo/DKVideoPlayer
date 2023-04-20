@@ -39,7 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 open class UCSDisplayContainer @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null,
     private val mRender: UCSRenderProxy = UCSRenderProxy()
-) : FrameLayout(context, attrs),UCSContainerControl, UCSRenderControl by mRender {
+) : FrameLayout(context, attrs), UCSContainerControl, UCSRenderControl by mRender {
 
     //绑定的界面
     private var mBindActivityRef: SoftReference<Activity?>? = null
@@ -513,16 +513,16 @@ open class UCSDisplayContainer @JvmOverloads constructor(
         }
     }
 
-    private fun autoInjectContainer(){
+    private fun autoInjectContainer() {
         //布局中加载完成的时候，判断下是否需要自动绑定Container
         try {
             logd("[DisplayContainer]autoInjectContainer: mBindContainerRef = $mBindContainerRef parent=$parent")
             val parent = this.parent
-            if(mBindContainerRef?.get() == null && parent is FrameLayout){
+            if (mBindContainerRef?.get() == null && parent is FrameLayout) {
                 mBindContainerRef = SoftReference(parent)
                 logd("[DisplayContainer]autoInjectContainer: 自动注入了Container")
             }
-        }catch (e:Throwable){
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
@@ -550,12 +550,18 @@ open class UCSDisplayContainer @JvmOverloads constructor(
         val ta = context.obtainStyledAttributes(attrs, R.styleable.UCSDisplayContainer)
         //todo这两个参数的处理
         val audioFocus: Boolean =
-            ta.getBoolean(R.styleable.UCSDisplayContainer_ucsp_enableAudioFocus, UCSPlayerManager.isAudioFocusEnabled)
+            ta.getBoolean(
+                R.styleable.UCSDisplayContainer_ucsp_enableAudioFocus,
+                UCSPlayerManager.isAudioFocusEnabled
+            )
         val looping = ta.getBoolean(R.styleable.UCSDisplayContainer_ucsp_looping, false)
 
         if (ta.hasValue(R.styleable.UCSDisplayContainer_ucsp_screenScaleType)) {
             val screenAspectRatioType =
-                ta.getInt(R.styleable.UCSDisplayContainer_ucsp_screenScaleType, UCSPlayerManager.screenAspectRatioType)
+                ta.getInt(
+                    R.styleable.UCSDisplayContainer_ucsp_screenScaleType,
+                    UCSPlayerManager.screenAspectRatioType
+                )
             setAspectRatioType(screenAspectRatioType)
         }
         val playerBackgroundColor =
@@ -569,8 +575,10 @@ open class UCSDisplayContainer @JvmOverloads constructor(
 
 
     init {
-        if(attrs != null){
+        if (attrs != null) {
             applyAttributes(context, attrs)
+        } else {
+            setBackgroundColor(Color.BLACK)
         }
         //如果当前容器是通过Activity上下文构建的，则默认绑定的界面为该Activity
         val activity = context.getActivityContext()
@@ -578,7 +586,5 @@ open class UCSDisplayContainer @JvmOverloads constructor(
             bindActivity(activity)
         }
         mRender.bindContainer(this)
-
-
     }
 }

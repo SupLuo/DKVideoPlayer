@@ -9,8 +9,9 @@ import droid.unicstar.player.controller.UCSContainerControl
 
 /**
  * 双播放器场景：两个播放器共享同一个视图
+ * 即两个播放器公用同一个图层
  * @param mOne 第一个播放器
- * @param mtw
+ * @param mTwo 第二个播放器
  * @see playOne 使用第一个播放器进行播放
  * @see playTwo 使用第二个播放器进行播放
  */
@@ -24,6 +25,9 @@ class DoublePlayerUseCase(
 
     val currentPlayer: UCSPlayerProxy? get() = mCurrent
 
+    /**
+     * 绑定生命周期，自动管理
+     */
     fun bindLifecycleOwner(owner: LifecycleOwner) {
         owner.lifecycle.addObserver(this)
     }

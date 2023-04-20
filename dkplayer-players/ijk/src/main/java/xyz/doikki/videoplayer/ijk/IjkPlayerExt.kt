@@ -11,19 +11,19 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer
  *
 一、ijkplayer播放主要流程：
 1、根据链接的schema找到对应的URLProtocol。
-    如Http的链接，对应libavformat/http.c
-    而http的请求后续会转换成Tcp的协议，对应libavformat/tcp.c
+如Http的链接，对应libavformat/http.c
+而http的请求后续会转换成Tcp的协议，对应libavformat/tcp.c
 2、进行DNS解析ip地址，并且解析完后进行缓存，以便下次复用
 3、从链路中读取数据到Buffer
-    有可能从tcp链路，也有可能从磁盘链路
-    TCP链路则会需要等待三次握手的时间
+有可能从tcp链路，也有可能从磁盘链路
+TCP链路则会需要等待三次握手的时间
 4、读取Buffer进行文件类型的probe
-    探测文件格式，判断是mp4，flv等等
+探测文件格式，判断是mp4，flv等等
 5、读取Buffer的头部信息进行解析
-    解析文件头部，判断是否为该格式文件，如果失败则返回错误
+解析文件头部，判断是否为该格式文件，如果失败则返回错误
 6、解析audio，video，subtitle流
-    根据文件信息找到多媒体流
-    优先使用H264的视频流
+根据文件信息找到多媒体流
+优先使用H264的视频流
 7、根据流信息找到解码器
 8、开启各个线程开始对各个流进行解码成packet
 9、同步到read_thread线程后，装入packetQueue中
@@ -32,15 +32,15 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer
 
 二、ijkplayer优化方向
 2.1 网络链路优化
-    IP直连：减少dns
-    减少随机值：提高CDN缓存资源命中率
+IP直连：减少dns
+减少随机值：提高CDN缓存资源命中率
 2.2 文件探测&头部读取优化
-    控制文件探测大小：probesize参数
-    控制分析时长：analyzeduration参数
-    去掉循环滤波：skip_loop_filter参数
+控制文件探测大小：probesize参数
+控制分析时长：analyzeduration参数
+去掉循环滤波：skip_loop_filter参数
 2.3 buffer优化
-    直接刷新数据包：flush_packets
-    去掉packet-buffering：packet-buffering
+直接刷新数据包：flush_packets
+去掉packet-buffering：packet-buffering
 2.4 解码优化
 是否可以不解析subtitle、audio
 
@@ -56,10 +56,10 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer
  * 软解推荐的配置
  * @param frameDrop 跳帧
  */
-fun IjkMediaPlayer.applySoftDecodingPreferredOptions(frameDrop: Long = 5) {
+fun IjkMediaPlayer.applySoftDecodingPreferredOptions(frameDrop: Long = 1) {
     setFrameDrop(frameDrop)//设置跳帧
     applySoftDecoding()
-    setMaxBufferSize(300 * 1024)//设置最大缓冲区大小 200kb
+    setMaxBufferSize(5 * 1024 * 1024)//设置最大缓冲区大小 5Mkb
     setMaxFps(24) //设置最大帧率
     setSkipLoopFilter(false)
     setEnableReconnect(true)
@@ -91,7 +91,7 @@ fun IjkMediaPlayer.applyFastStartPreferredOptions() {
 /**
  * 直播首选配置说明
  */
-fun IjkMediaPlayer.applyLivePreferredOptions(){
+fun IjkMediaPlayer.applyLivePreferredOptions() {
 //    7、快速起直播流：
 //    直播技术总结（五）如何快速起播直播流- http://blog.csdn.net/hejjunlin/article/details/72860470
 //    这里优化后者，主要修改两个参数，一个是probesize，一个是analyzeduration，分别用来控制其读取的数据量大小和时长。减少 probesize 和 analyzeduration 可以降低avformat_find_stream_info的函数耗时，达到起播快
@@ -102,7 +102,7 @@ fun IjkMediaPlayer.applyLivePreferredOptions(){
  * Rtsp配置优化
  * 参考来源 （第21条）https://www.jianshu.com/p/220b00d00deb
  */
-fun IjkMediaPlayer.applyRtspPreferredOptions(){
+fun IjkMediaPlayer.applyRtspPreferredOptions() {
 
 //rtsp设置 https://ffmpeg.org/ffmpeg-protocols.html#rtsp
     setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_transport", "tcp");
@@ -172,7 +172,7 @@ inline fun IjkMediaPlayer.setAccurateSeek(enable: Boolean) {
  * @note 避免文件过大，seek位置过远导致loading时间过长的问题
  * eg.一个3个多少小时的音频文件，开始播放几秒中，然后拖动到2小时左右的时间，要loading 10分钟
  */
-inline fun IjkMediaPlayer.setFastSeek(){
+inline fun IjkMediaPlayer.setFastSeek() {
     setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fflags", "fastseek");//设置seekTo能够快速seek到指定位置并播放
 }
 
@@ -256,9 +256,9 @@ inline fun IjkMediaPlayer.setMinFrames(frames: Long) {
  * 是否查询stream_info,ijk默认设置为true
  * @param enable true:表示要查找streamInfo，false表示不查找直接使用
  */
-inline fun IjkMediaPlayer.setFindStreamInfo(enable: Boolean){
+inline fun IjkMediaPlayer.setFindStreamInfo(enable: Boolean) {
     // 不查询stream_info，直接使用
-    setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"find_stream_info", enable.ijkBoolean)
+    setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "find_stream_info", enable.ijkBoolean)
 }
 
 /**
@@ -285,7 +285,7 @@ inline fun IjkMediaPlayer.setPacketBuffering(enable: Boolean = true) {
  * 是否清空dns缓存
  * @note 可以用于以下场景开启：比如http与https域名共用，eg http://www.baidu.com  and https://www.baidu.com
  */
-inline fun IjkMediaPlayer.setClearDnsCache(clear:Boolean){
+inline fun IjkMediaPlayer.setClearDnsCache(clear: Boolean) {
     setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", clear.ijkBoolean)
 }
 
@@ -294,7 +294,7 @@ inline fun IjkMediaPlayer.setClearDnsCache(clear:Boolean){
  * 资料来源：（第431行） https://github.com/bilibili/ijkplayer/blob/e99d640e5fe94c65132379307f92d7180bcde8e7/android/ijkplayer/ijkplayer-java/src/main/java/tv/danmaku/ijk/media/player/IjkMediaPlayer.java
  * @note 该协议使用ijkhttphook之类的协议，可以实现断网重连。 参考（第19条）https://www.jianshu.com/p/220b00d00deb
  */
-inline fun IjkMediaPlayer.setPreferredProtocol(){
+inline fun IjkMediaPlayer.setPreferredProtocol() {
     setProtocolWhiteList("async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data")
 }
 
@@ -302,14 +302,14 @@ inline fun IjkMediaPlayer.setPreferredProtocol(){
  * 首选协议：支持（设置本地m3u8）
  * 资料来源：（第18条） https://www.jianshu.com/p/220b00d00deb
  */
-inline fun IjkMediaPlayer.setPreferredProtocol2(){
+inline fun IjkMediaPlayer.setPreferredProtocol2() {
     setProtocolWhiteList("crypto,file,http,https,tcp,tls,udp")
 }
 
 /**
  * 设置协议白名单：即支持哪些类型的地址
  */
-inline fun IjkMediaPlayer.setProtocolWhiteList(value:String){
+inline fun IjkMediaPlayer.setProtocolWhiteList(value: String) {
     setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", value)
 }
 
@@ -444,7 +444,6 @@ inline fun IjkMediaPlayer.setVolume(volume: Long) {
     }
     setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "volume", volume)
 }
-
 
 
 /**
