@@ -133,7 +133,7 @@ class SysUCSPlayer : BaseUCSPlayer() {
     override fun pause() {
         try {
             checkKernelValidation()
-            mKernel!!.pause()
+            mKernel.pause()
         } catch (e: Throwable) {
             handlePlayerOperationException(e)
         }

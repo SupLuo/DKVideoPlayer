@@ -56,10 +56,10 @@ IP直连：减少dns
  * 软解推荐的配置
  * @param frameDrop 跳帧
  */
-fun IjkMediaPlayer.applySoftDecodingPreferredOptions(frameDrop: Long = 1) {
+fun IjkMediaPlayer.applySoftDecodingPreferredOptions(frameDrop: Long = 5) {
     setFrameDrop(frameDrop)//设置跳帧
-    applySoftDecoding()
-    setMaxBufferSize(5 * 1024 * 1024)//设置最大缓冲区大小 5Mkb
+    setSoftDecoding()
+//    setMaxBufferSize(5 * 1024 * 1024)//设置最大缓冲区大小 5M
     setMaxFps(24) //设置最大帧率
     setSkipLoopFilter(false)
     setEnableReconnect(true)
@@ -132,7 +132,7 @@ inline fun IjkMediaPlayer.setMediacodec(hardware: Boolean) {
 /**
  * 使用软解
  */
-inline fun IjkMediaPlayer.applySoftDecoding() {
+inline fun IjkMediaPlayer.setSoftDecoding() {
     setMediacodec(false)
 }
 
@@ -400,10 +400,10 @@ inline fun IjkMediaPlayer.setAutoPlayOnPrepared(enable: Boolean) {
 }
 
 /**
- * 设置最大缓冲区大小，默认200KB
+ * 设置最大缓冲区大小，(IJK内部看参数似乎是默认的15M = 15*1024*1024)
  * max buffer size should be pre-read
  */
-inline fun IjkMediaPlayer.setMaxBufferSize(size: Long = 200 * 1024) {
+inline fun IjkMediaPlayer.setMaxBufferSize(size: Long) {
     setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", size)
 }
 

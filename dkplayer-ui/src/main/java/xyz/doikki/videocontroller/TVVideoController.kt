@@ -243,7 +243,7 @@ open class TVVideoController @JvmOverloads constructor(
      * 处理按键拖动
      */
     private fun handlePendingKeySeek(event: KeyEvent) {
-        invokeOnPlayerAttached(showToast = false) { player ->
+        invokeOnPlayerAttached(showToast = false) { _ ->
             if (event.action == KeyEvent.ACTION_DOWN) {
                 if (!mHasDispatchPendingSeek) {
                     mHasDispatchPendingSeek = true
