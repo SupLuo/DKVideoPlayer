@@ -13,6 +13,7 @@ import androidx.annotation.IntRange
 import unics.player.*
 import unics.player.internal.plogw2
 import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.VideoViewController
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils
@@ -447,13 +448,9 @@ open class MediaController @JvmOverloads constructor(
     /**
      * @return true:调用了重播方法，false则表示未处理任何
      */
-    fun replay(resetPosition: Boolean = true): Boolean {
-        return invokeOnPlayerAttached {
-            it.replay(resetPosition)
-            true
-        }.orDefault(false)
+    fun replay(resetPosition: Boolean = true) {
+        mPlayer?.replay(resetPosition)
     }
-
 
     //------------------------ start handle event change ------------------------//
 
@@ -557,7 +554,7 @@ open class MediaController @JvmOverloads constructor(
             if (showToast) {
                 toast("请先调用setMediaPlayer方法绑定播放器.")
             }
-            plogw2("MediaController"){
+            plogw2("MediaController") {
                 "error on ${Thread.currentThread().stackTrace[2].methodName} method invoke.but throwable is ignored."
             }
             return null
@@ -574,7 +571,7 @@ open class MediaController @JvmOverloads constructor(
             if (showToast) {
                 toast("请先调用${::bindContainer.name}方法绑定所在的容器.")
             }
-            plogw2("MediaController"){
+            plogw2("MediaController") {
                 "error on ${Thread.currentThread().stackTrace[2].methodName} method invoke.but throwable is ignored."
             }
             return null

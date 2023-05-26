@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
-import unics.player.controller.UCSPlayerControl
+import unics.player.kernel.UCSPlayerControl
 import unics.player.controller.UCSVideoViewControl
 import unics.player.internal.plogd
 import unics.player.kernel.PlayerProxy
@@ -149,13 +149,6 @@ open class UCSVideoView @JvmOverloads constructor(
         mDisplayContainer.bindPlayer(null)
         //释放render
         mDisplayContainer.release()
-    }
-
-    /**
-     * 设置[.mPlayerContainer]的背景色
-     */
-    fun setPlayerBackgroundColor(color: Int) {
-        mDisplayContainer.setBackgroundColor(color)
     }
 
     /**

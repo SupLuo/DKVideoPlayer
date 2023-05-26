@@ -6,9 +6,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
-import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
-import androidx.annotation.IntRange
 import unics.player.internal.PartialFunc
 
 /**
@@ -21,7 +19,7 @@ import unics.player.internal.PartialFunc
  * create by luochao on 2022/9/16. 调整部分代码及结构
  * @see BaseUCSPlayer
  */
-interface UCSPlayer {
+interface UCSPlayer : UCSPlayerBase {
 
     companion object {
 
@@ -231,16 +229,6 @@ interface UCSPlayer {
     fun prepareAsync()
 
     /**
-     * 开始播放
-     */
-    fun start()
-
-    /**
-     * 暂停；接下来可以调用start继续之前的播放
-     */
-    fun pause()
-
-    /**
      * 停止
      * 即让暂停或者正在进行的播放停止，接下来想继续播放的话，得重新设置数据源并调用prepareAsync
      */
@@ -258,89 +246,16 @@ interface UCSPlayer {
     fun release()
 
     /**
-     * 是否正在播放
-     */
-    fun isPlaying(): Boolean
-
-    /**
-     * 获取当前播放的位置,单位 msec
-     */
-    fun getCurrentPosition(): Long
-
-    /**
-     * 获取视频总时长,单位 msec
-     */
-    fun getDuration(): Long
-
-    /**
-     * 获取缓冲百分比
-     */
-    @IntRange(from = 0, to = 100)
-    fun getBufferedPercentage(): Int
-
-    /**
-     * 调整进度
-     *
-     * @param msec the offset in milliseconds from the start to seek to;偏移位置（毫秒）
-     */
-    fun seekTo(msec: Long)
-
-    /**
-     * 设置循环播放
-     */
-    fun setLooping(looping: Boolean)
-
-    /**
-     * 设置音量 ；0.0f-1.0f 之间
-     *
-     * @param leftVolume  左声道音量
-     * @param rightVolume 右声道音量
-     */
-    fun setVolume(
-        @FloatRange(from = 0.0, to = 1.0) leftVolume: Float,
-        @FloatRange(from = 0.0, to = 1.0) rightVolume: Float
-    )
-
-    /**
-     * 获取播放速度 0.5f：表示0.5倍数 2f:表示2倍速
-     * 注意：使用系统播放器时，只有6.0及以上系统才支持，6.0以下默认返回1
-     */
-    @PartialFunc(message = "使用系统播放器时，只有6.0及以上系统才支持")
-    fun getSpeed(): Float
-
-    /**
-     * 设置播放速度 0.5f：表示0.5倍数 2f:表示2倍速
-     * 注意：使用系统播放器时，只有6.0及以上系统才支持
-     */
-    @PartialFunc(message = "使用系统播放器时，只有6.0及以上系统才支持")
-    fun setSpeed(speed: Float)
-
-    /**
-     * 设置渲染视频的View,主要用于TextureView
-     */
-    fun setSurface(surface: Surface?)
-
-    /**
-     * 设置渲染视频的View,主要用于SurfaceView
-     */
-    fun setDisplay(holder: SurfaceHolder?)
-
-    /**
      * 设置播放器事件监听
      */
     fun setEventListener(eventListener: EventListener?)
-
-    /**
-     * 获取当前缓冲的网速
-     */
-    @PartialFunc(message = "IJK播放器才支持")
-    fun getTcpSpeed(): Long
 
     /**
      * 设置解码方式
      * @param enable true:硬解 false 软解
      */
     @PartialFunc(message = "系统播放器无效，只支持硬解；Ijk支持软硬切换；Exo暂未了解")
-    fun setMediacodec(enable: Boolean) {}
+    fun setMediacodec(enable: Boolean) {
+    }
 
 }

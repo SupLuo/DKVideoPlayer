@@ -11,6 +11,7 @@ import unics.player.controller.UCSRenderControl
 import unics.player.internal.plogd
 import unics.player.internal.plogw
 import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerBase
 import unics.player.orDefault
 
 /**
@@ -31,7 +32,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
     private inline val mContext: Context get() = mContainer.context
 
     //关联的播放器
-    private var mAttachedPlayer: UCSPlayer? = null
+    private var mAttachedPlayer: UCSPlayerBase? = null
 
     //真正的渲染视图
     private var mRender: UCSRender? = null
@@ -115,7 +116,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
         }
     }
 
-    private fun attachRender(player: UCSPlayer) {
+    private fun attachRender(player: UCSPlayerBase) {
         plogd { "$mLogPrefix attachRender" }
         val render = mRender ?: createRender()
         plogd { "$mLogPrefix attachRender render=$render ->  render.bindPlayer($player)" }
@@ -181,7 +182,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
     override val view: View?
         get() = mRender?.view
 
-    override fun bindPlayer(player: UCSPlayer?) {
+    override fun bindPlayer(player: UCSPlayerBase?) {
         plogd { "$mLogPrefix bindPlayer： renderReusable=$mRenderReusable currentRenderHashCode=${mRender.hashCode()}" }
         if (!mRenderReusable) {//不重用render，则立即释放当前的render
             plogd { "$mLogPrefix bindPlayer -> releaseCurrentRender renderReusable=$mRenderReusable" }

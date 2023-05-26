@@ -11,13 +11,12 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
-import unics.player.controller.UCSPlayerControl
+import unics.player.kernel.UCSPlayerControl
 import unics.player.controller.UCSRenderControl
 import unics.player.internal.plogd2
 import unics.player.internal.ploge2
 import unics.player.internal.plogi2
 import unics.player.internal.plogv2
-import unics.player.kernel.PlayerProxy
 import unics.player.kernel.UCSPlayer
 import unics.player.render.RenderProxy
 import unics.player.render.UCSRender
@@ -351,6 +350,10 @@ open class DisplayContainer @JvmOverloads constructor(
      */
     override fun getCutoutHeight(): Int {
         return mCutoutHeight
+    }
+
+    override fun setPlayerBackgroundColor(color: Int) {
+        setBackgroundColor(color)
     }
 
     /**

@@ -6,10 +6,8 @@ import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
-import android.widget.VideoView
 import androidx.annotation.CallSuper
 import unics.player.UCSPlayerManager
-import unics.player.controller.UCSPlayerControl
 import unics.player.internal.plogd2
 import unics.player.internal.plogi2
 import unics.player.kernel.UCSPlayer.Companion.STATE_BUFFERED
@@ -231,7 +229,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     /**
      * 是否处于可播放状态
      */
-    fun isInPlaybackState(): Boolean {
+    override fun isInPlaybackState(): Boolean {
         return mPlayer != null
                 && currentState != STATE_IDLE
                 && currentState != STATE_ERROR
@@ -305,7 +303,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     private fun preparePlayer(): UCSPlayer {
         plogi2(mLogPrefix) { "preparePlayer , reusable = $mReusable" }
         if (!mReusable) {
-            plogi2(mLogPrefix) { "preparePlayer -> player set not reusable,release current player if not null." }
+            plogi2(mLogPrefix) { "preparePlayer -> player set not reusable,release current player if not null （current = ${mPlayer}）." }
             releasePlayer(false)
         }
         val player = mPlayer

@@ -5,7 +5,7 @@ import android.view.animation.Animation
 import unics.player.ScreenMode
 import unics.player.UCSPlayerManager
 import unics.player.controller.MediaController
-import unics.player.controller.UCSPlayerControl
+import unics.player.kernel.UCSPlayerControl
 
 /**
  * 控制器中的控制组件

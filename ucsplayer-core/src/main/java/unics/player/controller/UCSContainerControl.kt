@@ -1,7 +1,8 @@
 package unics.player.controller
 
+import androidx.annotation.ColorInt
 import unics.player.ScreenMode
-import unics.player.kernel.PlayerProxy
+import unics.player.kernel.UCSPlayerControl
 
 /**
  * 整个播放器视图所在容器控制层提供的功能；具体由[droid.unicstar.player.UCSDisplayContainer]实现
@@ -129,4 +130,10 @@ interface UCSContainerControl : UCSRenderControl {
      * 刘海的高度
      */
     fun getCutoutHeight(): Int
+
+    /**
+     * 设置容器背景色
+     */
+    fun setPlayerBackgroundColor(@ColorInt color: Int)
+
 }

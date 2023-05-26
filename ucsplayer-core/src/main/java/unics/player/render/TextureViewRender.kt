@@ -11,6 +11,7 @@ import unics.player.internal.plogd2
 import unics.player.internal.plogi2
 import unics.player.internal.plogv2
 import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerBase
 import unics.player.render.UCSRender.Companion.createShotBitmap
 import unics.player.render.UCSRender.ScreenShotCallback
 import unics.player.render.UCSRender.SurfaceListener
@@ -30,7 +31,7 @@ class TextureViewRender @JvmOverloads constructor(
     private val mLogPrefix = "[TextureViewRender@${this.hashCode()}]"
     private var mReleased: Boolean = false
     private val mHelper: RenderHelper = RenderHelper.create(this)
-    private var mPlayerRef: WeakReference<UCSPlayer>? = null
+    private var mPlayerRef: WeakReference<UCSPlayerBase>? = null
     private var mSurfaceTexture: SurfaceTexture? = null
     private var mSurface: Surface? = null
     private var mSurfaceListener: SurfaceListener? = null
@@ -125,7 +126,7 @@ class TextureViewRender @JvmOverloads constructor(
      *
      * @param player
      */
-    override fun bindPlayer(player: UCSPlayer?) {
+    override fun bindPlayer(player: UCSPlayerBase?) {
         plogi2(mLogPrefix) { "bindPlayer" }
         checkAvailable()
         val prvPlayer = mPlayerRef?.get()

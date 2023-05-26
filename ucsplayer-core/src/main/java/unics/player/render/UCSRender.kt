@@ -7,7 +7,7 @@ import android.view.Surface
 import android.view.View
 import androidx.annotation.IntRange
 import unics.player.internal.PartialFunc
-import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerBase
 
 interface UCSRender {
 
@@ -87,7 +87,7 @@ interface UCSRender {
      * 绑定播放器
      * @param player 播放器，如果为null，则会解除之前的播放器持有
      */
-    fun bindPlayer(player: UCSPlayer?)
+    fun bindPlayer(player: UCSPlayerBase?)
 
     /**
      * 释放资源

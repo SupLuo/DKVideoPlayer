@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.FrameLayout
 import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
-import unics.player.controller.UCSPlayerControl
+import unics.player.kernel.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils
 

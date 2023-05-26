@@ -10,10 +10,10 @@ import android.view.PixelCopy
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import unics.player.controller.UCSPlayerControl
 import unics.player.internal.plogd2
 import unics.player.internal.plogi2
 import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerBase
 import unics.player.render.UCSRender.Companion.createShotBitmap
 import unics.player.render.UCSRender.ScreenShotCallback
 import unics.player.render.UCSRender.SurfaceListener
@@ -34,8 +34,8 @@ class SurfaceViewRender @JvmOverloads constructor(
     private val mHelper: RenderHelper = RenderHelper.create(this)
     private var mSurfaceListener: SurfaceListener? = null
     private var mSurfaceHolder: SurfaceHolder? = null
-    private var mPlayerRef: WeakReference<UCSPlayer>? = null
-    private val mPlayer: UCSPlayer? get() = mPlayerRef?.get()
+    private var mPlayerRef: WeakReference<UCSPlayerBase>? = null
+    private val mPlayer: UCSPlayerBase? get() = mPlayerRef?.get()
     private val mSurfaceHolderCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
 
         override fun surfaceCreated(holder: SurfaceHolder) {
@@ -66,7 +66,7 @@ class SurfaceViewRender @JvmOverloads constructor(
         }
     }
 
-    override fun bindPlayer(player: UCSPlayer?) {
+    override fun bindPlayer(player: UCSPlayerBase?) {
         plogi2(mLogPrefix) { "bindPlayer" }
         checkAvailable()
         val prvPlayer = mPlayerRef?.get()
