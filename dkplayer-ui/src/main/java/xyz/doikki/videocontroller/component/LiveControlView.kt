@@ -9,10 +9,10 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.UCSVideoView
+import unics.player.UCSVideoView
 import xyz.doikki.videoplayer.util.PlayerUtils
-import droid.unicstar.player.orDefault
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.orDefault
+import unics.player.kernel.UCSPlayer
 
 /**
  * 直播底部控制栏

@@ -14,10 +14,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.UCSVideoView
+import unics.player.UCSVideoView
 import xyz.doikki.videoplayer.TVCompatible
-import droid.unicstar.player.orDefault
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.orDefault
+import unics.player.kernel.UCSPlayer
 
 /**
  * 播放器顶部标题栏

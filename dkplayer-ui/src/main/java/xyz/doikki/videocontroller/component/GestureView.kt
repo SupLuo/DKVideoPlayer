@@ -11,7 +11,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.kernel.UCSPlayer
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils

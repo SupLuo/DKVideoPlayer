@@ -9,11 +9,11 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.UCSVideoView
+import unics.player.UCSVideoView
 import xyz.doikki.videoplayer.TVCompatible
-import droid.unicstar.player.isVisible
-import droid.unicstar.player.orDefault
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.isVisible
+import unics.player.orDefault
+import unics.player.kernel.UCSPlayer
 
 /**
  * 自动播放完成界面

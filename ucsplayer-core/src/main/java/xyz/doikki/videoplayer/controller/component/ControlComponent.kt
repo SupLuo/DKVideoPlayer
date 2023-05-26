@@ -2,10 +2,10 @@ package xyz.doikki.videoplayer.controller.component
 
 import android.view.View
 import android.view.animation.Animation
-import droid.unicstar.player.UCSPlayerManager
-import droid.unicstar.player.ScreenMode
-import droid.unicstar.player.controller.MediaController
-import droid.unicstar.player.controller.UCSPlayerControl
+import unics.player.ScreenMode
+import unics.player.UCSPlayerManager
+import unics.player.controller.MediaController
+import unics.player.controller.UCSPlayerControl
 
 /**
  * 控制器中的控制组件
@@ -23,9 +23,14 @@ interface ControlComponent {
     fun onPlayerAttached(player: UCSPlayerControl) {}
 
     /**
+     * 解除了播放器绑定
+     */
+    fun onPlayerDetached(player: UCSPlayerControl?){}
+
+    /**
      * 绑定了容器控制器
      */
-    fun onContainerAttached(containerControl: UCSPlayerControl){}
+    fun onContainerAttached(containerControl: UCSPlayerControl) {}
 
     /**
      * 如果 ControlComponent 是 View，返回当前控件（this）即可；如果不是，返回null

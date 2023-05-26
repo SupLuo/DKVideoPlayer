@@ -14,11 +14,11 @@ import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.UCSVideoView
+import unics.player.UCSVideoView
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.util.PlayerUtils
-import droid.unicstar.player.orDefault
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.orDefault
+import unics.player.kernel.UCSPlayer
 
 /**
  * 点播底部控制栏

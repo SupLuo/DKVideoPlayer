@@ -9,12 +9,12 @@ import android.view.animation.Animation
 import android.widget.ProgressBar
 import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
-import droid.unicstar.player.UCSVideoView
-import droid.unicstar.player.player.UCSPlayer
-import droid.unicstar.player.toast
+import unics.player.UCSVideoView
+import unics.player.kernel.UCSPlayer
+import unics.player.toast
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videocontroller.component.*
-import droid.unicstar.player.UCSPlayerManager
+import unics.player.UCSPlayerManager
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.GestureVideoController
 import xyz.doikki.videoplayer.util.PlayerUtils

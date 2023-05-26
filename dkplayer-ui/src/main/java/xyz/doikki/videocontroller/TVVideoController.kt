@@ -5,15 +5,17 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
-import android.util.Log
 import android.view.KeyEvent
 import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
+import unics.player.internal.plogv2
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videoplayer.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
-import droid.unicstar.player.loopKeyWhen
 import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 @TVCompatible(message = "内部适配了在tv上拖动、播放完成重播、播放失败等逻辑")
 open class TVVideoController @JvmOverloads constructor(
@@ -24,6 +26,8 @@ open class TVVideoController @JvmOverloads constructor(
 ) : StandardVideoController(context, attrs, defStyleAttr, layoutId) {
 
     companion object {
+
+        private const val TAG = "TVController"
 
         /**
          * 开始pending seek
@@ -36,7 +40,7 @@ open class TVVideoController @JvmOverloads constructor(
         private const val WHAT_CANCEL_PENDING_SEEK = 0x11
 
         /**
-         * 处理pending seek
+         * 执行pending seek
          */
         private const val WHAT_HANDLE_PENDING_SEEK = 0x12
 
@@ -56,7 +60,7 @@ open class TVVideoController @JvmOverloads constructor(
      */
     private var mCurrentPendingSeekPosition: Int = 0
 
-    private val seekCalculator: PendingSeekCalculator = DurationSamplingSeekCalculator()
+    private val seekCalculator: PendingSeekCalculator = RatioStepSeekCalculator()
 
     /**
      * 是否处理KeyEvent
@@ -74,16 +78,20 @@ open class TVVideoController @JvmOverloads constructor(
                         val currentPosition = player.getCurrentPosition().toInt()
                         val event = msg.obj as KeyEvent
                         mCurrentPendingSeekPosition = currentPosition
-                        mControlComponents.loopKeyWhen<KeyControlComponent> {
-                            it.onStartLeftOrRightKeyPressedForSeeking(event)
+                        for ((key) in mControlComponents) {
+                            if (key is KeyControlComponent) {
+                                key.onStartLeftOrRightKeyPressedForSeeking(event)
+                            }
                         }
                         seekCalculator.prepareCalculate(event, currentPosition, duration, width)
                     }
                 }
                 WHAT_CANCEL_PENDING_SEEK -> {
                     cancelPendingSeek()
-                    mControlComponents.loopKeyWhen<KeyControlComponent> {
-                        it.onCancelLeftOrRightKeyPressedForSeeking(msg.obj as KeyEvent)
+                    for ((key) in mControlComponents) {
+                        if (key is KeyControlComponent) {
+                            key.onCancelLeftOrRightKeyPressedForSeeking(msg.obj as KeyEvent)
+                        }
                     }
                 }
                 WHAT_UPDATE_PENDING_SEEK_POSITION -> {
@@ -108,24 +116,24 @@ open class TVVideoController @JvmOverloads constructor(
                             previousPosition,
                             duration
                         )
-                        Log.d(
-                            "TVController",
-                            "action=${event.action}  eventTime=${event.eventTime - event.downTime} increment=${incrementTimeMs} previousPosition=${previousPosition} newPosition=${mCurrentPendingSeekPosition}"
-                        )
-
+                        plogv2(TAG) {
+                            "update pending seek : action=${event.action}  eventTime=${event.eventTime - event.downTime} increment=${incrementTimeMs} previousPosition=${previousPosition} newPosition=${mCurrentPendingSeekPosition}"
+                        }
                         /**
                          * 发送一个延迟消息，用于某些红外遥控器或者设备按键事件分发顺序不一致的问题：
                          * 即本身期望在[KeyEvent.ACTION_UP]的时候执行最终的seek动作，但是可能存在down事件还没有处理完的时候，系统已经接收了up事件，并且up事件没有下发到dispatchKeyEvent中
                          */
-                        sendPendingSeekHandleMessage(event, 300)
+                        sendPendingSeekHandleMessage(event, 1500)
                     }
 
                 }
                 WHAT_HANDLE_PENDING_SEEK -> {
                     val event = msg.obj as KeyEvent
                     //先做stop，再seek，避免loading指示器和seek指示器同时显示
-                    mControlComponents.loopKeyWhen<KeyControlComponent> {
-                        it.onStopLeftOrRightKeyPressedForSeeking(event)
+                    for ((key) in mControlComponents) {
+                        if (key is KeyControlComponent) {
+                            key.onStopLeftOrRightKeyPressedForSeeking(event)
+                        }
                     }
                     handlePendingSeek()
                 }
@@ -144,11 +152,10 @@ open class TVVideoController @JvmOverloads constructor(
         if (!keyEventEnable)
             return super.dispatchKeyEvent(event)
 
-        Log.d(
-            "dispatchKeyEvent",
-            "keyCode = ${event.keyCode}   action = ${event.action} repeatCount = ${event.repeatCount} isInPlaybackState=${isInPlaybackState} " +
+        plogv2(TAG) {
+            "dispatchKeyEvent -> keyCode = ${event.keyCode}   action = ${event.action} repeatCount = ${event.repeatCount} isInPlaybackState=${isInPlaybackState} " +
                     "isShowing=${isShowing} mHasDispatchPendingSeek=${mHasDispatchPendingSeek} mCurrentPendingSeekPosition=${mCurrentPendingSeekPosition}"
-        )
+        }
         val keyCode = event.keyCode
         val uniqueDown = (event.repeatCount == 0 && event.action == KeyEvent.ACTION_DOWN)
         when (keyCode) {
@@ -208,14 +215,27 @@ open class TVVideoController @JvmOverloads constructor(
                 return super.dispatchKeyEvent(event)
             }
             KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_LEFT -> {//左右键，做seek行为
-                if (!canPressKeyToSeek()) {//不允许拖动
+                plogv2(TAG) { "handle dpad right or left key for pending seek." }
+                if (!(seekEnabled && isInPlaybackState)) {//不允许拖动
+                    plogv2(TAG) { "pending seek disabled." }
                     if (mHasDispatchPendingSeek) {
-                        sendPendingSeekCancelMessage(event)
+                        mHandler.removeMessages(WHAT_UPDATE_PENDING_SEEK_POSITION)
+                        mHandler.removeMessages(WHAT_HANDLE_PENDING_SEEK)
+                        mHandler.removeMessages(WHAT_CANCEL_PENDING_SEEK)
+                        mHandler.sendMessage(
+                            mHandler.obtainMessage(
+                                WHAT_CANCEL_PENDING_SEEK,
+                                event
+                            )
+                        )
+                        plogv2(TAG) { "has dispatched pending seek,cancel it." }
+                        mHasDispatchPendingSeek = false
                     }
                     return true
                 }
                 if (uniqueDown && !isShowing) {
                     //第一次按下down并且当前控制器没有显示的情况下，只显示控制器
+                    plogv2(TAG) { "first pressed left/right dpad and controller is not showing,show it only." }
                     show()
                     return true
                 }
@@ -227,9 +247,10 @@ open class TVVideoController @JvmOverloads constructor(
                 if (event.action == KeyEvent.ACTION_UP && !mHasDispatchPendingSeek) {
                     //按下down之后执行了up，相当于只按了一次方向键，
                     // 并且没有执行过pending行为（即单次按键的时候控制器还未显示，控制器已经显示的情况下单次按键是有效的行为），不做seek动作
+                    plogv2(TAG) { "left/right dpad key up, but not dispatch pending seek,return directly." }
                     return true
                 }
-                handlePendingKeySeek(event)
+                dispatchPendingSeek(event)
                 return true
             }
             else -> {
@@ -242,48 +263,35 @@ open class TVVideoController @JvmOverloads constructor(
     /**
      * 处理按键拖动
      */
-    private fun handlePendingKeySeek(event: KeyEvent) {
-        invokeOnPlayerAttached(showToast = false) { _ ->
+    private fun dispatchPendingSeek(event: KeyEvent) {
+        plogv2(TAG) { "dispatchPendingSeek" }
+        invokeOnPlayerAttached(showToast = false) { player ->
             if (event.action == KeyEvent.ACTION_DOWN) {
                 if (!mHasDispatchPendingSeek) {
                     mHasDispatchPendingSeek = true
-                    sendBeginPendingSeekMessage(event)
+                    mHandler.removeMessages(WHAT_BEGIN_PENDING_SEEK)
+                    mHandler.removeMessages(WHAT_CANCEL_PENDING_SEEK)
+                    mHandler.removeMessages(WHAT_HANDLE_PENDING_SEEK)
+                    mHandler.removeMessages(WHAT_UPDATE_PENDING_SEEK_POSITION)
+
+                    mHandler.sendMessage(mHandler.obtainMessage(WHAT_BEGIN_PENDING_SEEK, event))
+                    plogv2(TAG) { "dispatchPendingSeek -> dispatch pending seek start." }
                 }
-                sendPendingSeekPotionUpdateMessage(event)
+                //更新pending seek的位置信息
+                mHandler.sendMessage(
+                    mHandler.obtainMessage(
+                        WHAT_UPDATE_PENDING_SEEK_POSITION,
+                        event
+                    )
+                )
+                plogv2(TAG) { "dispatchPendingSeek -> dispatch pending seek position update." }
             }
 
             if (event.action == KeyEvent.ACTION_UP && mHasDispatchPendingSeek) {
-                Log.d(
-                    "TVController",
-                    "开始执行seek行为: pendingSeekPosition=${pendingSeekPosition}"
-                )
+                plogv2(TAG) { "dispatchPendingSeek -> key up and has dispatch pending seek, invoke it (currentPosition=${player.getCurrentPosition()} pendingSeekPosition=${pendingSeekPosition}." }
                 sendPendingSeekHandleMessage(event, -1)
             }
         }
-    }
-
-    private fun sendBeginPendingSeekMessage(event: KeyEvent) {
-        mHandler.removeMessages(WHAT_UPDATE_PENDING_SEEK_POSITION)
-        mHandler.removeMessages(WHAT_HANDLE_PENDING_SEEK)
-        mHandler.removeMessages(WHAT_CANCEL_PENDING_SEEK)
-        mHandler.sendMessage(mHandler.obtainMessage(WHAT_BEGIN_PENDING_SEEK, event))
-    }
-
-    private fun sendPendingSeekPotionUpdateMessage(event: KeyEvent) {
-        //更新pending seek的位置信息
-        mHandler.sendMessage(
-            mHandler.obtainMessage(
-                WHAT_UPDATE_PENDING_SEEK_POSITION,
-                event
-            )
-        )
-    }
-
-    private fun sendPendingSeekCancelMessage(event: KeyEvent) {
-        mHandler.removeMessages(WHAT_UPDATE_PENDING_SEEK_POSITION)
-        mHandler.removeMessages(WHAT_HANDLE_PENDING_SEEK)
-        mHandler.removeMessages(WHAT_CANCEL_PENDING_SEEK)
-        mHandler.sendMessage(mHandler.obtainMessage(WHAT_CANCEL_PENDING_SEEK, event))
     }
 
     /**
@@ -336,6 +344,9 @@ open class TVVideoController @JvmOverloads constructor(
 
         /**
          * seek动作前做准备
+         * @param currentPosition 当前播放位置
+         * @param duration 总时间
+         * @param viewWidth 进度条宽度
          */
         abstract fun prepareCalculate(
             event: KeyEvent,
@@ -356,6 +367,51 @@ open class TVVideoController @JvmOverloads constructor(
 
         abstract fun reset()
 
+    }
+
+    class RatioStepSeekCalculator : PendingSeekCalculator() {
+
+        //默认步长 10秒
+        private var mStep = DEFAULT_STEP
+
+        companion object {
+            private const val DEFAULT_STEP = 5 * 1000
+            private const val MIN_STEP = 5 * 1000
+            private const val MAX_STEP = 90 * 1000
+        }
+
+        override fun prepareCalculate(
+            event: KeyEvent,
+            currentPosition: Int,
+            duration: Int,
+            viewWidth: Int
+        ) {
+            val step = duration / 100
+            mStep = max(MIN_STEP, step)
+            mStep = min(mStep, MAX_STEP)
+        }
+
+        override fun calculateIncrement(
+            event: KeyEvent,
+            currentPosition: Int,
+            duration: Int,
+            viewWidth: Int
+        ): Int {
+            //方向系数
+            val flag = if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
+            val eventTime = event.eventTime - event.downTime
+            val factor = 2.0.pow(eventTime / 1000.0)
+
+            return (mStep * flag * factor).toInt().also {
+                plogv2(TAG){
+                    "calculateIncrement flag=$flag eventTime=$eventTime factor=$factor result=$it"
+                }
+            }
+        }
+
+        override fun reset() {
+            mStep = DEFAULT_STEP
+        }
     }
 
 

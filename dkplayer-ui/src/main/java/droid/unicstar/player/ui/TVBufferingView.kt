@@ -8,10 +8,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.controller.MediaController
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.controller.MediaController
+import unics.player.kernel.UCSPlayer
 import xyz.doikki.videoplayer.controller.component.ControlComponent
-import droid.unicstar.player.setTextOrGone
+import unics.player.setTextOrGone
 
 /**
  * Created by Lucio on 2021/4/15.

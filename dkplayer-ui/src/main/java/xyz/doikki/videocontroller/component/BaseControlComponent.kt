@@ -6,9 +6,9 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import droid.unicstar.player.controller.MediaController
-import droid.unicstar.player.controller.UCSContainerControl
-import droid.unicstar.player.controller.UCSPlayerControl
+import unics.player.controller.MediaController
+import unics.player.controller.UCSContainerControl
+import unics.player.controller.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 import xyz.doikki.videoplayer.util.PlayerUtils
 

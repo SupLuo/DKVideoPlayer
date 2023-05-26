@@ -5,8 +5,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
-import droid.unicstar.player.controller.MediaController
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.controller.MediaController
+import unics.player.kernel.UCSPlayer
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 
 /**

@@ -8,8 +8,8 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.UCSPlayerManager
-import droid.unicstar.player.player.UCSPlayer
+import unics.player.UCSPlayerManager
+import unics.player.kernel.UCSPlayer
 import xyz.doikki.videoplayer.TVCompatible
 
 /**

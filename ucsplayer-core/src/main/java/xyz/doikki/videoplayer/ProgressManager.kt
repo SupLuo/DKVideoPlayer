@@ -1,6 +1,6 @@
 package xyz.doikki.videoplayer
 
-import droid.unicstar.player.widget.DefaultProgressManager
+import unics.player.widget.DefaultProgressManager
 
 /**
  * 播放进度管理器，继承此接口实现自己的进度管理器。
@@ -40,11 +40,9 @@ interface ProgressManager {
          * 默认的Key生成器采用url对应的哈希值
          */
         fun generateKey(url: String): Long = url.hashCode().toLong()
-
     }
 
     companion object {
-
         @JvmStatic
         fun default(): ProgressManager {
             return DefaultProgressManager(object : KeyGenerator {})
@@ -54,7 +52,6 @@ interface ProgressManager {
         fun default(keyGenerator: KeyGenerator): ProgressManager {
             return DefaultProgressManager(keyGenerator)
         }
-
     }
 
 }

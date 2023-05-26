@@ -10,8 +10,8 @@ import androidx.activity.ComponentActivity
 import xyz.doikki.videocontroller.R
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
-import droid.unicstar.player.UCSVideoView
-import droid.unicstar.player.controller.MediaController
+import unics.player.UCSVideoView
+import unics.player.controller.MediaController
 import xyz.doikki.videoplayer.util.CutoutUtil
 import xyz.doikki.videoplayer.util.PlayerUtils
 

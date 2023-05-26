@@ -2,7 +2,7 @@ package xyz.doikki.videoplayer.controller;
 
 import androidx.annotation.IntRange;
 
-import droid.unicstar.player.controller.UCSVideoViewControl;
+import unics.player.controller.UCSVideoViewControl;
 
 /**
  * 视图控制器
@@ -40,8 +40,6 @@ public interface VideoViewController {
      * @param timeout 默认4000，比如大于0才会生效
      */
     void setFadeOutTime(@IntRange(from = 1) int timeout);
-
-
 
     /**
      * 设置锁定状态

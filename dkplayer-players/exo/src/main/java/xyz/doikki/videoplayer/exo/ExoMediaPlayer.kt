@@ -16,10 +16,10 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.util.Clock
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.video.VideoSize
-import droid.unicstar.player.player.BaseUCSPlayer
-import droid.unicstar.player.UCSPlayerManager.isDebuggable
-import droid.unicstar.player.player.UCSPlayer
-import droid.unicstar.player.player.UCSPlayerException
+import unics.player.kernel.BaseUCSPlayer
+import unics.player.UCSPlayerManager.isDebuggable
+import unics.player.kernel.PlayerException
+import unics.player.kernel.UCSPlayer
 
 open class ExoMediaPlayer(context: Context) : BaseUCSPlayer(), Player.Listener {
     protected var mAppContext: Context
@@ -190,7 +190,7 @@ open class ExoMediaPlayer(context: Context) : BaseUCSPlayer(), Player.Listener {
     override fun onPlayerError(error: PlaybackException) {
         if (mEventListener != null) {
             mEventListener!!.onError(
-                UCSPlayerException(
+                PlayerException(
                     error
                 )
             )

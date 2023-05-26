@@ -4,8 +4,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import droid.unicstar.player.UCSPlayerProxy
-import droid.unicstar.player.controller.UCSContainerControl
+import unics.player.kernel.PlayerProxy
+import unics.player.controller.UCSContainerControl
 
 /**
  * 双播放器场景：两个播放器共享同一个视图
@@ -16,14 +16,14 @@ import droid.unicstar.player.controller.UCSContainerControl
  * @see playTwo 使用第二个播放器进行播放
  */
 class DoublePlayerUseCase(
-    private val mOne: UCSPlayerProxy,
-    private val mTwo: UCSPlayerProxy,
+    private val mOne: PlayerProxy,
+    private val mTwo: PlayerProxy,
     private val mContainer: UCSContainerControl
 ) : LifecycleObserver {
 
-    private var mCurrent: UCSPlayerProxy? = null
+    private var mCurrent: PlayerProxy? = null
 
-    val currentPlayer: UCSPlayerProxy? get() = mCurrent
+    val currentPlayer: PlayerProxy? get() = mCurrent
 
     /**
      * 绑定生命周期，自动管理
@@ -52,7 +52,7 @@ class DoublePlayerUseCase(
         focus(mTwo, seekMsec)
     }
 
-    private fun unfocus(player: UCSPlayerProxy) {
+    private fun unfocus(player: PlayerProxy) {
         if (player.isPlaying()) {
             player.pause()
             player.setDisplay(null)
@@ -60,7 +60,7 @@ class DoublePlayerUseCase(
         }
     }
 
-    private fun focus(player: UCSPlayerProxy, seekMsec: Long = 0) {
+    private fun focus(player: PlayerProxy, seekMsec: Long = 0) {
         mContainer.bindPlayer(player)
         mCurrent = player
         if (!player.isPlaying()) {

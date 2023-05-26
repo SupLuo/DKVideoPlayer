@@ -8,12 +8,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
-import droid.unicstar.player.UCSVideoView
-import droid.unicstar.player.INVALIDATE_SEEK_POSITION
-import droid.unicstar.player.ScreenMode
-import droid.unicstar.player.controller.MediaController
+import unics.player.UCSVideoView
+import unics.player.INVALIDATE_SEEK_POSITION
+import unics.player.ScreenMode
+import unics.player.controller.MediaController
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
-import droid.unicstar.player.getActivityContext
+import unics.player.getActivityContext
 import xyz.doikki.videoplayer.util.PlayerUtils
 import kotlin.math.abs
 
