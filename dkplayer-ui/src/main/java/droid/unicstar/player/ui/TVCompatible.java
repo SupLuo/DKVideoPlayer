@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer;
+package droid.unicstar.player.ui;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

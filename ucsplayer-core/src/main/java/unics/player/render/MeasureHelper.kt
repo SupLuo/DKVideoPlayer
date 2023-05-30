@@ -8,7 +8,7 @@ import kotlin.math.min
 /**
  * 测量工具类
  */
-internal class RenderMeasureHelper {
+internal class MeasureHelper {
 
     /**
      * 视频旋转角度

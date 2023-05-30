@@ -2,12 +2,12 @@ package unics.player
 
 import android.app.Application
 import android.content.Context
+import android.media.MediaPlayer
 import unics.player.internal.plogw
 import unics.player.kernel.UCSPlayerFactory
 import unics.player.kernel.UCSPlayer
 import unics.player.render.UCSRenderFactory
 import unics.player.render.UCSRender
-import xyz.doikki.videoplayer.NewFunc
 import unics.player.widget.ProgressManager
 
 /**
@@ -17,7 +17,7 @@ import unics.player.widget.ProgressManager
  *
  * todo：考虑VideoView的共享模式（是让videoview基于application context避免内存混淆还是共享player和player的状态）
  */
-object UCSPlayerManager {
+object UCSPManager {
 
     /**
      * 是否开启调试模式
@@ -59,7 +59,6 @@ object UCSPlayerManager {
      * 是否采用焦点模式：用于TV项目采用按键操作,开启此选项会改变部分Controller&controlComponent的操作方式
      */
     @JvmStatic
-    @NewFunc
     var isTelevisionUiMode = false
 
     /**
@@ -86,14 +85,12 @@ object UCSPlayerManager {
      * 默认开启
      */
     @JvmStatic
-    @NewFunc
     var isTextureViewRenderOptimizationEnabled = true
 
     /**
      * 是否采用硬解码：系统播放器只支持硬解码，IJK播放器默认软解；EXO不了解
      */
     @JvmStatic
-    @NewFunc
     var isMediacodec: Boolean = false
 
     /**
@@ -114,7 +111,6 @@ object UCSPlayerManager {
      * [UCSRender] 是否重用（即在播放器调用播放或者重新播放的时候，是否重用已有的RenderView：以前的版本是每次都会创建一个新的RenderView）
      */
     @JvmStatic
-    @NewFunc
     var isRenderReusable: Boolean = true
 
     /**
@@ -123,19 +119,27 @@ object UCSPlayerManager {
      * todo:目前该功能支持的不是很好，暂不开放
      */
     @JvmStatic
-    @NewFunc
     var isPlayerKernelReusable: Boolean = false
 
     /**
-     * 创建播放器
+     * 创建播放器内核
      *
      * @param context
      * @param customFactory 自定义工厂，如果为null，则使用全局配置的工厂创建
      * @return
      */
     @JvmStatic
-    fun createMediaPlayer(context: Context, customFactory: UCSPlayerFactory<*>?): UCSPlayer {
-        return customFactory.orDefault(playerFactory).create(context)
+    fun createPlayerKernel(context: Context, customFactory: UCSPlayerFactory<*>?): UCSPlayer {
+        return (customFactory ?: playerFactory).create(context)
+    }
+
+    /**
+     * 创建系统播放器
+     * @note 该方法预留在此处，用于处理以后处理某些盒子芯片只支持单个播放器实例的情况
+     */
+    @JvmStatic
+    internal fun createMediaPlayer():MediaPlayer{
+        return MediaPlayer()
     }
 
     /**
@@ -152,7 +156,7 @@ object UCSPlayerManager {
         customFactory: UCSPlayerFactory<*>?
     ): UCSPlayer? {
         return mSharedPlayers.getOrPut(tag) {
-            createMediaPlayer(context, customFactory)
+            createPlayerKernel(context, customFactory)
         }
     }
 
