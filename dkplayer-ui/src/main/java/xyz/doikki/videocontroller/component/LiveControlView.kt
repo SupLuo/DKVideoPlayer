@@ -9,9 +9,9 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import unics.player.UCSVideoView
-import unics.player.internal.getActivityContext
+import unics.player.internal.UCSPUtil
+
 import unics.player.kernel.UCSPlayer
-import unics.player.orDefault
 import xyz.doikki.videocontroller.R
 
 /**
@@ -49,7 +49,7 @@ class LiveControlView @JvmOverloads constructor(
             UCSPlayer.STATE_PLAYING -> mPlayButton.isSelected = true
             UCSPlayer.STATE_PAUSED -> mPlayButton.isSelected = false
             UCSPlayer.STATE_BUFFERING, UCSPlayer.STATE_BUFFERED -> mPlayButton.isSelected =
-                mController?.playerControl?.isPlaying().orDefault()
+                mController?.playerControl?.isPlaying() ?: false
         }
     }
 
@@ -59,7 +59,7 @@ class LiveControlView @JvmOverloads constructor(
             UCSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
             UCSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
         }
-        val activity = context.getActivityContext() ?: return
+        val activity = UCSPUtil.getActivityContext(context) ?: return
         containerControl?.let { containerControl ->
             if (containerControl.hasCutout()) {
                 val orientation = activity.requestedOrientation

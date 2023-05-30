@@ -11,7 +11,7 @@ import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer.OnNativeInvokeListener
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.internal.plogi2
 import unics.player.kernel.BasePlayer
 import unics.player.kernel.PlayerException
@@ -26,7 +26,7 @@ open class IjkPlayer(private val appContext: Context) : BasePlayer(),
     IMediaPlayer.OnVideoSizeChangedListener,
     OnNativeInvokeListener {
 
-    private var mMediacodec: Boolean = UCSPlayerManager.isMediacodec
+    private var mMediacodec: Boolean = UCSPManager.isMediacodec
 
     private var mBufferedPercent = 0
 

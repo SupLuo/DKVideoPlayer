@@ -9,9 +9,9 @@ import android.net.Uri
 import android.os.Build
 import android.view.Surface
 import android.view.SurfaceHolder
+import unics.player.UCSPManager
 import unics.player.internal.*
 import unics.player.kernel.BasePlayer
-import unics.player.kernel.PlayerException
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -76,7 +76,7 @@ class SysPlayer : BasePlayer() {
 
         override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
             plogi2(mLogPrefix) { "onError(what=$what, extra=$extra)" }
-            mEventListener?.onError(PlayerException.create(what, extra))
+            mEventListener?.onError(newPlayerException(what, extra))
             //返回true，则不会再回调onCompletion
             return true
         }
@@ -293,7 +293,7 @@ class SysPlayer : BasePlayer() {
     }
 
     private fun createKernel(): MediaPlayer {
-        return MediaPlayer().also {
+        return UCSPManager.createMediaPlayer().also {
             it.setAudioStreamType(AudioManager.STREAM_MUSIC)
             it.setOnErrorListener(mKernelListener)
             it.setOnCompletionListener(mKernelListener)

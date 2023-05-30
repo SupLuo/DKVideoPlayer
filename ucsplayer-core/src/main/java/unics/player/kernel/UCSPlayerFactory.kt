@@ -8,7 +8,7 @@ import unics.player.kernel.sys.SysPlayerFactory
  * 此接口使用方法：
  * 1.继承[UCSPlayer]扩展自己的播放器。
  * 2.继承此接口并实现[create]，返回步骤1中的播放器。
- * 3a.全局切换：通过[unics.player.UCSPlayerManager.playerFactory] 设置步骤2的实例
+ * 3a.全局切换：通过[unics.player.UCSPManager.playerFactory] 设置步骤2的实例
  * 3b.临时切换：通过[unics.player.controller.UCSPlayerControl.setPlayerFactory]（该方式有两种场景，一种是使用UCSVideoView，一种是使用PlayerProxy） 设置步骤2的实例
  *
  * 步骤1和2 可参照[unics.player.kernel.sys.SysPlayer]和[unics.player.kernel.sys.SysPlayerFactory]的实现。

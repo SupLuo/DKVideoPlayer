@@ -10,7 +10,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
 import unics.player.internal.plogv2
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
-import xyz.doikki.videoplayer.TVCompatible
+import droid.unicstar.player.ui.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import kotlin.math.ceil
 import kotlin.math.max

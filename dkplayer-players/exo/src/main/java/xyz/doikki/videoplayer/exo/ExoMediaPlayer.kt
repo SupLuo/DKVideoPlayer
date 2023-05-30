@@ -17,7 +17,7 @@ import com.google.android.exoplayer2.util.Clock
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.video.VideoSize
 import unics.player.kernel.BasePlayer
-import unics.player.UCSPlayerManager.isDebuggable
+import unics.player.UCSPManager.isDebuggable
 import unics.player.kernel.PlayerException
 import unics.player.kernel.UCSPlayer
 

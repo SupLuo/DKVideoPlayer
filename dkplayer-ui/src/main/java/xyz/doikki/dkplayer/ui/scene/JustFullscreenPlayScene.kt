@@ -12,8 +12,8 @@ import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
 import unics.player.UCSVideoView
 import unics.player.controller.MediaController
-import xyz.doikki.videoplayer.util.CutoutUtil
-import xyz.doikki.videoplayer.util.PlayerUtils
+import unics.player.internal.UCSPUtil
+import unics.player.internal.adaptCutout
 
 /**
  * 全屏播放的场景（不存在切换）
@@ -29,7 +29,7 @@ class JustFullscreenPlayScene private constructor(
 
     init {
         if (autoRequestOrientation) {
-            CutoutUtil.adaptCutout(activity, true)
+            adaptCutout(activity, true)
             val activityOrientation = activity.requestedOrientation
             //设置view全屏
             if (activityOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || activityOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
@@ -111,7 +111,7 @@ class JustFullscreenPlayScene private constructor(
             vodControlView.findViewById<View>(R.id.fullscreen).visibility = View.GONE
             val lp =
                 vodControlView.findViewById<View>(R.id.total_time).layoutParams as LinearLayout.LayoutParams
-            lp.rightMargin = PlayerUtils.dp2px(context, 16f)
+            lp.rightMargin = UCSPUtil.dpInt(context,16f)
             addControlComponent(vodControlView)
             //最后添加手势view
             addControlComponent(GestureView(context))

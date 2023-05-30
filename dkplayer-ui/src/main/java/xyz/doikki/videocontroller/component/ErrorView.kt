@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import unics.player.kernel.UCSPlayer
-import xyz.doikki.videoplayer.TVCompatible
+import droid.unicstar.player.ui.TVCompatible
 import kotlin.math.abs
 
 /**

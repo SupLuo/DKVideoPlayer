@@ -1,7 +1,7 @@
 package unics.player.kernel
 
 
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.widget.AudioFocusHelper
 import unics.player.widget.ProgressManager
 
@@ -9,12 +9,6 @@ import unics.player.widget.ProgressManager
  * Player控制层提供的功能；具体由[PlayerProxy]实现,即提供了播放器常规拥有的所有功能
  */
 interface UCSPlayerControl : UCSPlayerBase {
-
-    /**
-     * 默认值[UCSPlayerManager.isPlayerKernelReusable]
-     * [UCSPlayer]是否重用（即在播放器贼每次使用时，是否重用已有的Player：以前的版本是每次都会创建一个新的播放器）
-     */
-    fun setPlayerReusable(reusable: Boolean)
 
     /**
      * 重新播放
@@ -43,20 +37,27 @@ interface UCSPlayerControl : UCSPlayerBase {
     fun isMute(): Boolean
 
     /**
+     * 默认值[UCSPManager.isPlayerKernelReusable]
+     * [UCSPlayer]是否重用（即在播放器贼每次使用时，是否重用已有的Player：以前的版本是每次都会创建一个新的播放器）
+     * 建议不要开启该选项，目前测试覆盖不到位
+     */
+    fun setPlayerReusable(reusable: Boolean)
+
+    /**
      * 自定义播放核心，继承[UCSPlayerFactory]实现自己的播放核心
      * 需要在未开始播放前设置才有效，已处于播放状态时设置工厂将在下一次播放的时候生效
      */
     fun setPlayerFactory(playerFactory: UCSPlayerFactory<out UCSPlayer>)
 
     /**
-     * 是否开启AudioFocus监听，默认[UCSPlayerManager.isAudioFocusEnabled]，用于监听其它地方是否获取音频焦点，如果有其它地方获取了
+     * 是否开启AudioFocus监听，默认[UCSPManager.isAudioFocusEnabled]，用于监听其它地方是否获取音频焦点，如果有其它地方获取了
      * 音频焦点，此播放器将做出相应反应，具体实现见[AudioFocusHelper]
      */
     fun setEnableAudioFocus(enableAudioFocus: Boolean)
 
     /**
      * 设置进度管理器，用于保存播放进度
-     * 默认配置[UCSPlayerManager.progressManager]
+     * 默认配置[UCSPManager.progressManager]
      */
     fun setProgressManager(progressManager: ProgressManager?)
 

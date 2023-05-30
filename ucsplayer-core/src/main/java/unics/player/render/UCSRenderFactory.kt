@@ -1,7 +1,7 @@
 package unics.player.render
 
 import android.content.Context
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.internal.sdkInt
 import unics.player.render.UCSRenderFactory.Companion.textureView
 
@@ -9,7 +9,7 @@ import unics.player.render.UCSRenderFactory.Companion.textureView
  * 此接口用于扩展自己的渲染View。使用方法如下：
  * 1.继承IRenderView实现自己的渲染View。
  * 2.重写createRenderView返回步骤1的渲染View。
- * 3.通过[UCSPlayerManager.renderFactory] 设置步骤2的实例
+ * 3.通过[UCSPManager.renderFactory] 设置步骤2的实例
  * 可参考[TextureViewRenderFactory]和[textureView]的实现。
  */
 fun interface UCSRenderFactory {

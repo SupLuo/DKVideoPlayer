@@ -6,11 +6,10 @@ import android.util.AttributeSet
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.internal.plogd2
 import unics.player.internal.plogi2
 import unics.player.internal.plogv2
-import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerBase
 import unics.player.render.UCSRender.Companion.createShotBitmap
 import unics.player.render.UCSRender.ScreenShotCallback
@@ -36,7 +35,7 @@ class TextureViewRender @JvmOverloads constructor(
     private var mSurface: Surface? = null
     private var mSurfaceListener: SurfaceListener? = null
     private val mEnableRenderOptimization: Boolean =
-        UCSPlayerManager.isTextureViewRenderOptimizationEnabled
+        UCSPManager.isTextureViewRenderOptimizationEnabled
     private val mSurfaceTextureListener: SurfaceTextureListener = object : SurfaceTextureListener {
 
         override fun onSurfaceTextureAvailable(

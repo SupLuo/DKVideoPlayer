@@ -4,7 +4,8 @@ import android.content.pm.ActivityInfo
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import unics.player.UCSVideoView
-import unics.player.internal.getActivityContext
+import unics.player.internal.UCSPUtil
+
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 
 
@@ -40,7 +41,7 @@ class RecyclerViewSharedPlayerUseCase(
         if (videoView.isFullScreen()) {
             videoView.stopVideoViewFullScreen()
         }
-        (parentGroup?.context ?: videoView.context).getActivityContext()?.let { activity ->
+        UCSPUtil.getActivityContext(parentGroup?.context ?: videoView.context)?.let { activity ->
             if (activity.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }

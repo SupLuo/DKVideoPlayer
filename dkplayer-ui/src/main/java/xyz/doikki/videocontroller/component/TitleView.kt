@@ -15,8 +15,7 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import unics.player.UCSVideoView
-import xyz.doikki.videoplayer.TVCompatible
-import unics.player.orDefault
+import droid.unicstar.player.ui.TVCompatible
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -68,7 +67,7 @@ class TitleView @JvmOverloads constructor(
 
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         //只在全屏时才有效
-        if (!mController?.isFullScreen.orDefault()) return
+        if (mController?.isFullScreen != true) return
         if (isVisible) {
             if (visibility == GONE) {
 //                mSysTime.text = PlayerUtils.getCurrentSystemTime()
@@ -166,7 +165,7 @@ class TitleView @JvmOverloads constructor(
             mBatteryEnabled = true
             findViewById<View?>(R.id.back)?.setOnClickListener {
                 val activity = activity
-                if (activity != null && mController?.isFullScreen.orDefault()) {
+                if (activity != null && mController?.isFullScreen == true) {
                     mController?.stopFullScreen()
                 }
             }

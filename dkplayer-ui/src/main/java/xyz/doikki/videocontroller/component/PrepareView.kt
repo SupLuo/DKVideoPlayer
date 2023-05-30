@@ -8,9 +8,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.kernel.UCSPlayer
-import xyz.doikki.videoplayer.TVCompatible
+import droid.unicstar.player.ui.TVCompatible
 
 /**
  * 准备播放界面
@@ -80,7 +80,7 @@ class PrepareView @JvmOverloads constructor(
         mNetWarning = findViewById(R.id.net_warning_layout)
         findViewById<View?>(R.id.status_btn)?.setOnClickListener {
             mNetWarning.visibility = GONE
-            UCSPlayerManager.isPlayOnMobileNetwork = true
+            UCSPManager.isPlayOnMobileNetwork = true
             mController?.playerControl?.start()
         }
     }

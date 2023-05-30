@@ -19,7 +19,7 @@ class RenderHelper(private val view: View) {
     /**
      * 测量工具类
      */
-    private val mMeasureHelper: RenderMeasureHelper = RenderMeasureHelper()
+    private val mMeasureHelper: MeasureHelper = MeasureHelper()
 
     /**
      * 获取宽的测量结果

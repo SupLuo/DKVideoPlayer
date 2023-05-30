@@ -10,9 +10,8 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import unics.player.UCSVideoView
-import xyz.doikki.videoplayer.TVCompatible
-import unics.player.isVisible
-import unics.player.orDefault
+import droid.unicstar.player.ui.TVCompatible
+import droid.unicstar.player.ui.isVisible
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -42,7 +41,7 @@ class CompleteView @JvmOverloads constructor(
     override fun onPlayStateChanged(playState: Int) {
         if (playState == UCSPlayer.STATE_PLAYBACK_COMPLETED) {
             visibility = VISIBLE
-            mStopFullscreen?.isVisible = mController?.isFullScreen.orDefault()
+            mStopFullscreen?.isVisible = mController?.isFullScreen ?: false
             bringToFront()
         } else {
             visibility = GONE

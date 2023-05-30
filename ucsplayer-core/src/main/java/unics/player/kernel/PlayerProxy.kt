@@ -7,7 +7,7 @@ import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.internal.*
 import unics.player.kernel.UCSPlayer.Companion.STATE_BUFFERED
 import unics.player.kernel.UCSPlayer.Companion.STATE_BUFFERING
@@ -39,19 +39,19 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     private var mPlayer: UCSPlayer? = null
 
     //player 是否重用，即每次播放是否重新使用新的实例
-    private var mReusable: Boolean = UCSPlayerManager.isPlayerKernelReusable
+    private var mReusable: Boolean = UCSPManager.isPlayerKernelReusable
 
     //自定义播放器构建工厂
     private var mFactory: UCSPlayerFactory<out UCSPlayer>? = null
 
     //进度管理器，设置之后播放器会记录播放进度，以便下次播放恢复进度
-    private var mProgressManager: ProgressManager? = UCSPlayerManager.progressManager
+    private var mProgressManager: ProgressManager? = UCSPManager.progressManager
 
     //OnStateChangeListener集合，保存了所有开发者设置的监听器
     private val mStateChangedListeners = CopyOnWriteArrayList<OnPlayStateChangeListener>()
 
     //是否允许使用手机流量播放
-    var isPlayOnMobileNetwork: Boolean = UCSPlayerManager.isPlayOnMobileNetwork
+    var isPlayOnMobileNetwork: Boolean = UCSPManager.isPlayOnMobileNetwork
 
     //音频焦点管理帮助类
     private val mAudioFocusHelper: AudioFocusHelper = AudioFocusHelper(context)
@@ -91,6 +91,9 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     //右声道音量
     private var mRightVolume = 1.0f
 
+    //播放速度
+    private var mSpeed: Float = 1.0f
+
     //目标状态
     private var mTargetState: Int = STATE_IDLE
 
@@ -127,7 +130,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      */
     val playerName: String
         get() {
-            val className = (mFactory ?: UCSPlayerManager.playerFactory).javaClass.name
+            val className = (mFactory ?: UCSPManager.playerFactory).javaClass.name
             return className.substring(className.lastIndexOf(".") + 1)
         }
 
@@ -308,10 +311,10 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
             plogi2(TAG) { "preparePlayer -> player set not reusable,release current player if not null （current = ${mPlayer}）." }
             releasePlayer(false)
         }
-        return UCSPlayerManager.createMediaPlayer(context, mFactory).also {
+        return UCSPManager.createPlayerKernel(context, mFactory).also {
             plogi2(TAG) { "preparePlayer -> created new player kernel $it,init it." }
-            setupPlayer(it)
             mPlayer = it
+            setupPlayer(it)
             plogi2(TAG) { "preparePlayer -> new player kernel created, value=$it" }
         }
     }
@@ -322,10 +325,10 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         player.setEventListener(mPlayerEventListener)
         player.setLooping(mLooping)
         player.setVolume(mLeftVolume, mRightVolume)
+        player.setSpeed(mSpeed)
         mSurfaceRef?.get()?.let {
             player.setSurface(it)
         }
-
         mSurfaceHolderRef?.get()?.let {
             player.setDisplay(it)
         }
@@ -440,6 +443,9 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
                 releasePlayer(true)
             }
         }
+//        mLeftVolume = 1.0f
+//        mRightVolume = 1.0f
+//        mSpeed = 1.0f
         currentState = STATE_IDLE
     }
 
@@ -545,11 +551,12 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     override fun getSpeed(): Float {
         return if (isInPlaybackState()) {
-            mPlayer?.getSpeed() ?: 1f
-        } else 1f
+            mPlayer?.getSpeed() ?: mSpeed
+        } else mSpeed
     }
 
     override fun setSpeed(speed: Float) {
+        mSpeed = speed
         if (isInPlaybackState()) {
             plogd2(TAG) { "setSpeed($speed)" }
             mPlayer?.setSpeed(speed)

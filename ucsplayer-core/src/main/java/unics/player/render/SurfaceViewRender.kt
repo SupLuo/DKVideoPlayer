@@ -12,7 +12,6 @@ import android.view.SurfaceView
 import android.view.View
 import unics.player.internal.plogd2
 import unics.player.internal.plogi2
-import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerBase
 import unics.player.render.UCSRender.Companion.createShotBitmap
 import unics.player.render.UCSRender.ScreenShotCallback

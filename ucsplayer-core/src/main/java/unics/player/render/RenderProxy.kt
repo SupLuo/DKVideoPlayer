@@ -6,13 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.IntRange
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.controller.UCSRenderControl
 import unics.player.internal.plogd
 import unics.player.internal.plogw
 import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerBase
-import unics.player.orDefault
 
 /**
  * Render代理：只管播Render相关
@@ -38,14 +37,14 @@ class RenderProxy : UCSRender, UCSRenderControl {
     private var mRender: UCSRender? = null
 
     //自定义Render工厂
-    private var mRenderFactory: UCSRenderFactory = UCSPlayerManager.renderFactory
+    private var mRenderFactory: UCSRenderFactory = UCSPManager.renderFactory
 
     //render是否可以重用：如果不重用，则每次播放的时候会重新创建一个新的视图层，否则将会使用同一个render
-    private var mRenderReusable = UCSPlayerManager.isRenderReusable
+    private var mRenderReusable = UCSPManager.isRenderReusable
 
     //渲染视图纵横比
     @AspectRatioType
-    private var mScreenAspectRatioType = UCSPlayerManager.screenAspectRatioType
+    private var mScreenAspectRatioType = UCSPManager.screenAspectRatioType
 
     //视频画面大小
     private val mVideoSize = intArrayOf(0, 0)
@@ -93,15 +92,15 @@ class RenderProxy : UCSRender, UCSRenderControl {
     }
 
     /**
-     * 自定义RenderView，继承[UCSRenderFactory]实现自己的RenderView,设置为null则会使用[UCSPlayerManager.renderFactory]
+     * 自定义RenderView，继承[UCSRenderFactory]实现自己的RenderView,设置为null则会使用[UCSPManager.renderFactory]
      */
     override fun setRenderViewFactory(factory: UCSRenderFactory?) {
         plogd { "$mLogPrefix setRenderViewFactory($factory)" }
-        if (mRenderFactory == factory || (factory == null && mRenderFactory == UCSPlayerManager.renderFactory)) {
+        if (mRenderFactory == factory || (factory == null && mRenderFactory == UCSPManager.renderFactory)) {
             plogd { "$mLogPrefix setRenderViewFactory -> 与当前工厂相同或者与全局工厂相同,即当前工厂并没有发生任何变化，不作任何处理" }
             return
         }
-        mRenderFactory = factory.orDefault(UCSPlayerManager.renderFactory)
+        mRenderFactory = factory ?: UCSPManager.renderFactory
         plogd { "$mLogPrefix setRenderViewFactory -> $mRenderFactory" }
 
         //render工厂发生了变化
@@ -172,7 +171,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
     fun reset() {
         plogd { "$mLogPrefix reset" }
         releaseCurrentRender()
-        mScreenAspectRatioType = UCSPlayerManager.screenAspectRatioType
+        mScreenAspectRatioType = UCSPManager.screenAspectRatioType
         mVideoSize[0] = 0
         mVideoSize[1] = 0
         mMirrorRotation = false

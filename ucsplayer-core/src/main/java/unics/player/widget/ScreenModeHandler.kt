@@ -8,9 +8,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.Px
-import unics.player.contentView
-import unics.player.decorView
-import unics.player.removeFromParent
+import unics.player.internal.removeFromParent
 import xyz.doikki.videoplayer.R
 
 /**
@@ -99,7 +97,8 @@ class ScreenModeHandler {
      * @param view 在小窗口中显示的View
      */
     fun startTinyScreen(activity: Activity, view: View): Boolean {
-        val contentView = activity.contentView ?: return false
+        val contentView =
+            (activity.findViewById(android.R.id.content) as? ViewGroup) ?: return false
         view.removeFromParent()
         //缓存原来的布局参数
         val layoutParamsCache = view.layoutParams
@@ -161,6 +160,10 @@ class ScreenModeHandler {
     }
 
     companion object {
+
+        @JvmStatic
+        internal inline val Activity.decorView: ViewGroup?
+            get() = window.decorView as? ViewGroup
 
         /**
          * 显示系统状态栏(NavigationBar和StatusBar)

@@ -10,11 +10,11 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.LayoutRes
+import droid.unicstar.player.ui.toTimeString
 import xyz.doikki.videocontroller.R
 import unics.player.kernel.UCSPlayer
-import xyz.doikki.videoplayer.TVCompatible
+import droid.unicstar.player.ui.TVCompatible
 import xyz.doikki.videoplayer.controller.component.KeyControlComponent
-import xyz.doikki.videoplayer.util.PlayerUtils
 
 /**
  * 手势控制：用于手势处理亮度、进度、音量等
@@ -71,7 +71,7 @@ class GestureView @JvmOverloads constructor(
             //相等的情况不处理，避免最大最小位置图标错乱
         }
         mTextPercent.text =
-            "${PlayerUtils.stringForTime(slidePosition)}/${PlayerUtils.stringForTime(duration)}"
+            "${slidePosition.toTimeString()}/${duration.toTimeString()}"
     }
 
     override fun onBrightnessChange(percent: Int) {

@@ -20,8 +20,6 @@ import unics.player.render.UCSRender
 import unics.player.widget.DeviceOrientationSensorHelper
 import unics.player.widget.ScreenModeHandler
 import xyz.doikki.videoplayer.R
-import xyz.doikki.videoplayer.util.CutoutUtil
-import xyz.doikki.videoplayer.util.PlayerUtils
 import java.lang.ref.SoftReference
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -74,10 +72,10 @@ open class DisplayContainer @JvmOverloads constructor(
     private val mScreenModeHandler: ScreenModeHandler = ScreenModeHandler()
 
     //是否开启根据传感器获得的屏幕方向进入/退出全屏
-    private var mEnableOrientationSensor = UCSPlayerManager.isOrientationSensorEnabled
+    private var mEnableOrientationSensor = UCSPManager.isOrientationSensorEnabled
 
     //用户设置是否适配刘海屏
-    private var mAdaptCutout = UCSPlayerManager.isAdaptCutout
+    private var mAdaptCutout = UCSPManager.isAdaptCutout
 
     //是否有刘海
     private var mHasCutout: Boolean? = null
@@ -313,14 +311,14 @@ open class DisplayContainer @JvmOverloads constructor(
                     mOrientationSensorHelper.disable()
                 }
                 if (hasCutout()) {
-                    CutoutUtil.adaptCutout(context, false)
+                    adaptCutout(context, false)
                 }
             }
             UCSVideoView.SCREEN_MODE_FULL -> {
                 //在全屏时强制监听设备方向
                 mOrientationSensorHelper.enable()
                 if (hasCutout()) {
-                    CutoutUtil.adaptCutout(context, true)
+                    adaptCutout(context, true)
                 }
             }
             UCSVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()
@@ -339,7 +337,7 @@ open class DisplayContainer @JvmOverloads constructor(
      * 是否有刘海屏
      */
     override fun hasCutout(): Boolean {
-        return mHasCutout.orDefault()
+        return mHasCutout ?: false
     }
 
     /**
@@ -565,10 +563,10 @@ open class DisplayContainer @JvmOverloads constructor(
 
         val activity = getActivity()
         if (activity != null && mHasCutout == null) {
-            mHasCutout = CutoutUtil.allowDisplayToCutout(activity)
-            if (mHasCutout.orDefault()) {
+            mHasCutout = allowDisplayToCutout(activity)
+            if (hasCutout()) {
                 //竖屏下的状态栏高度可认为是刘海的高度
-                mCutoutHeight = PlayerUtils.getStatusBarHeightPortrait(context).toInt()
+                mCutoutHeight = getStatusBarHeightPortrait(context).toInt()
             }
         }
         plogd2(mLogPrefix) { "checkCutout: adaptCutout = $mAdaptCutout cutoutHeight=$mCutoutHeight" }
@@ -608,7 +606,7 @@ open class DisplayContainer @JvmOverloads constructor(
      * 改变返回键逻辑，用于activity
      */
     fun onBackPressed(): Boolean {
-        return videoController?.onBackPressed().orDefault()
+        return videoController?.onBackPressed() ?: false
     }
 
     override fun release() {
@@ -634,7 +632,7 @@ open class DisplayContainer @JvmOverloads constructor(
         val audioFocus: Boolean =
             ta.getBoolean(
                 R.styleable.UCSDisplayContainer_ucsp_enableAudioFocus,
-                UCSPlayerManager.isAudioFocusEnabled
+                UCSPManager.isAudioFocusEnabled
             )
         val looping = ta.getBoolean(R.styleable.UCSDisplayContainer_ucsp_looping, false)
 
@@ -642,7 +640,7 @@ open class DisplayContainer @JvmOverloads constructor(
             val screenAspectRatioType =
                 ta.getInt(
                     R.styleable.UCSDisplayContainer_ucsp_screenScaleType,
-                    UCSPlayerManager.screenAspectRatioType
+                    UCSPManager.screenAspectRatioType
                 )
             setAspectRatioType(screenAspectRatioType)
         }
@@ -663,7 +661,7 @@ open class DisplayContainer @JvmOverloads constructor(
             setBackgroundColor(Color.BLACK)
         }
         //如果当前容器是通过Activity上下文构建的，则默认绑定的界面为该Activity
-        val activity = context.getActivityContext()
+        val activity =UCSPUtil.getActivityContext(context)
         if (activity != null) {
             bindActivity(activity)
         }

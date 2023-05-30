@@ -10,8 +10,10 @@ import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
 import unics.player.kernel.UCSPlayerControl
 import unics.player.controller.UCSVideoViewControl
-import unics.player.internal.getActivityContext
+import unics.player.internal.UCSPUtil
+
 import unics.player.internal.plogd
+import unics.player.internal.removeFromParent
 import unics.player.kernel.PlayerProxy
 import unics.player.kernel.UCSPlayer
 import unics.player.widget.ScreenModeHandler
@@ -37,7 +39,7 @@ open class UCSVideoView @JvmOverloads constructor(
     private val mActivity: Activity get() = mPreferredActivity!!
 
     //获取Activity，优先通过Controller去获取Activity
-    private val mPreferredActivity: Activity? get() = context.getActivityContext()
+    private val mPreferredActivity: Activity? get() = UCSPUtil.getActivityContext(context)
 
     /**
      * 获取播放器名字
@@ -228,7 +230,7 @@ open class UCSVideoView @JvmOverloads constructor(
         //绑定所属容器
         mDisplayContainer.bindContainer(this)
         //绑定界面
-        val activity = context.getActivityContext()
+        val activity = UCSPUtil.getActivityContext(context)
         if (activity != null) {
             mDisplayContainer.bindActivity(activity)
         }

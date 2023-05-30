@@ -57,6 +57,9 @@ interface UCSPlayerBase {
     @IntRange(from = 0, to = 100)
     fun getBufferedPercentage(): Int
 
+    /**
+     * 设置声道音量
+     */
     fun setVolume(
         @FloatRange(from = 0.0, to = 1.0) leftVolume: Float,
         @FloatRange(from = 0.0, to = 1.0) rightVolume: Float

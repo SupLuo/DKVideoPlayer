@@ -13,12 +13,11 @@ import android.view.animation.Animation
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.LayoutRes
-import xyz.doikki.videocontroller.R
+import droid.unicstar.player.ui.TVCompatible
+import droid.unicstar.player.ui.toTimeString
 import unics.player.UCSVideoView
-import xyz.doikki.videoplayer.TVCompatible
-import xyz.doikki.videoplayer.util.PlayerUtils
-import unics.player.orDefault
 import unics.player.kernel.UCSPlayer
+import xyz.doikki.videocontroller.R
 
 /**
  * 点播底部控制栏
@@ -67,8 +66,8 @@ open class VodControlView @JvmOverloads constructor(
 
             mController?.playerControl?.let { player ->
                 val duration = player.getDuration()
-                val newPosition = duration * progress / seekBar.max.orDefault(100)
-                mCurrTime?.text = PlayerUtils.stringForTime(newPosition.toInt())
+                val newPosition = duration * progress / seekBar.max.coerceAtLeast(1)
+                mCurrTime?.text = newPosition.toTimeString()
             }
         }
 
@@ -145,7 +144,7 @@ open class VodControlView @JvmOverloads constructor(
             UCSPlayer.STATE_PLAYING -> {
                 mPlayButton?.isSelected = true
                 if (showBottomProgress) {
-                    if (mController?.isShowing.orDefault()) {
+                    if (mController?.isShowing == true) {
                         mBottomProgress?.visibility = GONE
                         mBottomContainer?.visibility = VISIBLE
                     } else {
@@ -161,12 +160,12 @@ open class VodControlView @JvmOverloads constructor(
             }
             UCSPlayer.STATE_PAUSED -> mPlayButton?.isSelected = false
             UCSPlayer.STATE_BUFFERING -> {
-                mPlayButton?.isSelected = playerControl?.isPlaying().orDefault()
+                mPlayButton?.isSelected = playerControl?.isPlaying() ?: false
                 // 停止刷新进度
                 mController?.stopUpdateProgress()
             }
             UCSPlayer.STATE_BUFFERED -> {
-                mPlayButton?.isSelected = playerControl?.isPlaying().orDefault()
+                mPlayButton?.isSelected = playerControl?.isPlaying() ?: false
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
@@ -187,8 +186,7 @@ open class VodControlView @JvmOverloads constructor(
         //底部容器和进度都为空，则不用处理后续逻辑
         if (bottomContainer == null && bottomProgress == null)
             return
-        containerControl?.let {
-            player->
+        containerControl?.let { player ->
             if (player.hasCutout()) {
                 val orientation = activity.requestedOrientation
                 val cutoutHeight = player.getCutoutHeight()
@@ -238,18 +236,18 @@ open class VodControlView @JvmOverloads constructor(
             } else {
                 seekBar.isEnabled = false
             }
-            val percent = playerControl?.getBufferedPercentage().orDefault()
+            val percent = playerControl?.getBufferedPercentage() ?: 0
             if (percent >= 95) { //解决缓冲进度不能100%问题
                 seekBar.secondaryProgress = seekBar.max
-                mBottomProgress?.secondaryProgress = mBottomProgress?.max.orDefault(100)
+                mBottomProgress?.secondaryProgress = mBottomProgress?.max ?: 100
             } else {
                 seekBar.secondaryProgress = percent * 10
                 mBottomProgress?.secondaryProgress = percent * 10
             }
         }
 
-        mTotalTime?.text = PlayerUtils.stringForTime(duration)
-        mCurrTime?.text = PlayerUtils.stringForTime(position)
+        mTotalTime?.text = duration.toTimeString()
+        mCurrTime?.text = position.toTimeString()
     }
 
     init {

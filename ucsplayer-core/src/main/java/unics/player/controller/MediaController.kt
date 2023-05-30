@@ -11,10 +11,9 @@ import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import unics.player.*
+import unics.player.internal.*
 import unics.player.internal.NETWORK_MOBILE
-import unics.player.internal.getActivityContext
 import unics.player.internal.getNetworkType
-import unics.player.internal.plogw2
 import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.VideoViewController
@@ -102,10 +101,10 @@ open class MediaController @JvmOverloads constructor(
     private val progressUpdateRunnable: Runnable = object : Runnable {
         override fun run() {
             val pos = updateProgress()
-            if (mPlayer?.isPlaying().orDefault()) {
+            if (mPlayer?.isPlaying() == true) {
                 postDelayed(
                     this,
-                    ((1000 - pos % 1000) / mPlayer?.getSpeed().orDefault(1f)).toLong()
+                    ((1000 - pos % 1000) / (mPlayer?.getSpeed() ?: 1f)).toLong()
                 )
             } else {
                 mProgressRefreshing = false
@@ -126,7 +125,7 @@ open class MediaController @JvmOverloads constructor(
     val containerControl: UCSContainerControl? get() = mContainerControl
 
     init {
-        mActivity = context.getActivityContext()
+        mActivity = UCSPUtil.getActivityContext(context)
     }
 
     /**
@@ -246,18 +245,13 @@ open class MediaController @JvmOverloads constructor(
      * 关于游离控制组件的定义请看 [.addControlComponent] 关于 isDissociate 的解释
      */
     fun removeAllDissociateComponents() {
-        mControlComponents.removeAllByValue {
-            it
+        val it: MutableIterator<Map.Entry<*, Boolean>> = mControlComponents.iterator()
+        while (it.hasNext()) {
+            val (_, value) = it.next()
+            if (value) {
+                it.remove()
+            }
         }
-//
-//        val it: MutableIterator<Map.Entry<ControlComponent, Boolean>> =
-//            mControlComponents.entries.iterator()
-//        while (it.hasNext()) {
-//            val (_, value) = it.next()
-//            if (value) {
-//                it.remove()
-//            }
-//        }
     }
 
     /**
@@ -273,22 +267,22 @@ open class MediaController @JvmOverloads constructor(
 
     /***********START 关键方法代码 */
     override fun isFullScreen(): Boolean {
-        return mContainerControl?.isFullScreen().orDefault()
+        return mContainerControl?.isFullScreen() ?: false
     }
 
     /**
      * 横竖屏切换
      */
     override fun toggleFullScreen(): Boolean {
-        return mContainerControl?.toggleFullScreen().orDefault()
+        return mContainerControl?.toggleFullScreen() ?: false
     }
 
     override fun startFullScreen(isLandscapeReversed: Boolean): Boolean {
-        return mContainerControl?.startFullScreen(isLandscapeReversed).orDefault()
+        return mContainerControl?.startFullScreen(isLandscapeReversed) ?: false
     }
 
     override fun stopFullScreen(): Boolean {
-        return mContainerControl?.stopFullScreen().orDefault()
+        return mContainerControl?.stopFullScreen() ?: false
     }
 
     /**
@@ -431,7 +425,7 @@ open class MediaController @JvmOverloads constructor(
      * 此处默认根据手机网络类型来决定是否显示，开发者可以重写相关逻辑
      */
     open fun showNetWarning(): Boolean {
-        return (context.getNetworkType() == NETWORK_MOBILE && !UCSPlayerManager.isPlayOnMobileNetwork)
+        return (context.getNetworkType() == NETWORK_MOBILE && !UCSPManager.isPlayOnMobileNetwork)
     }
 
     /**

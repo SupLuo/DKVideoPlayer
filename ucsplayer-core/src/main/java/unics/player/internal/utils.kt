@@ -3,31 +3,22 @@
 
 package unics.player.internal
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
+import android.graphics.Point
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.os.Build
 import android.telephony.TelephonyManager
+import android.view.*
+import android.widget.Toast
+import androidx.annotation.StringRes
 import java.util.concurrent.Executors
+
+
+internal const val INVALIDATE_SEEK_POSITION = -1
 
 //避免反复读取
 internal val sdkInt: Int = Build.VERSION.SDK_INT
-
-/**
- * 从上下文中获取[Activity]
- */
-fun Context.getActivityContext(): Activity? {
-    var context: Context? = this
-    while (context is ContextWrapper) {
-        if (context is Activity) {
-            return context
-        }
-        context = context.baseContext
-    }
-    return null
-}
 
 internal val threadPool = Executors.newCachedThreadPool()
 
@@ -59,6 +50,39 @@ internal fun releasePlayer(mediaPlayer: MediaPlayer) {
             }
         }
     })
+}
+
+/**
+ * 从Parent中移除自己
+ */
+internal inline fun View.removeFromParent() {
+    (parent as? ViewGroup)?.removeView(this)
+}
+
+/**
+ * 能否获取焦点
+ */
+internal val View.canTakeFocus: Boolean
+    get() = isFocusable && this.visibility == View.VISIBLE && isEnabled
+
+@PublishedApi
+internal inline fun Context.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, message, length).show()
+}
+
+@PublishedApi
+internal inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, messageId, length).show()
+}
+
+@PublishedApi
+internal inline fun View.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
+    context.toast(message, length)
+}
+
+@PublishedApi
+internal inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
+    context.toast(messageId, length)
 }
 
 
@@ -119,3 +143,100 @@ internal fun Context.getNetworkType(): Int {
     return NETWORK_UNKNOWN
 }
 
+
+/**
+ * 获取状态栏高度
+ */
+fun getStatusBarHeight(context: Context): Double {
+    return try {
+        var statusBarHeight = 0
+        //获取status_bar_height资源的ID
+        val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            //根据资源ID获取响应的尺寸值
+            statusBarHeight = context.resources.getDimensionPixelSize(resourceId)
+        }
+        statusBarHeight.toDouble()
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        0.0
+    }
+}
+
+/**
+ * 获取竖屏下状态栏高度
+ */
+fun getStatusBarHeightPortrait(context: Context): Double {
+    return try {
+        var statusBarHeight = 0
+        //获取status_bar_height_portrait资源的ID
+        val resourceId =
+            context.resources.getIdentifier("status_bar_height_portrait", "dimen", "android")
+        if (resourceId > 0) {
+            //根据资源ID获取响应的尺寸值
+            statusBarHeight = context.resources.getDimensionPixelSize(resourceId)
+        }
+        statusBarHeight.toDouble()
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        0.0
+    }
+}
+
+/**
+ * 获取NavigationBar的高度
+ */
+fun getNavigationBarHeight(context: Context): Int {
+    if (!hasNavigationBar(context)) {
+        return 0
+    }
+    val resources = context.resources
+    val resourceId = resources.getIdentifier(
+        "navigation_bar_height",
+        "dimen", "android"
+    )
+    //获取NavigationBar的高度
+    return resources.getDimensionPixelSize(resourceId)
+}
+
+/**
+ * 是否存在NavigationBar
+ */
+fun hasNavigationBar(context: Context): Boolean {
+    return if (sdkInt >= 17) {
+        val windowManager =
+            context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return true
+        val display = windowManager.defaultDisplay
+        val size = Point()
+        val realSize = Point()
+        display.getSize(size)
+        display.getRealSize(realSize)
+        realSize.x != size.x || realSize.y != size.y
+    } else {
+        val menu = ViewConfiguration.get(context).hasPermanentMenuKey()
+        val back = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK)
+        !(menu || back)
+    }
+}
+
+/**
+ * 获取屏幕宽度
+ */
+fun getScreenWidth(context: Context, isIncludeNav: Boolean): Int {
+    return if (isIncludeNav) {
+        context.resources.displayMetrics.widthPixels + getNavigationBarHeight(context)
+    } else {
+        context.resources.displayMetrics.widthPixels
+    }
+}
+
+/**
+ * 获取屏幕高度
+ */
+fun getScreenHeight(context: Context, isIncludeNav: Boolean): Int {
+    return if (isIncludeNav) {
+        context.resources.displayMetrics.heightPixels + getNavigationBarHeight(context)
+    } else {
+        context.resources.displayMetrics.heightPixels
+    }
+}

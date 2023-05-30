@@ -11,13 +11,13 @@ import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
 import unics.player.UCSVideoView
 import unics.player.kernel.UCSPlayer
-import unics.player.toast
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videocontroller.component.*
-import unics.player.UCSPlayerManager
-import xyz.doikki.videoplayer.TVCompatible
+import unics.player.UCSPManager
+import unics.player.internal.UCSPUtil
+import droid.unicstar.player.ui.TVCompatible
+import droid.unicstar.player.ui.toast
 import xyz.doikki.videoplayer.controller.GestureVideoController
-import xyz.doikki.videoplayer.util.PlayerUtils
 
 /**
  * 直播/点播控制器
@@ -37,7 +37,7 @@ open class StandardVideoController @JvmOverloads constructor(
     protected val loadingIndicator: ProgressBar?
     private var isBuffering = false
 
-    var enableLock: Boolean = !UCSPlayerManager.isTelevisionUiMode
+    var enableLock: Boolean = !UCSPManager.isTelevisionUiMode
 
     init {
         if (layoutId > 0)
@@ -131,7 +131,7 @@ open class StandardVideoController @JvmOverloads constructor(
             val activity = mActivity ?: return
             if (it.hasCutout()) {
                 val orientation = activity.requestedOrientation
-                val dp24 = PlayerUtils.dp2px(context, 24f)
+                val dp24 = UCSPUtil.dpInt(context,24)
                 val cutoutHeight = it.getCutoutHeight()
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {

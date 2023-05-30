@@ -11,4 +11,7 @@ abstract class BasePlayer : UCSPlayer {
         mEventListener = eventListener
     }
 
+    protected fun newPlayerException(what: Int, extra: Int): Throwable {
+        return PlayerException.create(what, extra)
+    }
 }

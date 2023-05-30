@@ -8,13 +8,14 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
-import unics.player.INVALIDATE_SEEK_POSITION
 import unics.player.ScreenMode
 import unics.player.UCSVideoView
 import unics.player.controller.MediaController
-import unics.player.internal.getActivityContext
+import unics.player.internal.INVALIDATE_SEEK_POSITION
+import unics.player.internal.UCSPUtil
+
+import unics.player.internal.getScreenWidth
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
-import xyz.doikki.videoplayer.util.PlayerUtils
 import kotlin.math.abs
 
 /**
@@ -105,11 +106,11 @@ abstract class GestureVideoController @JvmOverloads constructor(
     override fun onDown(e: MotionEvent): Boolean {
         if (!isInPlaybackState //不处于播放状态
             || !mGestureEnabled //关闭了手势
-            || PlayerUtils.isEdge(context, e)
+            || UCSPUtil.isEdge(context, e)
         ) //处于屏幕边沿
             return true
         mStreamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-        val activity = context.getActivityContext()
+        val activity = UCSPUtil.getActivityContext(context)
         mBrightness = activity?.window?.attributes?.screenBrightness ?: 0f
         mFirstTouch = true
         mChangePosition = false
@@ -146,7 +147,7 @@ abstract class GestureVideoController @JvmOverloads constructor(
             || !mGestureEnabled //关闭了手势
             || !mCanSlide //关闭了滑动手势
             || isLocked //锁住了屏幕
-            || PlayerUtils.isEdge(context, e1)
+            || UCSPUtil.isEdge(context, e1)
         ) //处于屏幕边沿
             return true
         val deltaX = e1.x - e2.x
@@ -155,7 +156,7 @@ abstract class GestureVideoController @JvmOverloads constructor(
             mChangePosition = abs(distanceX) >= abs(distanceY)
             if (!mChangePosition) {
                 //半屏宽度
-                val halfScreen = PlayerUtils.getScreenWidth(context, true) / 2
+                val halfScreen = getScreenWidth(context, true) / 2
                 if (e2.x > halfScreen) {
                     mChangeVolume = true
                 } else {
@@ -202,7 +203,7 @@ abstract class GestureVideoController @JvmOverloads constructor(
 
 
     protected fun slideToChangeBrightness(deltaY: Float) {
-        val activity = context.getActivityContext() ?: return
+        val activity = UCSPUtil.getActivityContext(context) ?: return
         val window = activity.window
         val attributes = window.attributes
         val height = measuredHeight

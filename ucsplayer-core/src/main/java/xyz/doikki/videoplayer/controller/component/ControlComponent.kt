@@ -3,7 +3,7 @@ package xyz.doikki.videoplayer.controller.component
 import android.view.View
 import android.view.animation.Animation
 import unics.player.ScreenMode
-import unics.player.UCSPlayerManager
+import unics.player.UCSPManager
 import unics.player.controller.MediaController
 import unics.player.kernel.UCSPlayerControl
 
@@ -43,7 +43,7 @@ interface ControlComponent {
      * @return
      */
     fun isTelevisionUiMode(): Boolean {
-        return UCSPlayerManager.isTelevisionUiMode
+        return UCSPManager.isTelevisionUiMode
     }
 
     /**
