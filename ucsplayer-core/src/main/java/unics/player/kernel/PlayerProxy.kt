@@ -8,8 +8,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
 import unics.player.UCSPlayerManager
-import unics.player.internal.plogd2
-import unics.player.internal.plogi2
+import unics.player.internal.*
 import unics.player.kernel.UCSPlayer.Companion.STATE_BUFFERED
 import unics.player.kernel.UCSPlayer.Companion.STATE_BUFFERING
 import unics.player.kernel.UCSPlayer.Companion.STATE_ERROR
@@ -22,10 +21,9 @@ import unics.player.kernel.UCSPlayer.Companion.STATE_PREPARED_BUT_ABORT
 import unics.player.kernel.UCSPlayer.Companion.STATE_PREPARING
 import unics.player.kernel.UCSPlayer.EventListener
 import unics.player.kernel.UCSPlayer.OnPlayStateChangeListener
-import unics.player.tryIgnore
 import unics.player.widget.AudioFocusHelper
-import xyz.doikki.videoplayer.ProgressManager
-import xyz.doikki.videoplayer.util.PlayerUtils
+import unics.player.widget.ProgressManager
+import java.lang.ref.SoftReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -35,7 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerControl {
 
-    private val mLogPrefix = "[PlayerProxy@${this.hashCode()}]"
+    private val TAG = "[PlayerProxy@${this.hashCode()}]"
 
     //播放器内核 即代理的主要对象
     private var mPlayer: UCSPlayer? = null
@@ -44,7 +42,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     private var mReusable: Boolean = UCSPlayerManager.isPlayerKernelReusable
 
     //自定义播放器构建工厂
-    private var mFactory: PlayerFactory<out UCSPlayer>? = null
+    private var mFactory: UCSPlayerFactory<out UCSPlayer>? = null
 
     //进度管理器，设置之后播放器会记录播放进度，以便下次播放恢复进度
     private var mProgressManager: ProgressManager? = UCSPlayerManager.progressManager
@@ -57,6 +55,10 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     //音频焦点管理帮助类
     private val mAudioFocusHelper: AudioFocusHelper = AudioFocusHelper(context)
+
+    private var mSurfaceRef: SoftReference<Surface>? = null
+
+    private var mSurfaceHolderRef: SoftReference<SurfaceHolder>? = null
 
     //--------- data sources ---------//
     //当前播放视频的地址
@@ -104,7 +106,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     override var currentState: Int = STATE_IDLE
         protected set(@UCSPlayer.PlayState state) {
             if (field != state) {
-                plogi2(mLogPrefix) { "the play state changed(old=$field new=$state),notify." }
+                plogi2(TAG) { "the play state changed(old=$field new=$state),notify." }
                 field = state
                 //通知播放器状态发生变化
                 mStateChangedListeners.forEach {
@@ -138,10 +140,10 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
         //视频缓冲完毕，准备开始播放时回调
         override fun onPrepared() {
-            plogi2(mLogPrefix) { "onPrepared" }
+            plogi2(TAG) { "onPrepared" }
             currentState = STATE_PREPARED
             if (mSeekWhenPrepared > 0) {
-                plogi2(mLogPrefix) { "onPrepared -> seekWhenPrepared(=$mSeekWhenPrepared) > 0,seek to." }
+                plogi2(TAG) { "onPrepared -> seekWhenPrepared(=$mSeekWhenPrepared) > 0,seek to." }
                 seekTo(mSeekWhenPrepared)
             }
             mCustomEventListener?.onPrepared()
@@ -149,13 +151,13 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
                 it.onPrepared()
             }
             if (mTargetState == STATE_PLAYING) {
-                plogi2(mLogPrefix) { "onPrepared -> target state is playing,invoke start." }
+                plogi2(TAG) { "onPrepared -> target state is playing,invoke start." }
                 start()
             }
         }
 
         override fun onInfo(what: Int, extra: Int) {
-            plogi2(mLogPrefix) { "onInfo(what=$what, extra=$extra)" }
+            plogi2(TAG) { "onInfo(what=$what, extra=$extra)" }
             when (what) {
                 UCSPlayer.MEDIA_INFO_BUFFERING_START -> currentState = STATE_BUFFERING
                 UCSPlayer.MEDIA_INFO_BUFFERING_END -> currentState = STATE_BUFFERED
@@ -173,7 +175,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         }
 
         override fun onVideoSizeChanged(width: Int, height: Int) {
-            plogi2(mLogPrefix) { "onVideoSizeChanged(width=$width, height=$height)" }
+            plogi2(TAG) { "onVideoSizeChanged(width=$width, height=$height)" }
             mCustomEventListener?.onVideoSizeChanged(width, height)
             mEventListeners.forEach {
                 it.onVideoSizeChanged(width, height)
@@ -183,7 +185,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         override fun onCompletion() {
             mSeekWhenPrepared = 0
             mCurrentPosition = 0
-            plogi2(mLogPrefix) { "onCompletion,reset field[seekWhenPrepared(=$mSeekWhenPrepared),currentPosition(=$mCurrentPosition),savePlayedProgress] to 0." }
+            plogi2(TAG) { "onCompletion,reset field[seekWhenPrepared(=$mSeekWhenPrepared),currentPosition(=$mCurrentPosition),savePlayedProgress] to 0." }
             //播放完成，清除进度
             savePlayedProgress(mUrl?.toString(), 0)
             currentState = STATE_PLAYBACK_COMPLETED
@@ -195,7 +197,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         }
 
         override fun onError(e: Throwable) {
-            plogi2(mLogPrefix) { "onError" }
+            plogi2(TAG) { "onError" }
             currentState = STATE_ERROR
             mTargetState = STATE_ERROR
             mCustomEventListener?.onError(e)
@@ -206,10 +208,10 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     /**
-     * 自定义播放核心，继承[PlayerFactory]实现自己的播放核心
+     * 自定义播放核心，继承[UCSPlayerFactory]实现自己的播放核心
      */
-    override fun setPlayerFactory(playerFactory: PlayerFactory<out UCSPlayer>) {
-        plogd2(mLogPrefix) { "setPlayerFactory($playerFactory)" }
+    override fun setPlayerFactory(playerFactory: UCSPlayerFactory<out UCSPlayer>) {
+        plogd2(TAG) { "setPlayerFactory($playerFactory)" }
         mFactory = playerFactory
     }
 
@@ -217,12 +219,12 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      * 设置进度管理器，用于保存播放进度
      */
     override fun setProgressManager(progressManager: ProgressManager?) {
-        plogd2(mLogPrefix) { "setProgressManager($progressManager)" }
+        plogd2(TAG) { "setProgressManager($progressManager)" }
         this.mProgressManager = progressManager
     }
 
     override fun setEnableAudioFocus(enableAudioFocus: Boolean) {
-        plogd2(mLogPrefix) { "setEnableAudioFocus($enableAudioFocus)" }
+        plogd2(TAG) { "setEnableAudioFocus($enableAudioFocus)" }
         mAudioFocusHelper.isEnable = enableAudioFocus
     }
 
@@ -241,7 +243,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      * 添加一个播放状态监听器，播放状态发生变化时将会调用。
      */
     override fun addOnPlayStateChangeListener(listener: OnPlayStateChangeListener) {
-        plogd2(mLogPrefix) { "addOnPlayStateChangeListener($listener)" }
+        plogd2(TAG) { "addOnPlayStateChangeListener($listener)" }
         mStateChangedListeners.add(listener)
     }
 
@@ -249,22 +251,22 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      * 移除某个播放状态监听
      */
     override fun removeOnPlayStateChangeListener(listener: OnPlayStateChangeListener) {
-        plogd2(mLogPrefix) { "removeOnPlayStateChangeListener($listener)" }
+        plogd2(TAG) { "removeOnPlayStateChangeListener($listener)" }
         mStateChangedListeners.remove(listener)
     }
 
     override fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>?) {
-        plogi2(mLogPrefix) { "setDataSource(Context, uri=$uri, headers=$headers)" }
+        plogi2(TAG) { "setDataSource(Context, uri=$uri, headers=$headers)" }
         mAssetFileDescriptor = null
         mUrl = uri
         mHeaders = headers
         mSeekWhenPrepared = getSavedPlayedProgress(uri.toString())
-        plogi2(mLogPrefix) { "get saved played progress = $mSeekWhenPrepared" }
+        plogi2(TAG) { "get saved played progress = $mSeekWhenPrepared" }
         openVideo()
     }
 
     override fun setDataSource(fd: AssetFileDescriptor) {
-        plogi2(mLogPrefix) { "setDataSource(AssetFileDescriptor=$fd)" }
+        plogi2(TAG) { "setDataSource(AssetFileDescriptor=$fd)" }
         mUrl = null
         mAssetFileDescriptor = fd
         mSeekWhenPrepared = 0
@@ -273,12 +275,12 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     private fun openVideo() {
         try {
-            plogi2(mLogPrefix) { "openVideo" }
+            plogi2(TAG) { "openVideo" }
             val asset = mAssetFileDescriptor
             val uri = mUrl
             // not ready for playback just yet, will try again later
             if (asset == null && uri == null) {
-                plogi2(mLogPrefix) { "openVideo -> not ready for playback just yet, asset and uri is null." }
+                plogi2(TAG) { "openVideo -> not ready for playback just yet, asset and uri is null." }
                 return
             }
             //确保播放器内核
@@ -301,35 +303,36 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      * 准备播放器内核
      */
     private fun preparePlayer(): UCSPlayer {
-        plogi2(mLogPrefix) { "preparePlayer , reusable = $mReusable" }
+        plogi2(TAG) { "preparePlayer , reusable = $mReusable" }
         if (!mReusable) {
-            plogi2(mLogPrefix) { "preparePlayer -> player set not reusable,release current player if not null （current = ${mPlayer}）." }
+            plogi2(TAG) { "preparePlayer -> player set not reusable,release current player if not null （current = ${mPlayer}）." }
             releasePlayer(false)
         }
-        val player = mPlayer
-        if (player != null) {//todo 如果重用播放器，此处该不该执行reset？是否应该交给用户调用
-            plogi2(mLogPrefix) { "preparePlayer -> reuse player($player),reset it before use." }
-            player.reset()
-            return player
-        }
         return UCSPlayerManager.createMediaPlayer(context, mFactory).also {
-            plogi2(mLogPrefix) { "preparePlayer -> created new player kernel $it,init it." }
+            plogi2(TAG) { "preparePlayer -> created new player kernel $it,init it." }
             setupPlayer(it)
             mPlayer = it
-            plogi2(mLogPrefix) { "preparePlayer -> new player kernel created, value=$it" }
+            plogi2(TAG) { "preparePlayer -> new player kernel created, value=$it" }
         }
     }
 
     @CallSuper
     protected open fun setupPlayer(player: UCSPlayer) {
-        plogi2(mLogPrefix) { "setupPlayer" }
+        plogi2(TAG) { "setupPlayer" }
         player.setEventListener(mPlayerEventListener)
         player.setLooping(mLooping)
         player.setVolume(mLeftVolume, mRightVolume)
+        mSurfaceRef?.get()?.let {
+            player.setSurface(it)
+        }
+
+        mSurfaceHolderRef?.get()?.let {
+            player.setDisplay(it)
+        }
     }
 
     override fun prepareAsync() {
-        plogi2(mLogPrefix) { "prepareAsync" }
+        plogi2(TAG) { "prepareAsync" }
         requirePlayer().prepareAsync()
     }
 
@@ -338,35 +341,35 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     override fun start() {
-        plogi2(mLogPrefix) { "start: playerName=$playerName reusable=${mReusable} looping=$mLooping mute=$mMute leftVol=$mLeftVolume rightVol=$mRightVolume progressManager=$mProgressManager" }
+        plogi2(TAG) { "start: playerName=$playerName reusable=${mReusable} looping=$mLooping mute=$mMute leftVol=$mLeftVolume rightVol=$mRightVolume progressManager=$mProgressManager" }
         //已就绪，准备开始播放
         if (isInPlaybackState()) {
-            plogi2(mLogPrefix) { "start -> isInPlaybackState" }
+            plogi2(TAG) { "start -> isInPlaybackState" }
             //移动网络不允许播放
             if (currentState == STATE_PREPARED_BUT_ABORT) {
-                plogi2(mLogPrefix) { "start -> currentState == STATE_PREPARED_BUT_ABORT return." }
+                plogi2(TAG) { "start -> currentState == STATE_PREPARED_BUT_ABORT return." }
                 return
             }
             //进行移动流量播放提醒
             if (showNetworkWarning() && currentState != STATE_PREPARED_BUT_ABORT) {
-                plogi2(mLogPrefix) { "start -> showNetworkWarning() && currentState != STATE_PREPARED_BUT_ABORT return." }
+                plogi2(TAG) { "start -> showNetworkWarning() && currentState != STATE_PREPARED_BUT_ABORT return." }
                 //中止播放
                 currentState = STATE_PREPARED_BUT_ABORT
                 return
             }
-            plogi2(mLogPrefix) { "start -> startInPlaybackState" }
+            plogi2(TAG) { "start -> startInPlaybackState" }
             startInPlaybackState()
         } else {
-            plogi2(mLogPrefix) { "start -> mTargetState = STATE_PLAYING" }
+            plogi2(TAG) { "start -> mTargetState = STATE_PLAYING" }
             mTargetState = STATE_PLAYING
         }
     }
 
     override fun resume() {
-        plogi2(mLogPrefix) { "resume" }
+        plogi2(TAG) { "resume" }
         mPlayer?.let { player ->
             if (isInPlaybackState() && !player.isPlaying()) {
-                plogi2(mLogPrefix) { "resume -> startInPlaybackState" }
+                plogi2(TAG) { "resume -> startInPlaybackState" }
                 startInPlaybackState()
             }
         }
@@ -377,24 +380,24 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      * 播放状态下开始播放
      */
     protected open fun startInPlaybackState() {
-        plogi2(mLogPrefix) { "startInPlaybackState ->  requirePlayer().start()" }
+        plogi2(TAG) { "startInPlaybackState ->  requirePlayer().start()" }
         requirePlayer().start()
         if (!mMute) {
-            plogi2(mLogPrefix) { "startInPlaybackState -> request audio focus." }
+            plogi2(TAG) { "startInPlaybackState -> request audio focus." }
             mAudioFocusHelper.requestFocus()
         }
         currentState = STATE_PLAYING
     }
 
     override fun pause() {
-        plogd2(mLogPrefix) { "pause" }
+        plogd2(TAG) { "pause" }
         mPlayer?.let { player ->
             if (isInPlaybackState() && player.isPlaying()) {
-                plogd2(mLogPrefix) { "pause -> invoke." }
+                plogd2(TAG) { "pause -> invoke." }
                 player.pause()
                 currentState = STATE_PAUSED
                 if (!mMute) {
-                    plogd2(mLogPrefix) { "pause -> abandonFocus audio focus." }
+                    plogd2(TAG) { "pause -> abandonFocus audio focus." }
                     mAudioFocusHelper.abandonFocus()
                 }
             }
@@ -403,7 +406,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     override fun replay(resetPosition: Boolean) {
-        plogd2(mLogPrefix) { "replay" }
+        plogd2(TAG) { "replay" }
         //用于恢复之前播放的位置
         if (!resetPosition && mCurrentPosition > 0) {
             mSeekWhenPrepared = mCurrentPosition
@@ -413,13 +416,13 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     override fun stop() {
-        plogd2(mLogPrefix) { "stop" }
+        plogd2(TAG) { "stop" }
         mPlayer?.let {
             if (mReusable) {
-                plogd2(mLogPrefix) { "stop -> player kernel set reusable, call the player stop method." }
+                plogd2(TAG) { "stop -> player kernel set reusable, call the player stop method." }
                 it.stop()
             } else {
-                plogd2(mLogPrefix) { "stop -> player kernel set un reusable, try release it directly." }
+                plogd2(TAG) { "stop -> player kernel set un reusable, try release it directly." }
                 releasePlayer(true)
             }
         }
@@ -427,13 +430,13 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     override fun reset() {
-        plogd2(mLogPrefix) { "reset" }
+        plogd2(TAG) { "reset" }
         mPlayer?.let {
             if (mReusable) {
-                plogd2(mLogPrefix) { "reset -> player kernel set reusable, call the player reset method." }
+                plogd2(TAG) { "reset -> player kernel set reusable, call the player reset method." }
                 it.reset()
             } else {
-                plogd2(mLogPrefix) { "reset -> player kernel set un reusable, try release it directly." }
+                plogd2(TAG) { "reset -> player kernel set un reusable, try release it directly." }
                 releasePlayer(true)
             }
         }
@@ -441,12 +444,17 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     override fun release() {
-        plogd2(mLogPrefix) { "release" }
+        plogd2(TAG) { "release" }
         if (currentState != STATE_IDLE) {
             //释放Assets资源
             mAssetFileDescriptor?.let {
-                tryIgnore {
+                //todo 感觉此处不应该由本类执行这个逻辑，应该交由外层调用
+                try {
                     it.close()
+                } catch (e: Throwable) {
+                    ploge2(TAG, e) {
+                        "error on ${Thread.currentThread().stackTrace[2].methodName} method invoke.but throwable is ignored."
+                    }
                 }
             }
             //保存播放进度
@@ -460,16 +468,18 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
             currentState = STATE_IDLE
             mTargetState = STATE_IDLE
             mStateChangedListeners.clear()
+            mSurfaceRef = null
+            mSurfaceHolderRef = null
         }
     }
 
     /**
-     * 释放当前持有的播放器
+     * 释放当前持有的播放器，释放之后proxy还可以继续重用的
      */
     fun releasePlayer(resetTargetState: Boolean) {
-        plogi2(mLogPrefix) { "releasePlayer" }
+        plogi2(TAG) { "releasePlayer" }
         mPlayer?.let {
-            plogi2(mLogPrefix) { "releasePlayer -> before release: currentState=$currentState,targetState=$mTargetState" }
+            plogi2(TAG) { "releasePlayer -> before release: currentState=$currentState,targetState=$mTargetState" }
             it.setEventListener(null)
             it.release()
             if (currentState != STATE_IDLE && currentState != STATE_ERROR && currentState != STATE_PLAYBACK_COMPLETED) {
@@ -480,7 +490,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
             }
             //放弃音频焦点
             mAudioFocusHelper.abandonFocus()
-            plogi2(mLogPrefix) { "releasePlayer -> after release: currentState=$currentState,targetState=$mTargetState" }
+            plogi2(TAG) { "releasePlayer -> after release: currentState=$currentState,targetState=$mTargetState" }
         }
         mPlayer = null
     }
@@ -529,7 +539,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     }
 
     override fun setPlayerReusable(reusable: Boolean) {
-        plogd2(mLogPrefix) { "setPlayerReusable($reusable)" }
+        plogd2(TAG) { "setPlayerReusable($reusable)" }
         mReusable = reusable
     }
 
@@ -541,7 +551,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     override fun setSpeed(speed: Float) {
         if (isInPlaybackState()) {
-            plogd2(mLogPrefix) { "setSpeed($speed)" }
+            plogd2(TAG) { "setSpeed($speed)" }
             mPlayer?.setSpeed(speed)
         }
     }
@@ -552,11 +562,11 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     override fun seekTo(msec: Long) {
         mSeekWhenPrepared = if (isInPlaybackState()) {
-            plogd2(mLogPrefix) { "seekTo($msec) -> is in playback state,invoke seek." }
+            plogd2(TAG) { "seekTo($msec) -> is in playback state,invoke seek." }
             mPlayer?.seekTo(msec)
             0
         } else {
-            plogd2(mLogPrefix) { "seekTo($msec) -> is not in playback state,set seekWhenPrepare = $msec." }
+            plogd2(TAG) { "seekTo($msec) -> is not in playback state,set seekWhenPrepare = $msec." }
             msec
         }
     }
@@ -573,28 +583,38 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     private fun savePlayedProgress(url: String?, position: Long) {
         if (url.isNullOrEmpty()) {
-            plogi2(mLogPrefix) { "savePlayedProgress -> ignore save progress(url is null or empty)." }
+            plogi2(TAG) { "savePlayedProgress -> ignore save progress(url is null or empty)." }
             return
         }
         val pm = mProgressManager
         if (pm == null) {
-            plogi2(mLogPrefix) { "savePlayedProgress -> ignore save progress(progress manager is null)." }
+            plogi2(TAG) { "savePlayedProgress -> ignore save progress(progress manager is null)." }
             return
         }
-        plogd2(mLogPrefix) { "savePlayedProgress -> saveProgress(position=$position,url=$url)" }
+        plogd2(TAG) { "savePlayedProgress -> saveProgress(position=$position,url=$url)" }
         pm.saveProgress(url, position)
     }
 
     override fun setSurface(surface: Surface?) {
-        plogd2(mLogPrefix) { "setSurface($surface)" }
+        plogd2(TAG) { "setSurface($surface)" }
         //用可空的对象来设置，因为存在surface在destroy的时候调用player设置为null
         mPlayer?.setSurface(surface)
+        mSurfaceRef = if (surface != null) {
+            SoftReference(surface)
+        } else {
+            null
+        }
     }
 
     override fun setDisplay(holder: SurfaceHolder?) {
-        plogd2(mLogPrefix) { "setDisplay($holder)" }
+        plogd2(TAG) { "setDisplay($holder)" }
         //用可空的对象来设置，因为存在surface在destroy的时候调用player设置为null
         mPlayer?.setDisplay(holder)
+        mSurfaceHolderRef = if (holder != null) {
+            SoftReference(holder)
+        } else {
+            null
+        }
     }
 
     override fun addEventListener(eventListener: EventListener) {
@@ -623,7 +643,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
      */
     private fun showNetworkWarning(): Boolean {
         //非本地视频源，并且不允许使用流量播放，并且当前网络是手机流量的情况下，进行网络提示
-        return !isLocalDataSource && !isPlayOnMobileNetwork && PlayerUtils.getNetworkType(context) == PlayerUtils.NETWORK_MOBILE
+        return !isLocalDataSource && !isPlayOnMobileNetwork && context.getNetworkType() == NETWORK_MOBILE
     }
 
     /**

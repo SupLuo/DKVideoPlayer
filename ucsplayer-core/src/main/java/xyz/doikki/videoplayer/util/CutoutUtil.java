@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import unics.player.internal.UCSPlayerInternalKt;
+
 /**
  * 刘海屏工具
  */
@@ -140,7 +142,7 @@ public final class CutoutUtil {
      * @param isAdapt 是否适配刘海屏，false则会使用默认方式
      */
     public static void adaptCutout(Context context, boolean isAdapt) {
-        Activity activity = PlayerUtils.scanForActivity(context);
+        Activity activity = UCSPlayerInternalKt.getActivityContext(context);
         if (activity == null) return;
         if (Build.VERSION.SDK_INT < 28)
             return;

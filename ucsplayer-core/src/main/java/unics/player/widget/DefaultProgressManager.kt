@@ -1,7 +1,6 @@
 package unics.player.widget
 
 import android.util.LruCache
-import xyz.doikki.videoplayer.ProgressManager
 
 /**
  * 默认进度管理器
@@ -34,6 +33,5 @@ internal class DefaultProgressManager(
     override fun clearAll() {
         mCache.evictAll()
     }
-
 
 }

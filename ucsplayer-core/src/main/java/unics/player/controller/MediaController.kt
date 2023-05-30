@@ -11,12 +11,14 @@ import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import unics.player.*
+import unics.player.internal.NETWORK_MOBILE
+import unics.player.internal.getActivityContext
+import unics.player.internal.getNetworkType
 import unics.player.internal.plogw2
 import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.VideoViewController
 import xyz.doikki.videoplayer.controller.component.ControlComponent
-import xyz.doikki.videoplayer.util.PlayerUtils
 
 /**
  * 控制器基类：该类的职责是作为播放器与容器中各种小组件之间的纽带
@@ -124,7 +126,7 @@ open class MediaController @JvmOverloads constructor(
     val containerControl: UCSContainerControl? get() = mContainerControl
 
     init {
-        mActivity = PlayerUtils.scanForActivity(context)
+        mActivity = context.getActivityContext()
     }
 
     /**
@@ -429,7 +431,7 @@ open class MediaController @JvmOverloads constructor(
      * 此处默认根据手机网络类型来决定是否显示，开发者可以重写相关逻辑
      */
     open fun showNetWarning(): Boolean {
-        return (PlayerUtils.getNetworkType(context) == PlayerUtils.NETWORK_MOBILE && !UCSPlayerManager.isPlayOnMobileNetwork)
+        return (context.getNetworkType() == NETWORK_MOBILE && !UCSPlayerManager.isPlayOnMobileNetwork)
     }
 
     /**

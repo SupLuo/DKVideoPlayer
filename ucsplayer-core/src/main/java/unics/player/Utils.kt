@@ -3,7 +3,6 @@ package unics.player
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -11,41 +10,24 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
-import unics.player.kernel.UCSPlayer
-import unics.player.UCSPlayerManager.isDebuggable
 import unics.player.internal.ploge
+import unics.player.kernel.UCSPlayer
 
 @PublishedApi
 internal const val TAG = "UCSPlayer"
 
-var isDebug = isDebuggable
 
-/**
- * 等同于[trySilent]，只是本方法没有对结果进行装箱处理（即没有产生[Result]中间对象）
- */
-internal inline fun <T> T.tryIgnore(action: T.() -> Unit): Throwable? {
-    return try {
-        action(this)
-        null
-    } catch (e: Throwable) {
-        ploge(e){
-            "error on ${Thread.currentThread().stackTrace[2].methodName} method invoke.but throwable is ignored."
-        }
-        e
-    }
-}
-
- inline fun Boolean?.orDefault(def: Boolean = false): Boolean {
+inline fun Boolean?.orDefault(def: Boolean = false): Boolean {
     return this ?: def
 }
 
- inline fun Int?.orDefault(def: Int = 0) = this ?: def
+inline fun Int?.orDefault(def: Int = 0) = this ?: def
 internal inline fun Float?.orDefault(def: Float = 0f) = this ?: def
 internal inline fun Long?.orDefault(def: Long = 0) = this ?: def
 internal inline fun Double?.orDefault(def: Double = 0.0) = this ?: def
 internal inline fun <T> T?.orDefault(default: T): T = this ?: default
 internal inline fun <T> T?.orDefault(initializer: () -> T): T = this ?: initializer()
- inline fun <reified K> Map<*, *>.loopKeyWhen(block: (K) -> Unit) {
+inline fun <reified K> Map<*, *>.loopKeyWhen(block: (K) -> Unit) {
     for ((key) in this) {
         if (key is K) {
             block(key)
@@ -81,7 +63,7 @@ internal inline fun <V> MutableMap<*, V>.removeAllByValue(filter: (V) -> Boolean
     }
 }
 
- inline var View.isVisible: Boolean
+inline var View.isVisible: Boolean
     get() = visibility == View.VISIBLE
     set(value) {
         visibility = if (value) View.VISIBLE else View.GONE
@@ -97,18 +79,6 @@ internal inline fun View.removeFromParent() {
 internal inline val Activity.decorView: ViewGroup? get() = window.decorView as? ViewGroup
 internal inline val Activity.contentView: ViewGroup? get() = findViewById(android.R.id.content)
 
-/**
- * 从Context中获取Activity上下文
- */
- fun Context.getActivityContext(): Activity? {
-    if (this is Activity) {
-        return this
-    } else if (this is ContextWrapper) {
-        return this.baseContext.getActivityContext()
-    }
-    return null
-}
-
 internal inline val Context.layoutInflater: LayoutInflater get() = LayoutInflater.from(this)
 internal inline val View.layoutInflater: LayoutInflater get() = context.layoutInflater
 
@@ -117,7 +87,7 @@ internal inline fun Context.toast(message: String, length: Int = Toast.LENGTH_SH
     Toast.makeText(this, message, length).show()
 }
 
- inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
+inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, messageId, length).show()
 }
 
@@ -126,11 +96,11 @@ internal inline fun View.toast(message: String, length: Int = Toast.LENGTH_SHORT
     context.toast(message, length)
 }
 
- inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
+inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
     context.toast(messageId, length)
 }
 
- fun TextView.setTextOrGone(message: CharSequence?) {
+fun TextView.setTextOrGone(message: CharSequence?) {
     visibility = if (message.isNullOrEmpty()) {
         View.GONE
     } else {

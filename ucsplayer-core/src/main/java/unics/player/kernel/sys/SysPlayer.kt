@@ -10,7 +10,7 @@ import android.os.Build
 import android.view.Surface
 import android.view.SurfaceHolder
 import unics.player.internal.*
-import unics.player.kernel.BaseUCSPlayer
+import unics.player.kernel.BasePlayer
 import unics.player.kernel.PlayerException
 import unics.player.kernel.UCSPlayer
 
@@ -27,7 +27,7 @@ import unics.player.kernel.UCSPlayer
  *
  * @note 在电视/盒子开发，不建议使用系统播放器，兼容性差，建议使用IJK或者Exo播放器
  */
-class SysPlayer : BaseUCSPlayer() {
+class SysPlayer : BasePlayer() {
 
     //log的前缀字符串
     private val mLogPrefix: String = "[k-SysPlayer@${this.hashCode()}]"

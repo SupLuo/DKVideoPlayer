@@ -13,11 +13,11 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer.OnNativeInvokeListener
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
 import unics.player.UCSPlayerManager
 import unics.player.internal.plogi2
-import unics.player.kernel.BaseUCSPlayer
+import unics.player.kernel.BasePlayer
 import unics.player.kernel.PlayerException
 import unics.player.kernel.UCSPlayer
 
-open class IjkPlayer(private val appContext: Context) : BaseUCSPlayer(),
+open class IjkPlayer(private val appContext: Context) : BasePlayer(),
     IMediaPlayer.OnErrorListener,
     IMediaPlayer.OnCompletionListener,
     IMediaPlayer.OnInfoListener,
@@ -293,7 +293,7 @@ open class IjkPlayer(private val appContext: Context) : BaseUCSPlayer(),
 
     override fun onNativeInvoke(what: Int, args: Bundle): Boolean {
         plogi2("IikPlayer") { "onNativeInvoke(what=$what,args=$args)" }
-        return false
+        return true
     }
 
     /**

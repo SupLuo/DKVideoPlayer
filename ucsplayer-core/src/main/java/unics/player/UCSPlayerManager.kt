@@ -3,12 +3,12 @@ package unics.player
 import android.app.Application
 import android.content.Context
 import unics.player.internal.plogw
-import unics.player.kernel.PlayerFactory
+import unics.player.kernel.UCSPlayerFactory
 import unics.player.kernel.UCSPlayer
-import unics.player.render.RenderFactory
+import unics.player.render.UCSRenderFactory
 import unics.player.render.UCSRender
 import xyz.doikki.videoplayer.NewFunc
-import xyz.doikki.videoplayer.ProgressManager
+import unics.player.widget.ProgressManager
 
 /**
  * 视频播放器管理器，管理当前正在播放的VideoView，以及播放器配置
@@ -30,13 +30,13 @@ object UCSPlayerManager {
      * 播放器内核工厂
      */
     @JvmStatic
-    var playerFactory: PlayerFactory<*> = PlayerFactory.system()
+    var playerFactory: UCSPlayerFactory<*> = UCSPlayerFactory.system()
 
     /**
      * Render工厂
      */
     @JvmStatic
-    var renderFactory: RenderFactory = RenderFactory.preferred(false)
+    var renderFactory: UCSRenderFactory = UCSRenderFactory.preferred(false)
 
     /**
      * 获取全局进度管理器
@@ -134,7 +134,7 @@ object UCSPlayerManager {
      * @return
      */
     @JvmStatic
-    fun createMediaPlayer(context: Context, customFactory: PlayerFactory<*>?): UCSPlayer {
+    fun createMediaPlayer(context: Context, customFactory: UCSPlayerFactory<*>?): UCSPlayer {
         return customFactory.orDefault(playerFactory).create(context)
     }
 
@@ -149,7 +149,7 @@ object UCSPlayerManager {
     fun getOrCreateSharedMediaPlayer(
         context: Context,
         tag: String,
-        customFactory: PlayerFactory<*>?
+        customFactory: UCSPlayerFactory<*>?
     ): UCSPlayer? {
         return mSharedPlayers.getOrPut(tag) {
             createMediaPlayer(context, customFactory)

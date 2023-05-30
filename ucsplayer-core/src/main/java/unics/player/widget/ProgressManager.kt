@@ -1,6 +1,4 @@
-package xyz.doikki.videoplayer
-
-import unics.player.widget.DefaultProgressManager
+package unics.player.widget
 
 /**
  * 播放进度管理器，继承此接口实现自己的进度管理器。
@@ -40,6 +38,7 @@ interface ProgressManager {
          * 默认的Key生成器采用url对应的哈希值
          */
         fun generateKey(url: String): Long = url.hashCode().toLong()
+
     }
 
     companion object {

@@ -1,6 +1,6 @@
 package unics.player.kernel
 
-abstract class BaseUCSPlayer : UCSPlayer {
+abstract class BasePlayer : UCSPlayer {
 
     /**
      * 播放器事件回调

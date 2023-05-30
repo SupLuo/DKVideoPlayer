@@ -3,7 +3,7 @@ package unics.player.controller
 import androidx.annotation.IntRange
 import unics.player.internal.PartialFunc
 import unics.player.render.UCSRender
-import unics.player.render.RenderFactory
+import unics.player.render.UCSRenderFactory
 
 /**
  * Render控制层提供的功能；具体由[droid.unicstar.player.UCSRenderProxy]实现
@@ -16,9 +16,9 @@ interface UCSRenderControl {
     fun setRenderReusable(reusable: Boolean)
 
     /**
-     * 自定义RenderView，继承[RenderFactory]实现自己的RenderView
+     * 自定义RenderView，继承[UCSRenderFactory]实现自己的RenderView
      */
-    fun setRenderViewFactory(factory: RenderFactory?)
+    fun setRenderViewFactory(factory: UCSRenderFactory?)
 
     /**
      * 设置界面比例（宽比高）模式

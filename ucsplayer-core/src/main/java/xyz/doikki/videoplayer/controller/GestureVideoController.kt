@@ -8,12 +8,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
-import unics.player.UCSVideoView
 import unics.player.INVALIDATE_SEEK_POSITION
 import unics.player.ScreenMode
+import unics.player.UCSVideoView
 import unics.player.controller.MediaController
+import unics.player.internal.getActivityContext
 import xyz.doikki.videoplayer.controller.component.GestureControlComponent
-import unics.player.getActivityContext
 import xyz.doikki.videoplayer.util.PlayerUtils
 import kotlin.math.abs
 
@@ -202,7 +202,7 @@ abstract class GestureVideoController @JvmOverloads constructor(
 
 
     protected fun slideToChangeBrightness(deltaY: Float) {
-        val activity = PlayerUtils.scanForActivity(context) ?: return
+        val activity = context.getActivityContext() ?: return
         val window = activity.window
         val attributes = window.attributes
         val height = measuredHeight

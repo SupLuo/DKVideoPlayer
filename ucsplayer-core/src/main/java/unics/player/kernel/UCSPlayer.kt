@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import android.net.Uri
-import android.view.Surface
-import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import unics.player.internal.PartialFunc
 
@@ -17,7 +15,7 @@ import unics.player.internal.PartialFunc
  * 本类的职责应该完全定位在播放器的“能力”上，因此只考虑与播放相关的逻辑（不包括UI层面）
 
  * create by luochao on 2022/9/16. 调整部分代码及结构
- * @see BaseUCSPlayer
+ * @see BasePlayer
  */
 interface UCSPlayer : UCSPlayerBase {
 

@@ -4,7 +4,7 @@ import android.content.pm.ActivityInfo
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import unics.player.UCSVideoView
-import unics.player.getActivityContext
+import unics.player.internal.getActivityContext
 import xyz.doikki.videoplayer.controller.component.ControlComponent
 
 

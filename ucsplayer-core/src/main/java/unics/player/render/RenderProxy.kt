@@ -38,7 +38,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
     private var mRender: UCSRender? = null
 
     //自定义Render工厂
-    private var mRenderFactory: RenderFactory = UCSPlayerManager.renderFactory
+    private var mRenderFactory: UCSRenderFactory = UCSPlayerManager.renderFactory
 
     //render是否可以重用：如果不重用，则每次播放的时候会重新创建一个新的视图层，否则将会使用同一个render
     private var mRenderReusable = UCSPlayerManager.isRenderReusable
@@ -93,9 +93,9 @@ class RenderProxy : UCSRender, UCSRenderControl {
     }
 
     /**
-     * 自定义RenderView，继承[RenderFactory]实现自己的RenderView,设置为null则会使用[UCSPlayerManager.renderFactory]
+     * 自定义RenderView，继承[UCSRenderFactory]实现自己的RenderView,设置为null则会使用[UCSPlayerManager.renderFactory]
      */
-    override fun setRenderViewFactory(factory: RenderFactory?) {
+    override fun setRenderViewFactory(factory: UCSRenderFactory?) {
         plogd { "$mLogPrefix setRenderViewFactory($factory)" }
         if (mRenderFactory == factory || (factory == null && mRenderFactory == UCSPlayerManager.renderFactory)) {
             plogd { "$mLogPrefix setRenderViewFactory -> 与当前工厂相同或者与全局工厂相同,即当前工厂并没有发生任何变化，不作任何处理" }

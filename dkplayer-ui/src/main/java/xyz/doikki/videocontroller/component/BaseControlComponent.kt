@@ -8,9 +8,9 @@ import android.view.View
 import android.widget.FrameLayout
 import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
+import unics.player.internal.getActivityContext
 import unics.player.kernel.UCSPlayerControl
 import xyz.doikki.videoplayer.controller.component.ControlComponent
-import xyz.doikki.videoplayer.util.PlayerUtils
 
 abstract class BaseControlComponent @JvmOverloads constructor(
     context: Context,
@@ -27,7 +27,7 @@ abstract class BaseControlComponent @JvmOverloads constructor(
     protected val layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
 
     protected val activity: Activity?
-        get() = PlayerUtils.scanForActivity(context)
+        get() = context.getActivityContext()
 
     protected fun setViewInFocusMode(view: View) {
         view.isFocusable = true

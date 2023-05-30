@@ -3,7 +3,7 @@ package unics.player.kernel
 
 import unics.player.UCSPlayerManager
 import unics.player.widget.AudioFocusHelper
-import xyz.doikki.videoplayer.ProgressManager
+import unics.player.widget.ProgressManager
 
 /**
  * Player控制层提供的功能；具体由[PlayerProxy]实现,即提供了播放器常规拥有的所有功能
@@ -43,10 +43,10 @@ interface UCSPlayerControl : UCSPlayerBase {
     fun isMute(): Boolean
 
     /**
-     * 自定义播放核心，继承[PlayerFactory]实现自己的播放核心
+     * 自定义播放核心，继承[UCSPlayerFactory]实现自己的播放核心
      * 需要在未开始播放前设置才有效，已处于播放状态时设置工厂将在下一次播放的时候生效
      */
-    fun setPlayerFactory(playerFactory: PlayerFactory<out UCSPlayer>)
+    fun setPlayerFactory(playerFactory: UCSPlayerFactory<out UCSPlayer>)
 
     /**
      * 是否开启AudioFocus监听，默认[UCSPlayerManager.isAudioFocusEnabled]，用于监听其它地方是否获取音频焦点，如果有其它地方获取了

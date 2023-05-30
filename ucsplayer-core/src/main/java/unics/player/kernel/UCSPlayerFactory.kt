@@ -13,7 +13,7 @@ import unics.player.kernel.sys.SysPlayerFactory
  *
  * 步骤1和2 可参照[unics.player.kernel.sys.SysPlayer]和[unics.player.kernel.sys.SysPlayerFactory]的实现。
  */
-fun interface PlayerFactory<P : UCSPlayer> {
+fun interface UCSPlayerFactory<P : UCSPlayer> {
 
     /**
      * @param context 注意内存泄露：内部尽可能使用context.getApplicationContext();
@@ -29,7 +29,7 @@ fun interface PlayerFactory<P : UCSPlayer> {
          */
         @Deprecated("兼容性较差：比如某些盒子上不能配合texture使用")
         @JvmStatic
-        fun system(): PlayerFactory<SysPlayer> {
+        fun system(): UCSPlayerFactory<SysPlayer> {
             return SysPlayerFactory()
         }
     }

@@ -10,6 +10,7 @@ import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
 import unics.player.kernel.UCSPlayerControl
 import unics.player.controller.UCSVideoViewControl
+import unics.player.internal.getActivityContext
 import unics.player.internal.plogd
 import unics.player.kernel.PlayerProxy
 import unics.player.kernel.UCSPlayer

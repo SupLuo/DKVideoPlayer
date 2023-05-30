@@ -8,11 +8,11 @@ import android.view.View
 import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
-import xyz.doikki.videocontroller.R
 import unics.player.UCSVideoView
-import xyz.doikki.videoplayer.util.PlayerUtils
-import unics.player.orDefault
+import unics.player.internal.getActivityContext
 import unics.player.kernel.UCSPlayer
+import unics.player.orDefault
+import xyz.doikki.videocontroller.R
 
 /**
  * 直播底部控制栏
@@ -59,9 +59,8 @@ class LiveControlView @JvmOverloads constructor(
             UCSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
             UCSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
         }
-        val activity = PlayerUtils.scanForActivity(context)?:return
-        containerControl?.let {
-                containerControl->
+        val activity = context.getActivityContext() ?: return
+        containerControl?.let { containerControl ->
             if (containerControl.hasCutout()) {
                 val orientation = activity.requestedOrientation
                 val cutoutHeight = containerControl.getCutoutHeight()

@@ -16,12 +16,12 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.util.Clock
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.video.VideoSize
-import unics.player.kernel.BaseUCSPlayer
+import unics.player.kernel.BasePlayer
 import unics.player.UCSPlayerManager.isDebuggable
 import unics.player.kernel.PlayerException
 import unics.player.kernel.UCSPlayer
 
-open class ExoMediaPlayer(context: Context) : BaseUCSPlayer(), Player.Listener {
+open class ExoMediaPlayer(context: Context) : BasePlayer(), Player.Listener {
     protected var mAppContext: Context
     protected var mInternalPlayer: ExoPlayer? = null
     @JvmField

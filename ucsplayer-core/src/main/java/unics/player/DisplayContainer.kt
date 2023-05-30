@@ -13,10 +13,7 @@ import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
 import unics.player.kernel.UCSPlayerControl
 import unics.player.controller.UCSRenderControl
-import unics.player.internal.plogd2
-import unics.player.internal.ploge2
-import unics.player.internal.plogi2
-import unics.player.internal.plogv2
+import unics.player.internal.*
 import unics.player.kernel.UCSPlayer
 import unics.player.render.RenderProxy
 import unics.player.render.UCSRender

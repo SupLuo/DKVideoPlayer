@@ -5,7 +5,7 @@ import android.content.Context
 /**
  * @note 本身可以采用lambda实现，但是不利于调试时通过classname获取render的名字
  */
-internal class SurfaceViewRenderFactory : RenderFactory {
+internal class SurfaceViewRenderFactory : UCSRenderFactory {
 
     override fun create(context: Context): UCSRender {
         return SurfaceViewRender(context)

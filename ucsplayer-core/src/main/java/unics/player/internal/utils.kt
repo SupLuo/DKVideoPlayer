@@ -3,13 +3,31 @@
 
 package unics.player.internal
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.media.MediaPlayer
+import android.net.ConnectivityManager
 import android.os.Build
-import unicstar.oknote.OkNote
+import android.telephony.TelephonyManager
 import java.util.concurrent.Executors
 
-@PublishedApi
-internal const val TAG = "UCSPlayer"
+//避免反复读取
+internal val sdkInt: Int = Build.VERSION.SDK_INT
+
+/**
+ * 从上下文中获取[Activity]
+ */
+fun Context.getActivityContext(): Activity? {
+    var context: Context? = this
+    while (context is ContextWrapper) {
+        if (context is Activity) {
+            return context
+        }
+        context = context.baseContext
+    }
+    return null
+}
 
 internal val threadPool = Executors.newCachedThreadPool()
 
@@ -43,103 +61,61 @@ internal fun releasePlayer(mediaPlayer: MediaPlayer) {
     })
 }
 
-//避免反复读取
-internal val sdkInt: Int = Build.VERSION.SDK_INT
 
-inline fun plogv(message: String) {
-    OkNote.v(TAG, message)
-}
+internal const val NO_NETWORK = 0
+internal const val NETWORK_CLOSED = 1
+internal const val NETWORK_ETHERNET = 2
+internal const val NETWORK_WIFI = 3
+internal const val NETWORK_MOBILE = 4
+internal const val NETWORK_UNKNOWN = -1
 
-inline fun plogd(message: String) {
-    OkNote.d(TAG, message)
-}
+/**
+ * 判断当前网络类型
+ */
+internal fun Context.getNetworkType(): Int {
+    val connectMgr =
+        applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            ?: return NO_NETWORK
+    // 没有任何网络
+    val networkInfo = connectMgr.activeNetworkInfo ?: return NO_NETWORK
 
-inline fun plogi(message: String) {
-    OkNote.i(TAG, message)
-}
-
-inline fun plogw(message: String) {
-    OkNote.w(TAG, message)
-}
-
-inline fun plogw(e: Throwable, message: String) {
-    OkNote.w(TAG, message, e)
-}
-
-inline fun ploge(message: String) {
-    OkNote.e(TAG, message)
-}
-
-inline fun ploge(e: Throwable, message: String) {
-    OkNote.e(TAG, message, e)
-}
-
-inline fun plogv(creator: () -> String) {
-    OkNote.logv(TAG, creator)
-}
-
-inline fun plogd(creator: () -> String) {
-    OkNote.logd(TAG, creator)
-}
-
-inline fun plogi(creator: () -> String) {
-    OkNote.logi(TAG, creator)
-}
-
-inline fun plogw(creator: () -> String) {
-    OkNote.logw(TAG, creator)
-}
-
-inline fun plogw(e: Throwable, creator: () -> String) {
-    OkNote.logw(TAG, e, creator)
-}
-
-inline fun ploge(creator: () -> String) {
-    OkNote.loge(TAG, creator)
-}
-
-inline fun ploge(e: Throwable, creator: () -> String) {
-    OkNote.loge(TAG, e, creator)
-}
-
-inline fun plogv2(subTag: String, creator: () -> String) {
-    OkNote.logv(TAG) {
-        "$subTag :${creator.invoke()}"
+    if (!networkInfo.isConnected) {
+        // 网络断开或关闭
+        return NETWORK_CLOSED
     }
+    if (networkInfo.type == ConnectivityManager.TYPE_ETHERNET) {
+        // 以太网网络
+        return NETWORK_ETHERNET
+    } else if (networkInfo.type == ConnectivityManager.TYPE_WIFI) {
+        // wifi网络，当激活时，默认情况下，所有的数据流量将使用此连接
+        return NETWORK_WIFI
+    } else if (networkInfo.type == ConnectivityManager.TYPE_MOBILE) {
+        // 移动数据连接,不能与连接共存,如果wifi打开，则自动关闭
+        when (networkInfo.subtype) {
+            // 2G
+            TelephonyManager.NETWORK_TYPE_GPRS,
+            TelephonyManager.NETWORK_TYPE_EDGE,
+            TelephonyManager.NETWORK_TYPE_CDMA,
+            TelephonyManager.NETWORK_TYPE_1xRTT,
+            TelephonyManager.NETWORK_TYPE_IDEN,
+                // 3G
+            TelephonyManager.NETWORK_TYPE_UMTS,
+            TelephonyManager.NETWORK_TYPE_EVDO_0,
+            TelephonyManager.NETWORK_TYPE_EVDO_A,
+            TelephonyManager.NETWORK_TYPE_HSDPA,
+            TelephonyManager.NETWORK_TYPE_HSUPA,
+            TelephonyManager.NETWORK_TYPE_HSPA,
+            TelephonyManager.NETWORK_TYPE_EVDO_B,
+            TelephonyManager.NETWORK_TYPE_EHRPD,
+            TelephonyManager.NETWORK_TYPE_HSPAP,
+                // 4G
+            TelephonyManager.NETWORK_TYPE_LTE,
+                // 5G
+            TelephonyManager.NETWORK_TYPE_NR
+            -> return NETWORK_MOBILE
+        }
+    }
+    // 未知网络
+    return NETWORK_UNKNOWN
 }
 
-inline fun plogd2(subTag: String, creator: () -> String) {
-    OkNote.logd(TAG) {
-        "$subTag :${creator.invoke()}"
-    }
-}
-
-inline fun plogi2(subTag: String, creator: () -> String) {
-    OkNote.logi(TAG) {
-        "$subTag :${creator.invoke()}"
-    }
-}
-
-inline fun plogw2(subTag: String, creator: () -> String) {
-    OkNote.logw(TAG) {
-        "$subTag :${creator.invoke()}"
-    }
-}
-
-inline fun plogw2(subTag: String, e: Throwable, creator: () -> String) {
-    OkNote.logw(TAG, e) {
-        "$subTag :${creator.invoke()}"
-    }
-}
-
-inline fun ploge2(subTag: String, creator: () -> String) {
-    OkNote.loge(TAG) {
-        "$subTag :${creator.invoke()}"
-    }
-}
-
-inline fun ploge2(subTag: String, e: Throwable, creator: () -> String) {
-    OkNote.loge(TAG, e) {
-        "$subTag :${creator.invoke()}"
-    }
-}
