@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.IntRange
 import unics.player.UCSPManager
-import unics.player.controller.UCSRenderControl
-import unics.player.internal.plogd
-import unics.player.internal.plogw
+import unics.player.internal.plogd2
+import unics.player.internal.plogw2
 import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerBase
 
@@ -23,7 +22,7 @@ import unics.player.kernel.UCSPlayerBase
  */
 class RenderProxy : UCSRender, UCSRenderControl {
 
-    private val mLogPrefix: String = "[RenderProxy@${this.hashCode()}]"
+    private val TAG: String = "[RenderProxy@${this.hashCode()}]"
 
     //Render所在的容器，必须指定
     private lateinit var mContainer: FrameLayout
@@ -70,24 +69,16 @@ class RenderProxy : UCSRender, UCSRenderControl {
         }
 
     /**
-     * 视频画面大小
-     * todo 是否适合直接返回该变量,存在被外层修改的可能？是否应该 return new int[]{mVideoSize[0], mVideoSize[1]}
-     */
-    override fun getVideoSize(): IntArray {
-        return mVideoSize
-    }
-
-    /**
      * 绑定Render所在的容器
      * @note 限定了FrameLayout，更适合放render的位置
      */
     fun bindContainer(container: FrameLayout) {
-        plogd { "$mLogPrefix bindContainer($container)" }
+        plogd2(TAG) { "bindContainer($container)" }
         mContainer = container
     }
 
     override fun setRenderReusable(reusable: Boolean) {
-        plogd { "$mLogPrefix setRenderReusable($reusable)" }
+        plogd2(TAG) { "setRenderReusable($reusable)" }
         mRenderReusable = reusable
     }
 
@@ -95,30 +86,30 @@ class RenderProxy : UCSRender, UCSRenderControl {
      * 自定义RenderView，继承[UCSRenderFactory]实现自己的RenderView,设置为null则会使用[UCSPManager.renderFactory]
      */
     override fun setRenderViewFactory(factory: UCSRenderFactory?) {
-        plogd { "$mLogPrefix setRenderViewFactory($factory)" }
+        plogd2(TAG) { "setRenderViewFactory($factory)" }
         if (mRenderFactory == factory || (factory == null && mRenderFactory == UCSPManager.renderFactory)) {
-            plogd { "$mLogPrefix setRenderViewFactory -> 与当前工厂相同或者与全局工厂相同,即当前工厂并没有发生任何变化，不作任何处理" }
+            plogd2(TAG) { "setRenderViewFactory -> 与当前工厂相同或者与全局工厂相同,即当前工厂并没有发生任何变化，不作任何处理" }
             return
         }
         mRenderFactory = factory ?: UCSPManager.renderFactory
-        plogd { "$mLogPrefix setRenderViewFactory -> $mRenderFactory" }
+        plogd2(TAG) { "setRenderViewFactory -> $mRenderFactory" }
 
         //render工厂发生了变化
         //如果之前已存在render，则将以前的render移除释放并重新创建
 
-        plogd { "$mLogPrefix setRenderViewFactory -> releaseCurrentRender" }
+        plogd2(TAG) { "setRenderViewFactory -> releaseCurrentRender" }
         releaseCurrentRender()
         //判断是否需要立马创建render
         mAttachedPlayer?.let {
-            plogd { "$mLogPrefix setRenderViewFactory -> attachRender" }
+            plogd2(TAG) { "setRenderViewFactory -> attachRender" }
             attachRender(it)
         }
     }
 
     private fun attachRender(player: UCSPlayerBase) {
-        plogd { "$mLogPrefix attachRender" }
+        plogd2(TAG) { "attachRender" }
         val render = mRender ?: createRender()
-        plogd { "$mLogPrefix attachRender render=$render ->  render.bindPlayer($player)" }
+        plogd2(TAG) { "attachRender render=$render ->  render.bindPlayer($player)" }
         render.bindPlayer(player)
     }
 
@@ -142,7 +133,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
                 mContainer.addView(render.view, 0, params)
             }
             mRender = render
-            plogd { "$mLogPrefix createRender render=$render" }
+            plogd2(TAG) { "createRender render=$render" }
         }
     }
 
@@ -150,7 +141,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
      * 释放当前的render
      */
     private fun releaseCurrentRender() {
-        plogd { "$mLogPrefix releaseCurrentRender" }
+        plogd2(TAG) { "releaseCurrentRender" }
         mRender?.let {
             releaseRender(it)
         }
@@ -158,7 +149,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
     }
 
     private fun releaseRender(render: UCSRender) {
-        plogd { "$mLogPrefix releaseRender($render)" }
+        plogd2(TAG) { "releaseRender($render)" }
         render.release()
         render.view?.let {
             mContainer.removeView(it)
@@ -169,7 +160,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
      * 重置
      */
     fun reset() {
-        plogd { "$mLogPrefix reset" }
+        plogd2(TAG) { "reset" }
         releaseCurrentRender()
         mScreenAspectRatioType = UCSPManager.screenAspectRatioType
         mVideoSize[0] = 0
@@ -182,17 +173,17 @@ class RenderProxy : UCSRender, UCSRenderControl {
         get() = mRender?.view
 
     override fun bindPlayer(player: UCSPlayerBase?) {
-        plogd { "$mLogPrefix bindPlayer： renderReusable=$mRenderReusable currentRenderHashCode=${mRender.hashCode()}" }
+        plogd2(TAG) { "bindPlayer： renderReusable=$mRenderReusable currentRenderHashCode=${mRender.hashCode()}" }
         if (!mRenderReusable) {//不重用render，则立即释放当前的render
-            plogd { "$mLogPrefix bindPlayer -> releaseCurrentRender renderReusable=$mRenderReusable" }
+            plogd2(TAG) { "bindPlayer -> releaseCurrentRender renderReusable=$mRenderReusable" }
             releaseCurrentRender()
         }
         mAttachedPlayer = player
         if (player != null) {
-            plogd { "$mLogPrefix bindPlayer->  player not null,try attach render to player." }
+            plogd2(TAG) { "bindPlayer->  player not null,try attach render to player." }
             attachRender(player)
         } else {
-            plogd { "$mLogPrefix bindPlayer-> player is null,ignore." }
+            plogd2(TAG) { "bindPlayer-> player is null,ignore." }
         }
     }
 
@@ -230,17 +221,13 @@ class RenderProxy : UCSRender, UCSRenderControl {
         mRender?.setVideoSize(videoWidth, videoHeight)
     }
 
-    override fun screenshot(callback: UCSRender.ScreenShotCallback) {
-        super<UCSRender>.screenshot(callback)
-    }
-
     override fun screenshot(highQuality: Boolean, callback: UCSRender.ScreenShotCallback) {
         val render = mRender
         if (render != null) {
             render.screenshot(highQuality, callback)
             return
         }
-        plogw { "$mLogPrefix screenshot -> render is null , screenshot is ignored." }
+        plogw2(TAG) { "screenshot -> render is null , screenshot is ignored." }
         callback.onScreenShotResult(null)
     }
 
@@ -248,7 +235,7 @@ class RenderProxy : UCSRender, UCSRenderControl {
      * 释放资源
      */
     override fun release() {
-        plogd { "$mLogPrefix release" }
+        plogd2(TAG) { "release" }
         mAttachedPlayer = null
         releaseCurrentRender()
     }

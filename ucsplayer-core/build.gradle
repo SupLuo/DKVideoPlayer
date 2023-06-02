@@ -22,7 +22,6 @@ android {
                 '-Xjvm-default=all'
         ]
     }
-
 }
 
 dependencies {

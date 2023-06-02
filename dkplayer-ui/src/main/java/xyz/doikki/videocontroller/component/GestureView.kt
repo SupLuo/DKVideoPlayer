@@ -14,7 +14,7 @@ import droid.unicstar.player.ui.toTimeString
 import xyz.doikki.videocontroller.R
 import unics.player.kernel.UCSPlayer
 import droid.unicstar.player.ui.TVCompatible
-import xyz.doikki.videoplayer.controller.component.KeyControlComponent
+import unics.player.controller.KeyControlComponent
 
 /**
  * 手势控制：用于手势处理亮度、进度、音量等

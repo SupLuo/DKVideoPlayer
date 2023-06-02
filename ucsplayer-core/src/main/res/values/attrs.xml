@@ -14,12 +14,6 @@
     </attr>
     <attr name="ucsp_playerBackgroundColor" format="color" />
 
-    <declare-styleable name="DKVideoView">
-        <attr name="ucsp_looping" />
-        <attr name="ucsp_enableAudioFocus" />
-        <attr name="ucsp_screenScaleType" />
-        <attr name="ucsp_playerBackgroundColor" />
-    </declare-styleable>
 
     <declare-styleable name="UCSVideoView">
         <attr name="ucsp_looping" />
@@ -29,8 +23,6 @@
     </declare-styleable>
 
     <declare-styleable name="UCSDisplayContainer">
-        <attr name="ucsp_looping" />
-        <attr name="ucsp_enableAudioFocus" />
         <attr name="ucsp_screenScaleType" />
         <attr name="ucsp_playerBackgroundColor" />
     </declare-styleable>

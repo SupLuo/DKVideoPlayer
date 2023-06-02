@@ -15,6 +15,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.LayoutRes
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.toTimeString
+import unics.player.ScreenMode
 import unics.player.UCSVideoView
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.videocontroller.R
@@ -175,8 +176,8 @@ open class VodControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            UCSVideoView.SCREEN_MODE_NORMAL -> mFullScreen?.isSelected = false
-            UCSVideoView.SCREEN_MODE_FULL -> mFullScreen?.isSelected = true
+            ScreenMode.NORMAL -> mFullScreen?.isSelected = false
+            ScreenMode.FULL_SCREEN -> mFullScreen?.isSelected = true
         }
 
         val activity = this.activity ?: return

@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.controller
+package unics.player.controller
 
 import android.content.Context
 import android.media.AudioManager
@@ -9,13 +9,10 @@ import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.AttrRes
 import unics.player.ScreenMode
-import unics.player.UCSVideoView
-import unics.player.controller.MediaController
 import unics.player.internal.INVALIDATE_SEEK_POSITION
 import unics.player.internal.UCSPUtil
 
 import unics.player.internal.getScreenWidth
-import xyz.doikki.videoplayer.controller.component.GestureControlComponent
 import kotlin.math.abs
 
 /**
@@ -23,8 +20,8 @@ import kotlin.math.abs
  * Created by Doikki on 2018/1/6.
  */
 abstract class GestureVideoController @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
-) : MediaController(context, attrs, defStyleAttr),
+    context: Context, attrs: AttributeSet? = null
+) : MediaController(context, attrs),
     GestureDetector.OnGestureListener,
     GestureDetector.OnDoubleTapListener,
     OnTouchListener {
@@ -87,11 +84,11 @@ abstract class GestureVideoController @JvmOverloads constructor(
         mDoubleTapTogglePlayEnabled = enabled
     }
 
-    override fun setScreenMode(@ScreenMode playerState: Int) {
-        super.setScreenMode(playerState)
-        if (playerState == UCSVideoView.SCREEN_MODE_NORMAL) {
+    override fun onScreenModeChanged(screenMode: Int) {
+        super.onScreenModeChanged(screenMode)
+        if (screenMode == ScreenMode.NORMAL) {
             mCanSlide = mGestureInPortraitEnabled
-        } else if (playerState == UCSVideoView.SCREEN_MODE_FULL) {
+        } else if (screenMode == ScreenMode.FULL_SCREEN) {
             mCanSlide = true
         }
     }

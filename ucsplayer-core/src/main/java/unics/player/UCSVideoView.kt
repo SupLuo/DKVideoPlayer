@@ -6,17 +6,15 @@ import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
-import unics.player.kernel.UCSPlayerControl
-import unics.player.controller.UCSVideoViewControl
 import unics.player.internal.UCSPUtil
-
 import unics.player.internal.plogd
-import unics.player.internal.removeFromParent
 import unics.player.kernel.PlayerProxy
 import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerControl
 import unics.player.widget.ScreenModeHandler
+import xyz.doikki.videoplayer.R
+import java.lang.ref.SoftReference
 
 /**
  * 本类职责，只是一个壳子，用于访问播放内核和视图层面的功能，不包含任何实际的状态持有
@@ -30,16 +28,17 @@ open class UCSVideoView @JvmOverloads constructor(
     //整个容器管理
     private val mDisplayContainer: DisplayContainer = DisplayContainer(context)
 ) : FrameLayout(context, attrs),
-    UCSVideoViewControl,
     UCSPlayerControl by mPlayer,
     UCSContainerControl by mDisplayContainer {
 
-    private val mLogPrefix = "[UCSVideoView]"
+    private val TAG = "[UCSVideoView@${this.hashCode()}]"
 
-    private val mActivity: Activity get() = mPreferredActivity!!
+    //绑定的界面
+    private var mBindActivityRef: SoftReference<Activity?>? = null
 
-    //获取Activity，优先通过Controller去获取Activity
-    private val mPreferredActivity: Activity? get() = UCSPUtil.getActivityContext(context)
+    private fun requireActivity(): Activity = mBindActivityRef?.get()!!
+
+    private val mActivity: Activity? get() = mBindActivityRef?.get()
 
     /**
      * 获取播放器名字
@@ -56,20 +55,12 @@ open class UCSVideoView @JvmOverloads constructor(
      */
     protected val playerKernel: UCSPlayer? get() = mPlayer.player
 
-//    private val mStateChangeListener = UNSPlayer.OnPlayStateChangeListener { playState ->
-//        when (playState) {
-//            STATE_PREPARING -> {
-//                attachMediaController()
-//            }
-//        }
-//    }
-
     /**
      * 设置播放地址
      * @param path 播放地址
      */
     fun setDataSource(path: String) {
-        plogd { "$mLogPrefix setDataSource(path=$path)" }
+        plogd { "$TAG setDataSource(path=$path)" }
         mPlayer.setDataSource(context, path)
     }
 
@@ -80,7 +71,7 @@ open class UCSVideoView @JvmOverloads constructor(
      * @param headers 播放地址请求头
      */
     fun setDataSource(path: String, headers: Map<String, String>?) {
-        plogd { "$mLogPrefix setDataSource(path=$path,headers=$headers)" }
+        plogd { "$TAG setDataSource(path=$path,headers=$headers)" }
         mPlayer.setDataSource(context, path, headers)
     }
 
@@ -90,7 +81,7 @@ open class UCSVideoView @JvmOverloads constructor(
      * @param uri    the Content URI of the data you want to play
      */
     fun setDataSource(uri: Uri) {
-        plogd { "$mLogPrefix setDataSource(uri=$uri)" }
+        plogd { "$TAG setDataSource(uri=$uri)" }
         mPlayer.setDataSource(context, uri)
     }
 
@@ -101,7 +92,7 @@ open class UCSVideoView @JvmOverloads constructor(
      * @param headers 播放地址请求头
      */
     fun setDataSource(uri: Uri, headers: Map<String, String>?) {
-        plogd { "$mLogPrefix setDataSource(uri=$uri,headers=$headers)" }
+        plogd { "$TAG setDataSource(uri=$uri,headers=$headers)" }
         mPlayer.setDataSource(context, uri, headers)
     }
 
@@ -109,65 +100,30 @@ open class UCSVideoView @JvmOverloads constructor(
      * 用于播放raw和asset里面的视频文件
      */
     fun setDataSource(fd: AssetFileDescriptor) {
-        plogd { "$mLogPrefix setDataSource(fd=$fd)" }
+        plogd { "$TAG setDataSource(fd=$fd)" }
         mPlayer.setDataSource(fd)
     }
 
     /**
-     * 开始播放，注意：调用此方法后必须调用[.release]释放播放器，否则会导致内存泄漏
-     */
-    override fun start() {
-        plogd { "$mLogPrefix start" }
-        attachMediaController()
-        mPlayer.start()
-    }
-
-    override fun replay(resetPosition: Boolean) {
-        plogd { "$mLogPrefix replay" }
-        mPlayer.replay(resetPosition)
-        attachMediaController()
-    }
-
-    private fun attachMediaController() {
-        plogd { "$mLogPrefix attachMediaController" }
-        mDisplayContainer.bindPlayer(this)
-    }
-
-    /**
-     * 停止后台播放
-     */
-    fun stopPlayback(){
-        //todo 考虑共享播放器释放问题，应该需要从全局去移除
-        mPlayer.stop()
-        mDisplayContainer.bindPlayer(null)
-    }
-    /**
-     * 释放播放器
+     * 释放（不能在重用）
      * 如果是共享的播放器，在确实需要释放的时候才调用哦
      */
     override fun release() {
-        plogd { "$mLogPrefix release" }
+        plogd { "$TAG release" }
         //todo 考虑共享播放器释放问题，应该需要从全局去移除
         mPlayer.release()
-        mDisplayContainer.bindPlayer(null)
         //释放render
         mDisplayContainer.release()
-    }
-
-    /**
-     * 设置控制器，传null表示移除控制器
-     */
-    fun setVideoController(mediaController: MediaController?) {
-        mediaController?.setMediaPlayer(this)
-        mDisplayContainer.setVideoController(mediaController)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         if (hasWindowFocus && isFullScreen()) {
-            //todo tv/盒子开发不要处理
-            //重新获得焦点时保持全屏状态
-            ScreenModeHandler.hideSystemBar(mActivity)
+            mActivity?.let {
+                //todo tv/盒子开发不要处理
+                //重新获得焦点时保持全屏状态
+                ScreenModeHandler.hideSystemBar(it)
+            }
         }
     }
 
@@ -185,55 +141,59 @@ open class UCSVideoView @JvmOverloads constructor(
 //        return super.onSaveInstanceState()
 //    }//读取播放进度
 
+    fun bindActivity(activity: Activity) {
+        mBindActivityRef = SoftReference(activity)
+        mDisplayContainer.bindActivity(activity)
+    }
 
-    companion object {
-        /**
-         * 屏幕比例类型
-         */
-        const val SCREEN_ASPECT_RATIO_DEFAULT = unics.player.render.AspectRatioType.DEFAULT_SCALE
-        const val SCREEN_ASPECT_RATIO_SCALE_18_9 = unics.player.render.AspectRatioType.SCALE_18_9
-        const val SCREEN_ASPECT_RATIO_SCALE_16_9 = unics.player.render.AspectRatioType.SCALE_16_9
-        const val SCREEN_ASPECT_RATIO_SCALE_4_3 = unics.player.render.AspectRatioType.SCALE_4_3
-        const val SCREEN_ASPECT_RATIO_MATCH_PARENT =
-            unics.player.render.AspectRatioType.MATCH_PARENT
-        const val SCREEN_ASPECT_RATIO_SCALE_ORIGINAL =
-            unics.player.render.AspectRatioType.SCALE_ORIGINAL
-        const val SCREEN_ASPECT_RATIO_CENTER_CROP = unics.player.render.AspectRatioType.CENTER_CROP
+    private fun bindDisplayContainer(displayContainer: DisplayContainer) {
+        displayContainer.bindContainer(this)
+        displayContainer.bindPlayer(this)
+    }
 
-        /**
-         * 普通模式
-         */
-        const val SCREEN_MODE_NORMAL = UCSContainerControl.SCREEN_MODE_NORMAL
+    /**
+     * 解析对应参数：一般是从外层容器从解析
+     */
+    private fun applyAttributes(context: Context, attrs: AttributeSet) {
+        //读取xml中的配置，并综合全局配置
+        val ta = context.obtainStyledAttributes(attrs, R.styleable.UCSVideoView)
+        val audioFocus: Boolean =
+            ta.getBoolean(
+                R.styleable.UCSVideoView_ucsp_enableAudioFocus,
+                UCSPManager.isAudioFocusEnabled
+            )
+        val looping = ta.getBoolean(R.styleable.UCSVideoView_ucsp_looping, false)
+        mPlayer.setEnableAudioFocus(audioFocus)
+        mPlayer.setLooping(looping)
 
-        /**
-         * 全屏模式
-         */
-        const val SCREEN_MODE_FULL = UCSContainerControl.SCREEN_MODE_FULL
-
-        /**
-         * 小窗模式
-         */
-        const val SCREEN_MODE_TINY = UCSContainerControl.SCREEN_MODE_TINY
+        if (ta.hasValue(R.styleable.UCSDisplayContainer_ucsp_screenScaleType)) {
+            val screenAspectRatioType =
+                ta.getInt(
+                    R.styleable.UCSDisplayContainer_ucsp_screenScaleType,
+                    UCSPManager.screenAspectRatioType
+                )
+            setAspectRatioType(screenAspectRatioType)
+        }
+        val playerBackgroundColor =
+            ta.getColor(
+                R.styleable.UCSDisplayContainer_ucsp_playerBackgroundColor,
+                UCSPManager.defaultPlayerBackgroundColor
+            )
+        setPlayerBackgroundColor(playerBackgroundColor)
+        ta.recycle()
     }
 
     init {
-        //准备播放器容器
-        if (mDisplayContainer.parent != this) {
-            mDisplayContainer.removeFromParent()
-            val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-            this.addView(mDisplayContainer, params)
-            attrs?.let {
-                mDisplayContainer.applyAttributes(context, attrs)
-            }
+        bindDisplayContainer(mDisplayContainer)
+        if (attrs != null) {
+            applyAttributes(context, attrs)
         }
 
-        //绑定所属容器
-        mDisplayContainer.bindContainer(this)
         //绑定界面
         val activity = UCSPUtil.getActivityContext(context)
         if (activity != null) {
-            mDisplayContainer.bindActivity(activity)
+            bindActivity(activity)
         }
-//        mPlayer.addOnPlayStateChangeListener(mStateChangeListener)
+
     }
 }

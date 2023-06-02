@@ -6,6 +6,7 @@ import android.media.AudioManager.OnAudioFocusChangeListener
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import unics.player.UCSPManager
 import unics.player.kernel.UCSPlayer
 import java.lang.ref.WeakReference
 
@@ -28,7 +29,7 @@ class AudioFocusHelper(context: Context) {
     /**
      * 是否启用
      */
-    var isEnable: Boolean = true
+    var isEnable: Boolean = UCSPManager.isAudioFocusEnabled
 
     /**
      * 播放器是否静音：如果播放器设置静音，那么音频焦点变化则不会改变播放器的音量

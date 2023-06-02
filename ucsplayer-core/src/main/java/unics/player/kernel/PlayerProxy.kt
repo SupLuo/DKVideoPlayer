@@ -145,6 +145,12 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         override fun onPrepared() {
             plogi2(TAG) { "onPrepared" }
             currentState = STATE_PREPARED
+
+            //设置播放速率只能在Initialized状态(即设置DataSource之后，目前放在prepared状态)之后
+            if(!mSpeed.approximatelyEquals(1.0f)){
+                mPlayer?.setSpeed(mSpeed)
+            }
+
             if (mSeekWhenPrepared > 0) {
                 plogi2(TAG) { "onPrepared -> seekWhenPrepared(=$mSeekWhenPrepared) > 0,seek to." }
                 seekTo(mSeekWhenPrepared)
@@ -200,13 +206,17 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         }
 
         override fun onError(e: Throwable) {
-            plogi2(TAG) { "onError" }
-            currentState = STATE_ERROR
-            mTargetState = STATE_ERROR
-            mCustomEventListener?.onError(e)
-            mEventListeners.forEach {
-                it.onError(e)
-            }
+            handlePlayerError(e)
+        }
+    }
+
+    private fun handlePlayerError(e: Throwable) {
+        ploge2(TAG, e) { "handlePlayerError" }
+        currentState = STATE_ERROR
+        mTargetState = STATE_ERROR
+        mCustomEventListener?.onError(e)
+        mEventListeners.forEach {
+            it.onError(e)
         }
     }
 
@@ -234,12 +244,14 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
     /**
      * 是否处于可播放状态
      */
-    override fun isInPlaybackState(): Boolean {
+    private fun isInPlaybackState(): Boolean {
         return mPlayer != null
                 && currentState != STATE_IDLE
+                && currentState != STATE_PREPARING
+//                && currentState != STATE_PREPARED
+//                && currentState != STATE_PREPARED_BUT_ABORT
                 && currentState != STATE_ERROR
                 && currentState != STATE_PLAYBACK_COMPLETED
-                && currentState != STATE_PREPARING
     }
 
     /**
@@ -296,9 +308,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
             player.prepareAsync()
             currentState = STATE_PREPARING
         } catch (e: Throwable) {
-            currentState = STATE_ERROR
-            mTargetState = STATE_ERROR
-            mCustomEventListener?.onError(e)
+            handlePlayerError(e)
         }
     }
 
@@ -325,7 +335,6 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
         player.setEventListener(mPlayerEventListener)
         player.setLooping(mLooping)
         player.setVolume(mLeftVolume, mRightVolume)
-        player.setSpeed(mSpeed)
         mSurfaceRef?.get()?.let {
             player.setSurface(it)
         }
@@ -557,7 +566,7 @@ open class PlayerProxy(private val context: Context) : UCSPlayer, UCSPlayerContr
 
     override fun setSpeed(speed: Float) {
         mSpeed = speed
-        if (isInPlaybackState()) {
+        if (isInPlaybackState()) {//设置播放速率一定要在Initialized状态之后
             plogd2(TAG) { "setSpeed($speed)" }
             mPlayer?.setSpeed(speed)
         }

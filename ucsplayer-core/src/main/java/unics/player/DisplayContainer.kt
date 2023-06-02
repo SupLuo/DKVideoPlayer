@@ -4,19 +4,18 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
-import unics.player.kernel.UCSPlayerControl
-import unics.player.controller.UCSRenderControl
 import unics.player.internal.*
 import unics.player.kernel.UCSPlayer
+import unics.player.kernel.UCSPlayerControl
 import unics.player.render.RenderProxy
 import unics.player.render.UCSRender
+import unics.player.render.UCSRenderControl
 import unics.player.widget.DeviceOrientationSensorHelper
 import unics.player.widget.ScreenModeHandler
 import xyz.doikki.videoplayer.R
@@ -46,7 +45,7 @@ open class DisplayContainer @JvmOverloads constructor(
     private val mRender: RenderProxy = RenderProxy()
 ) : FrameLayout(context, attrs), UCSContainerControl, UCSRenderControl by mRender {
 
-    private val mLogPrefix: String = "[DisplayContainer@${this.hashCode()}]"
+    private val TAG: String = "[DisplayContainer@${this.hashCode()}]"
 
     //绑定的界面
     private var mBindActivityRef: SoftReference<Activity?>? = null
@@ -86,22 +85,22 @@ open class DisplayContainer @JvmOverloads constructor(
     private val mPlayerEventListener = object : UCSPlayer.EventListener {
         override fun onInfo(what: Int, extra: Int) {
             try {
-                plogi2(mLogPrefix) { "onInfo(what=$what,extra=$extra)" }
+                plogi2(TAG) { "onInfo(what=$what,extra=$extra)" }
                 when (what) {
                     UCSPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED -> {
-                        plogi2(mLogPrefix) { "onInfo -> setVideoRotation($extra)" }
+                        plogi2(TAG) { "onInfo -> setVideoRotation($extra)" }
                         setVideoRotation(extra)
                     }
                 }
             } catch (e: Throwable) {
-                ploge2(mLogPrefix, e) {
+                ploge2(TAG, e) {
                     "onInfo error()"
                 }
             }
         }
 
         override fun onVideoSizeChanged(width: Int, height: Int) {
-            plogi2(mLogPrefix) { "onVideoSizeChanged(width=$width,height=$height)" }
+            plogi2(TAG) { "onVideoSizeChanged(width=$width,height=$height)" }
             setVideoSize(width, height)
         }
     }
@@ -110,7 +109,7 @@ open class DisplayContainer @JvmOverloads constructor(
         object : DeviceOrientationSensorHelper.DeviceOrientationChangedListener {
 
             override fun onDeviceDirectionChanged(@DeviceOrientationSensorHelper.DeviceDirection direction: Int) {
-                plogd2(mLogPrefix) { "onDeviceDirectionChanged(direction=$direction)" }
+                plogd2(TAG) { "onDeviceDirectionChanged(direction=$direction)" }
                 when (direction) {
                     DeviceOrientationSensorHelper.DEVICE_DIRECTION_PORTRAIT -> {
                         //切换为竖屏
@@ -119,15 +118,15 @@ open class DisplayContainer @JvmOverloads constructor(
 //                        if (mLocked) return
                         //没有开启设备方向监听的情况
                         if (!mEnableOrientationSensor) return
-                        plogd2(mLogPrefix) { "onDeviceDirectionChanged -> stopFullScreen" }
+                        plogd2(TAG) { "onDeviceDirectionChanged -> stopFullScreen" }
                         stopFullScreen()
                     }
                     DeviceOrientationSensorHelper.DEVICE_DIRECTION_LANDSCAPE -> {
-                        plogd2(mLogPrefix) { "onDeviceDirectionChanged -> startFullScreen" }
+                        plogd2(TAG) { "onDeviceDirectionChanged -> startFullScreen" }
                         startFullScreen()
                     }
                     DeviceOrientationSensorHelper.DEVICE_DIRECTION_LANDSCAPE_REVERSED -> {
-                        plogd2(mLogPrefix) { "onDeviceDirectionChanged -> startFullScreen(true)" }
+                        plogd2(TAG) { "onDeviceDirectionChanged -> startFullScreen(true)" }
                         startFullScreen(true)
                     }
                     DeviceOrientationSensorHelper.DEVICE_DIRECTION_UNKNOWN -> {
@@ -157,8 +156,7 @@ open class DisplayContainer @JvmOverloads constructor(
                     this@DisplayContainer.keepScreenOn = false
             }
         }
-        plogd2(mLogPrefix) { "OnPlayStateChangeListener playState=${playState}" }
-        videoController?.setPlayerState(playState)
+        plogd2(TAG) { "OnPlayStateChangeListener playState=${UCSPUtil.playState2str(playState)}($playState)" }
     }
 
     /**
@@ -170,11 +168,11 @@ open class DisplayContainer @JvmOverloads constructor(
      * 当前屏幕模式：普通、全屏、小窗口
      */
     @ScreenMode
-    override var screenMode: Int = UCSVideoView.SCREEN_MODE_NORMAL
+    override var screenMode: Int = ScreenMode.NORMAL
         internal set(@ScreenMode screenMode) {
             if (field != screenMode) {
                 field = screenMode
-                plogd2(mLogPrefix) { "screenMode changed,notify (screenMode=$screenMode)" }
+                plogd2(TAG) { "screenMode changed,notify (screenMode=$screenMode)" }
                 notifyScreenModeChanged(screenMode)
             }
         }
@@ -183,23 +181,29 @@ open class DisplayContainer @JvmOverloads constructor(
      * 绑定Activity
      */
     fun bindActivity(activity: Activity) {
-        plogi2(mLogPrefix) { "bindActivity($activity)" }
-        if (activity == getActivity()) {
-            plogv2(mLogPrefix) { "bindActivity -> the activity is same with current activity. ignore set." }
+        plogi2(TAG) { "bindActivity($activity)" }
+        val bindActivity = getActivity()
+        if (activity == bindActivity) {
+            plogv2(TAG) { "bindActivity -> the activity is same with current activity. ignore set." }
             return
         }
-        //todo 绑定界面之后应该完善状态？
         mBindActivityRef = SoftReference(activity)
         mOrientationSensorHelper.attachActivity(activity)
-        plogi2(mLogPrefix) { "bindActivity($activity) -> current bind activity is ${getActivity()}" }
+        if (bindActivity != null && isFullScreen()) {
+            mScreenModeHandler.changeFullScreenActivity(bindActivity, activity, this)
+        }
+        plogi2(TAG) { "bindActivity($activity) -> current bind activity is ${getActivity()}" }
     }
 
     /**
      * 解绑Activity
      */
     fun unbindActivity() {
-        plogi2(mLogPrefix) { "unbindActivity" }
-        //todo 如果是小窗或者全屏，从界面中移除
+        plogi2(TAG) { "unbindActivity" }
+        //todo 解绑activity 这个逻辑不好处理，假如当前view处于全屏或者小窗，接触窗口之后，下一步不一定是回到原来的container中，所以这里的逻辑只能是全屏或者小窗的时候，从parent中移除自己
+        if(isFullScreen() || isTinyScreen()){
+            removeFromParent()
+        }
         mBindActivityRef = null
         mOrientationSensorHelper.detachActivity()
     }
@@ -208,27 +212,39 @@ open class DisplayContainer @JvmOverloads constructor(
      * 绑定所在的容器：即正常显示所在的容器
      */
     fun bindContainer(container: FrameLayout) {
-        plogi2(mLogPrefix) { "bindContainer($container)" }
+        plogi2(TAG) { "bindContainer($container)" }
+        if (container == mBindContainerRef?.get()) {
+            plogv2(TAG) { "bindContainer -> the container is same with current bind container. ignore set." }
+            return
+        }
         mBindContainerRef = SoftReference(container)
-        //todo 注意考虑从原来的容器中移除、并考虑当前的view状态
+        if (this.parent != container && isNormalScreen()) {
+            //如果当前display所在的容器与指定容器不相同，并且处于普通模式，则从原来的容器中转移到当前容器
+            removeFromParent()
+            container.addView(this)
+        }
     }
 
     /**
      * 解绑容器
      */
     fun unbindContainer() {
-        plogi2(mLogPrefix) { "unbindContainer" }
-        //解除容器的时候，记得考虑从parent 中移除
+        plogi2(TAG) { "unbindContainer" }
+        val bindContainer = mBindContainerRef?.get() ?: return
+        if (bindContainer == this.parent) {
+            removeFromParent()
+        }
+        mBindContainerRef = null
     }
 
     /**
      * 绑定播放器
      */
     override fun bindPlayer(player: UCSPlayerControl?) {
-        plogi2(mLogPrefix) { "bindPlayer($player)" }
+        plogi2(TAG) { "bindPlayer($player)" }
         val currentPlayer = mBindPlayerRef?.get()
         if (currentPlayer != player) {
-            plogi2(mLogPrefix) { "bindPlayer($player) -> not same with current player,un ref current player($currentPlayer)." }
+            plogi2(TAG) { "bindPlayer($player) -> not same with current player,un ref current player($currentPlayer)." }
             currentPlayer?.let {
                 it.removeEventListener(mPlayerEventListener)
                 it.removeOnPlayStateChangeListener(mPlayerStateListener)
@@ -240,7 +256,7 @@ open class DisplayContainer @JvmOverloads constructor(
                 player.addOnPlayStateChangeListener(mPlayerStateListener)
             }
         } else {
-            plogi2(mLogPrefix) { "bindPlayer($player) -> same with current player($currentPlayer),ignore ref player listeners.." }
+            plogi2(TAG) { "bindPlayer($player) -> same with current player($currentPlayer),ignore ref player listeners.." }
         }
         mRender.bindPlayer(player)
         videoController?.setMediaPlayer(player)
@@ -249,26 +265,30 @@ open class DisplayContainer @JvmOverloads constructor(
     /**
      * 设置控制器，传null表示移除控制器
      */
-    fun setVideoController(mediaController: MediaController?) {
-        plogi2(mLogPrefix) { "setVideoController($mediaController)" }
+    override fun setVideoController(mediaController: MediaController?) {
+        plogi2(TAG) { "setVideoController($mediaController)" }
         if (mediaController == videoController) {
-            plogi2(mLogPrefix) { "setVideoController -> same with current video controller,set ignore." }
+            plogi2(TAG) { "setVideoController -> same with current video controller,set ignore." }
             return
         }
         removeController()
         videoController = mediaController
         mediaController?.let { controller ->
-            controller.removeFromParent()
-            //添加控制器
-            val params = LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            addView(controller, params)
-
-            //fix：video view先调用全屏方法后调用setController的情况下，controller的screen mode与video view的模式不一致问题（比如引起手势无效等）
+            if (controller.parent != this) {
+                controller.removeFromParent()
+                //添加控制器
+                val params = LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                addView(controller, params)
+            }
+            //如果已经绑定了播放器，则将播放器传递给controller
+            mBindPlayerRef?.get().let {
+                controller.setMediaPlayer(it)
+            }
             controller.bindContainer(this)
-            plogi2(mLogPrefix) { "setVideoController -> controller attached to display container." }
+            plogi2(TAG) { "setVideoController -> controller attached to display container." }
         }
     }
 
@@ -278,7 +298,10 @@ open class DisplayContainer @JvmOverloads constructor(
      */
     private fun removeController(): MediaController? {
         val vc = videoController ?: return null
-        removeView(vc)
+        if (vc.parent == this) {
+            removeView(vc)
+            vc.unbindContainer()
+        }
         videoController = null
         return vc
     }
@@ -287,9 +310,7 @@ open class DisplayContainer @JvmOverloads constructor(
      * 通知当前界面模式发生了变化
      */
     private fun notifyScreenModeChanged(@ScreenMode screenMode: Int) {
-        plogi2(mLogPrefix) { "notifyScreenModeChanged($screenMode)" }
-        //todo 既然通过通知对外发布了screenmode的改变，是否就不应该再主动
-        videoController?.setScreenMode(screenMode)
+        plogi2(TAG) { "notifyScreenModeChanged($screenMode)" }
         mOnScreenModeChangeListeners.forEach {
             it.onScreenModeChanged(screenMode)
         }
@@ -304,7 +325,7 @@ open class DisplayContainer @JvmOverloads constructor(
     private fun setupOrientationSensorAndCutoutOnScreenModeChanged(@ScreenMode screenMode: Int) {
         //修改传感器
         when (screenMode) {
-            UCSVideoView.SCREEN_MODE_NORMAL -> {
+            ScreenMode.NORMAL -> {
                 if (mEnableOrientationSensor) {
                     mOrientationSensorHelper.enable()
                 } else {
@@ -314,14 +335,14 @@ open class DisplayContainer @JvmOverloads constructor(
                     adaptCutout(context, false)
                 }
             }
-            UCSVideoView.SCREEN_MODE_FULL -> {
+            ScreenMode.FULL_SCREEN -> {
                 //在全屏时强制监听设备方向
                 mOrientationSensorHelper.enable()
                 if (hasCutout()) {
                     adaptCutout(context, true)
                 }
             }
-            UCSVideoView.SCREEN_MODE_TINY -> mOrientationSensorHelper.disable()
+            ScreenMode.TINY_SCREEN -> mOrientationSensorHelper.disable()
         }
     }
 
@@ -329,7 +350,7 @@ open class DisplayContainer @JvmOverloads constructor(
      * 设置是否适配刘海屏
      */
     override fun setAdaptCutout(adaptCutout: Boolean) {
-        plogd2(mLogPrefix) { "setAdaptCutout($adaptCutout)" }
+        plogd2(TAG) { "setAdaptCutout($adaptCutout)" }
         mAdaptCutout = adaptCutout
     }
 
@@ -366,16 +387,20 @@ open class DisplayContainer @JvmOverloads constructor(
     }
 
     override fun setEnableOrientationSensor(enable: Boolean) {
-        plogd2(mLogPrefix) { "setEnableOrientationSensor($enable)" }
+        plogd2(TAG) { "setEnableOrientationSensor($enable)" }
         mEnableOrientationSensor = enable
     }
 
+    fun isNormalScreen(): Boolean {
+        return screenMode == ScreenMode.NORMAL
+    }
+
     override fun isFullScreen(): Boolean {
-        return screenMode == UCSVideoView.SCREEN_MODE_FULL
+        return screenMode == ScreenMode.FULL_SCREEN
     }
 
     override fun isTinyScreen(): Boolean {
-        return screenMode == UCSVideoView.SCREEN_MODE_TINY
+        return screenMode == ScreenMode.TINY_SCREEN
     }
 
     private inline fun getActivity(): Activity? = mBindActivityRef?.get()
@@ -398,12 +423,12 @@ open class DisplayContainer @JvmOverloads constructor(
      * @return
      */
     override fun toggleFullScreen(): Boolean {
-        plogd2(mLogPrefix) { "toggleFullScreen()" }
+        plogd2(TAG) { "toggleFullScreen()" }
         return if (isFullScreen()) {
-            plogd2(mLogPrefix) { "toggleFullScreen() -> stopFullScreen" }
+            plogd2(TAG) { "toggleFullScreen() -> stopFullScreen" }
             stopFullScreen()
         } else {
-            plogd2(mLogPrefix) { "toggleFullScreen() -> startFullScreen" }
+            plogd2(TAG) { "toggleFullScreen() -> startFullScreen" }
             startFullScreen()
         }
     }
@@ -413,19 +438,19 @@ open class DisplayContainer @JvmOverloads constructor(
      * 如果当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面；
      */
     override fun startFullScreen(isLandscapeReversed: Boolean): Boolean {
-        plogd2(mLogPrefix) { "startFullScreen(isLandscapeReversed = $isLandscapeReversed)" }
+        plogd2(TAG) { "startFullScreen(isLandscapeReversed = $isLandscapeReversed)" }
         val activity = requireActivity {
             "startFullScreen"
         }
         if (isLandscapeReversed) {
             if (activity.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-                plogd2(mLogPrefix) { "startFullScreen-> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE" }
+                plogd2(TAG) { "startFullScreen-> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE" }
                 activity.requestedOrientation =
                     ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
             }
         } else {
             if (activity.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                plogd2(mLogPrefix) { "startFullScreen-> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE" }
+                plogd2(TAG) { "startFullScreen-> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE" }
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
         }
@@ -437,29 +462,29 @@ open class DisplayContainer @JvmOverloads constructor(
      * 如果当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面；
      */
     override fun startVideoViewFullScreen(tryHideSystemBar: Boolean): Boolean {
-        plogd2(mLogPrefix) { "startVideoViewFullScreen($tryHideSystemBar)" }
+        plogd2(TAG) { "startVideoViewFullScreen($tryHideSystemBar)" }
         if (isFullScreen()) {
-            plogd2(mLogPrefix) { "startVideoViewFullScreen -> current is full screen ,return directly." }
+            plogd2(TAG) { "startVideoViewFullScreen -> current is full screen ,return directly." }
             return false
         }
         val activity = requireActivity {
             "startVideoViewFullScreen"
         }
         if (mScreenModeHandler.startFullScreen(activity, this, tryHideSystemBar)) {
-            plogd2(mLogPrefix) { "startVideoViewFullScreen -> startFullScreen success." }
-            screenMode = UCSVideoView.SCREEN_MODE_FULL
+            plogd2(TAG) { "startVideoViewFullScreen -> startFullScreen success." }
+            screenMode = ScreenMode.FULL_SCREEN
             return true
         }
-        plogd2(mLogPrefix) { "startVideoViewFullScreen -> startFullScreen fail." }
+        plogd2(TAG) { "startVideoViewFullScreen -> startFullScreen fail." }
         return false
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun stopFullScreen(): Boolean {
-        plogd2(mLogPrefix) { "stopFullScreen()" }
+        plogd2(TAG) { "stopFullScreen()" }
         val activity = getActivity()
         if (activity != null && activity.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            plogd2(mLogPrefix) { "stopFullScreen -> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT" }
+            plogd2(TAG) { "stopFullScreen -> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT" }
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         return stopVideoViewFullScreen()
@@ -469,9 +494,9 @@ open class DisplayContainer @JvmOverloads constructor(
      * 整个播放视图（Render、Controller）退出全屏（切换为竖屏）;则调用此方法前，需要先调用[bindContainer]绑定竖屏显示的容器；
      */
     override fun stopVideoViewFullScreen(tryShowSystemBar: Boolean): Boolean {
-        plogd2(mLogPrefix) { "stopVideoViewFullScreen(tryShowSystemBar=$tryShowSystemBar)" }
+        plogd2(TAG) { "stopVideoViewFullScreen(tryShowSystemBar=$tryShowSystemBar)" }
         if (!isFullScreen()) {
-            plogd2(mLogPrefix) { "stopVideoViewFullScreen -> current state is not full screen,return directly." }
+            plogd2(TAG) { "stopVideoViewFullScreen -> current state is not full screen,return directly." }
             return false
         }
         val container = requireContainer {
@@ -479,14 +504,14 @@ open class DisplayContainer @JvmOverloads constructor(
         }
         val activity = getActivity()
         val changed = if (activity != null && tryShowSystemBar) {
-            plogd2(mLogPrefix) { "stopVideoViewFullScreen -> mScreenModeHandler.stopFullScreen(activity, container, this)" }
+            plogd2(TAG) { "stopVideoViewFullScreen -> mScreenModeHandler.stopFullScreen(activity, container, this)" }
             mScreenModeHandler.stopFullScreen(activity, container, this)
         } else {
-            plogd2(mLogPrefix) { "stopVideoViewFullScreen -> mScreenModeHandler.stopFullScreen(container, this)" }
+            plogd2(TAG) { "stopVideoViewFullScreen -> mScreenModeHandler.stopFullScreen(container, this)" }
             mScreenModeHandler.stopFullScreen(container, this)
         }
         if (changed) {
-            screenMode = UCSVideoView.SCREEN_MODE_NORMAL
+            screenMode = ScreenMode.NORMAL
             return true
         }
         return false
@@ -497,57 +522,57 @@ open class DisplayContainer @JvmOverloads constructor(
      * 如果当前播放器为界面间共享的播放器，则调用此方法前，需要先调用[bindActivity]绑定界面
      */
     override fun startTinyScreen() {
-        plogd2(mLogPrefix) { "startTinyScreen()" }
+        plogd2(TAG) { "startTinyScreen()" }
         if (isTinyScreen()) {
-            plogd2(mLogPrefix) { "startTinyScreen -> current screen mode is tiny screen,return directly." }
+            plogd2(TAG) { "startTinyScreen -> current screen mode is tiny screen,return directly." }
             return
         }
         val activity = requireActivity {
             ::startTinyScreen.name
         }
         if (mScreenModeHandler.startTinyScreen(activity, this)) {
-            plogd2(mLogPrefix) { "startTinyScreen -> success：mScreenModeHandler.startTinyScreen(activity, this)" }
-            screenMode = UCSVideoView.SCREEN_MODE_TINY
+            plogd2(TAG) { "startTinyScreen -> success：mScreenModeHandler.startTinyScreen(activity, this)" }
+            screenMode = ScreenMode.TINY_SCREEN
             return
         }
 
-        plogd2(mLogPrefix) { "startTinyScreen -> fail." }
+        plogd2(TAG) { "startTinyScreen -> fail." }
     }
 
     /**
      * 退出小屏;调用此方法前，需要先调用[bindContainer]绑定界面
      */
     override fun stopTinyScreen() {
-        plogd2(mLogPrefix) { "stopTinyScreen()" }
+        plogd2(TAG) { "stopTinyScreen()" }
         if (!isTinyScreen()) {
-            plogd2(mLogPrefix) { "stopTinyScreen -> current  state is not in tiny screen ,return directly." }
+            plogd2(TAG) { "stopTinyScreen -> current  state is not in tiny screen ,return directly." }
             return
         }
         val container: ViewGroup = requireContainer {
             ::stopTinyScreen.name
         }
         if (mScreenModeHandler.stopTinyScreen(container, this)) {
-            plogd2(mLogPrefix) { "startTinyScreen -> success：mScreenModeHandler.stopTinyScreen(container, this)" }
-            screenMode = UCSVideoView.SCREEN_MODE_NORMAL
+            plogd2(TAG) { "startTinyScreen -> success：mScreenModeHandler.stopTinyScreen(container, this)" }
+            screenMode = ScreenMode.NORMAL
             return
         }
-        plogd2(mLogPrefix) { "stopTinyScreen -> fail" }
+        plogd2(TAG) { "stopTinyScreen -> fail" }
     }
 
     override fun addFocusables(views: ArrayList<View>, direction: Int) {
-        plogd2(mLogPrefix) { "addFocusables" }
+        plogd2(TAG) { "addFocusables" }
         val controller = videoController
         if (controller != null && controller.canTakeFocus) {
-            plogd2(mLogPrefix) { "addFocusables -> controller can take focus ,only add it to array." }
+            plogd2(TAG) { "addFocusables -> controller can take focus ,only add it to array." }
             views.add(controller)//controller能够获取焦点的情况下，优先只让controller获取焦点
             return
         }
-        plogd2(mLogPrefix) { "addFocusables -> super.addFocusables(views, direction)." }
+        plogd2(TAG) { "addFocusables -> super.addFocusables(views, direction)." }
         super.addFocusables(views, direction)
     }
 
     override fun onAttachedToWindow() {
-        plogd2(mLogPrefix) { "onAttachedToWindow" }
+        plogd2(TAG) { "onAttachedToWindow" }
         super.onAttachedToWindow()
         checkCutout()
     }
@@ -557,7 +582,7 @@ open class DisplayContainer @JvmOverloads constructor(
      */
     private fun checkCutout() {
         if (!mAdaptCutout || mCutoutHeight > 0) {
-            plogd2(mLogPrefix) { "checkCutout: adaptCutout = $mAdaptCutout cutoutHeight=$mCutoutHeight, return ." }
+            plogd2(TAG) { "checkCutout: adaptCutout = $mAdaptCutout cutoutHeight=$mCutoutHeight, return ." }
             return
         }
 
@@ -569,13 +594,14 @@ open class DisplayContainer @JvmOverloads constructor(
                 mCutoutHeight = getStatusBarHeightPortrait(context).toInt()
             }
         }
-        plogd2(mLogPrefix) { "checkCutout: adaptCutout = $mAdaptCutout cutoutHeight=$mCutoutHeight" }
+        plogd2(TAG) { "checkCutout: adaptCutout = $mAdaptCutout cutoutHeight=$mCutoutHeight" }
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
-        plogd2(mLogPrefix) { "onAttachedToWindow" }
-        autoInjectContainer()
+        plogd2(TAG) { "onAttachedToWindow" }
+        if (hasWindowFocus)
+            autoInjectContainer()
         val player = mBindPlayerRef?.get() ?: return
         if (player.isPlaying() && (mEnableOrientationSensor || isFullScreen())) {
             if (hasWindowFocus) {
@@ -590,13 +616,13 @@ open class DisplayContainer @JvmOverloads constructor(
         //布局中加载完成的时候，判断下是否需要自动绑定Container
         try {
             val parent = this.parent
-            plogd2(mLogPrefix) { "autoInjectContainer -> bindContainer = ${mBindContainerRef?.get()} parent=$parent" }
+            plogd2(TAG) { "autoInjectContainer -> bindContainer = ${mBindContainerRef?.get()} parent=$parent" }
             if (mBindContainerRef?.get() == null && parent is FrameLayout) {
-                mBindContainerRef = SoftReference(parent)
-                plogd2(mLogPrefix) { "autoInjectContainer -> 自动注入了Container = ${mBindContainerRef?.get()} parent=$parent" }
+                bindContainer(parent)
+                plogd2(TAG) { "autoInjectContainer -> 自动注入了Container = ${mBindContainerRef?.get()} parent=$parent" }
             }
         } catch (e: Throwable) {
-            ploge2(mLogPrefix, e) {
+            ploge2(TAG, e) {
                 "autoInjectContainer fail."
             }
         }
@@ -625,17 +651,9 @@ open class DisplayContainer @JvmOverloads constructor(
     /**
      * 解析对应参数：一般是从外层容器从解析
      */
-    fun applyAttributes(context: Context, attrs: AttributeSet) {
+    private fun applyAttributes(context: Context, attrs: AttributeSet) {
         //读取xml中的配置，并综合全局配置
         val ta = context.obtainStyledAttributes(attrs, R.styleable.UCSDisplayContainer)
-        //todo这两个参数的处理
-        val audioFocus: Boolean =
-            ta.getBoolean(
-                R.styleable.UCSDisplayContainer_ucsp_enableAudioFocus,
-                UCSPManager.isAudioFocusEnabled
-            )
-        val looping = ta.getBoolean(R.styleable.UCSDisplayContainer_ucsp_looping, false)
-
         if (ta.hasValue(R.styleable.UCSDisplayContainer_ucsp_screenScaleType)) {
             val screenAspectRatioType =
                 ta.getInt(
@@ -645,11 +663,11 @@ open class DisplayContainer @JvmOverloads constructor(
             setAspectRatioType(screenAspectRatioType)
         }
         val playerBackgroundColor =
-            ta.getColor(R.styleable.UCSDisplayContainer_ucsp_playerBackgroundColor, Color.BLACK)
-        setBackgroundColor(playerBackgroundColor)
-//        if (ta.hasValue(R.styleable.UCSDisplayContainer_ucsp_playerBackgroundColor)) {
-//
-//        }
+            ta.getColor(
+                R.styleable.UCSDisplayContainer_ucsp_playerBackgroundColor,
+                UCSPManager.defaultPlayerBackgroundColor
+            )
+        setPlayerBackgroundColor(playerBackgroundColor)
         ta.recycle()
     }
 
@@ -658,10 +676,15 @@ open class DisplayContainer @JvmOverloads constructor(
         if (attrs != null) {
             applyAttributes(context, attrs)
         } else {
-            setBackgroundColor(Color.BLACK)
+            setPlayerBackgroundColor(UCSPManager.defaultPlayerBackgroundColor)
+            //如果不是布局创建的，默认填充整个parent
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
         }
         //如果当前容器是通过Activity上下文构建的，则默认绑定的界面为该Activity
-        val activity =UCSPUtil.getActivityContext(context)
+        val activity = UCSPUtil.getActivityContext(context)
         if (activity != null) {
             bindActivity(activity)
         }

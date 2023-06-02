@@ -2,7 +2,9 @@ package unics.player
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Color
 import android.media.MediaPlayer
+import androidx.annotation.ColorInt
 import unics.player.internal.plogw
 import unics.player.kernel.UCSPlayerFactory
 import unics.player.kernel.UCSPlayer
@@ -106,6 +108,13 @@ object UCSPManager {
     @JvmStatic
     @unics.player.render.AspectRatioType
     var screenAspectRatioType: Int = unics.player.render.AspectRatioType.DEFAULT_SCALE
+
+    /**
+     * 默认播放器背景颜色
+     */
+    @JvmStatic
+    @ColorInt
+    var defaultPlayerBackgroundColor:Int = Color.BLACK
 
     /**
      * [UCSRender] 是否重用（即在播放器调用播放或者重新播放的时候，是否重用已有的RenderView：以前的版本是每次都会创建一个新的RenderView）

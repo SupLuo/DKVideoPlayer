@@ -117,8 +117,6 @@ interface UCSPlayer : UCSPlayerBase {
      * 播放器状态
      */
     @IntDef(
-        //出错
-        STATE_ERROR,
         //闲置
         STATE_IDLE,
         //准备数据源中：setDatasource与onPrepared之间
@@ -131,6 +129,8 @@ interface UCSPlayer : UCSPlayerBase {
         STATE_PAUSED,
         //播放结束
         STATE_PLAYBACK_COMPLETED,
+        //出错
+        STATE_ERROR,
         //缓冲中
         STATE_BUFFERING,
         //缓冲结束
@@ -225,12 +225,6 @@ interface UCSPlayer : UCSPlayerBase {
      * 异步准备
      */
     fun prepareAsync()
-
-    /**
-     * 停止
-     * 即让暂停或者正在进行的播放停止，接下来想继续播放的话，得重新设置数据源并调用prepareAsync
-     */
-    fun stop()
 
     /**
      * 重置播放器

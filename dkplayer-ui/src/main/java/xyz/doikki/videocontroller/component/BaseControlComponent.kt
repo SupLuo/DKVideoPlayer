@@ -11,7 +11,7 @@ import unics.player.controller.UCSContainerControl
 import unics.player.internal.UCSPUtil
 
 import unics.player.kernel.UCSPlayerControl
-import xyz.doikki.videoplayer.controller.component.ControlComponent
+import unics.player.controller.ControlComponent
 
 abstract class BaseControlComponent @JvmOverloads constructor(
     context: Context,

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import unics.player.UCSVideoView
 import unics.player.internal.UCSPUtil
 
-import xyz.doikki.videoplayer.controller.component.ControlComponent
+import unics.player.controller.ControlComponent
 
 
 /**

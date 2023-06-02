@@ -1,6 +1,5 @@
-package xyz.doikki.videoplayer.controller.component
+package unics.player.controller
 
-import xyz.doikki.videoplayer.controller.component.ControlComponent
 
 /**
  * 与手势操作相关的控制组件

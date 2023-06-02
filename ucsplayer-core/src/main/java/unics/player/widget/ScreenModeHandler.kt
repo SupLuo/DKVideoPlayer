@@ -68,6 +68,21 @@ class ScreenModeHandler {
     }
 
     /**
+     * 在两个Activity之间交换全屏
+     */
+    fun changeFullScreenActivity(old: Activity, new: Activity, view: View): Boolean {
+        val decorView = new.decorView ?: return false
+
+        if (new == old && view.parent == decorView) {
+            //相同的Activity，并且已经添加到decorview中，不做任何处理
+            return true
+        }
+        view.removeFromParent()
+        decorView.addView(view)
+        return true
+    }
+
+    /**
      * 退出全屏
      *
      * @param container view退出全屏之后的容器
@@ -119,15 +134,16 @@ class ScreenModeHandler {
      */
     fun stopTinyScreen(container: ViewGroup, view: View): Boolean {
         view.removeFromParent()
-        var lp = view.getTag(R.id.screen_mode_layout_params) as? ViewGroup.LayoutParams
-        if (lp == null) {
-            lp = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
-        container.addView(view, lp)
+        container.addView(view, getDefaultLayoutParams(view))
         return true
+    }
+
+    internal fun getDefaultLayoutParams(view: View): ViewGroup.LayoutParams {
+        return view.getTag(R.id.screen_mode_layout_params) as? ViewGroup.LayoutParams
+            ?: ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
     }
 
     /**

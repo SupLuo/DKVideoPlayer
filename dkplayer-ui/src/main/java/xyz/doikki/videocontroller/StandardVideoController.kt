@@ -9,7 +9,6 @@ import android.view.animation.Animation
 import android.widget.ProgressBar
 import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
-import unics.player.UCSVideoView
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import xyz.doikki.videocontroller.component.*
@@ -17,7 +16,8 @@ import unics.player.UCSPManager
 import unics.player.internal.UCSPUtil
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.toast
-import xyz.doikki.videoplayer.controller.GestureVideoController
+import unics.player.ScreenMode
+import unics.player.controller.GestureVideoController
 
 /**
  * 直播/点播控制器
@@ -29,9 +29,8 @@ import xyz.doikki.videoplayer.controller.GestureVideoController
 open class StandardVideoController @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    @AttrRes defStyleAttr: Int = 0,
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
-) : GestureVideoController(context, attrs, defStyleAttr) {
+) : GestureVideoController(context, attrs) {
 
     protected val lockButton: View
     protected val loadingIndicator: ProgressBar?
@@ -91,7 +90,7 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (!enableLock)
             return
-        if (isFullScreen()) {
+        if (isFullScreen) {
             if (isVisible) {
                 if (lockButton.visibility == GONE) {
                     lockButton.visibility = VISIBLE
@@ -113,14 +112,14 @@ open class StandardVideoController @JvmOverloads constructor(
         if (!enableLock)
             return
         when (screenMode) {
-            UCSVideoView.SCREEN_MODE_NORMAL -> {
+            ScreenMode.NORMAL -> {
                 layoutParams = LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 lockButton.visibility = GONE
             }
-            UCSVideoView.SCREEN_MODE_FULL -> if (isShowing) {
+            ScreenMode.FULL_SCREEN -> if (isShowing) {
                 lockButton.visibility = VISIBLE
             } else {
                 lockButton.visibility = GONE
@@ -187,7 +186,7 @@ open class StandardVideoController @JvmOverloads constructor(
             toast(R.string.dkplayer_lock_tip)
             return true
         }
-        return if (isFullScreen()) {
+        return if (isFullScreen) {
             stopFullScreen()
         } else {
             super.onBackPressed()

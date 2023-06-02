@@ -12,6 +12,7 @@ import xyz.doikki.videocontroller.R
 import unics.player.UCSVideoView
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.isVisible
+import unics.player.ScreenMode
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -53,9 +54,9 @@ class CompleteView @JvmOverloads constructor(
         //退出全屏按钮没指定
         mStopFullscreen ?: return
 
-        if (screenMode == UCSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == ScreenMode.FULL_SCREEN) {
             mStopFullscreen.visibility = VISIBLE
-        } else if (screenMode == UCSVideoView.SCREEN_MODE_NORMAL) {
+        } else if (screenMode == ScreenMode.NORMAL) {
             mStopFullscreen.visibility = GONE
         }
 

@@ -3,29 +3,12 @@ package unics.player.controller
 import androidx.annotation.ColorInt
 import unics.player.ScreenMode
 import unics.player.kernel.UCSPlayerControl
+import unics.player.render.UCSRenderControl
 
 /**
- * 整个播放器视图所在容器控制层提供的功能；具体由[droid.unicstar.player.UCSDisplayContainer]实现
+ * 整个播放器视图所在容器控制层提供的功能；具体由[unics.player.DisplayContainer]实现
  */
 interface UCSContainerControl : UCSRenderControl {
-
-    companion object {
-
-        /**
-         * 普通模式
-         */
-        const val SCREEN_MODE_NORMAL = 10
-
-        /**
-         * 全屏模式
-         */
-        const val SCREEN_MODE_FULL = 11
-
-        /**
-         * 小窗模式
-         */
-        const val SCREEN_MODE_TINY = 22
-    }
 
     /**
      * 屏幕模式发生变化监听
@@ -40,11 +23,16 @@ interface UCSContainerControl : UCSRenderControl {
     fun bindPlayer(player: UCSPlayerControl?)
 
     /**
+     * 设置控制器，null表示移除控制器
+     */
+    fun setVideoController(mediaController: MediaController?)
+
+    /**
      * 释放资源
      */
     fun release()
 
-    @ScreenMode
+    @get:ScreenMode
     val screenMode: Int
 
     /**

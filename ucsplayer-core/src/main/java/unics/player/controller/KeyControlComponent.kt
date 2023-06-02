@@ -1,4 +1,4 @@
-package xyz.doikki.videoplayer.controller.component
+package unics.player.controller
 
 import android.view.KeyEvent
 

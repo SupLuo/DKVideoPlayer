@@ -8,6 +8,7 @@ import android.view.View
 import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
+import unics.player.ScreenMode
 import unics.player.UCSVideoView
 import unics.player.internal.UCSPUtil
 
@@ -56,8 +57,8 @@ class LiveControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            UCSVideoView.SCREEN_MODE_NORMAL -> mFullScreen.isSelected = false
-            UCSVideoView.SCREEN_MODE_FULL -> mFullScreen.isSelected = true
+            ScreenMode.NORMAL -> mFullScreen.isSelected = false
+            ScreenMode.FULL_SCREEN -> mFullScreen.isSelected = true
         }
         val activity = UCSPUtil.getActivityContext(context) ?: return
         containerControl?.let { containerControl ->

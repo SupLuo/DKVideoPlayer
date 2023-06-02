@@ -6,12 +6,11 @@ import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
 import android.view.KeyEvent
-import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
+import droid.unicstar.player.ui.TVCompatible
+import unics.player.controller.KeyControlComponent
 import unics.player.internal.plogv2
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
-import droid.unicstar.player.ui.TVCompatible
-import xyz.doikki.videoplayer.controller.component.KeyControlComponent
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -21,9 +20,8 @@ import kotlin.math.pow
 open class TVVideoController @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    @AttrRes defStyleAttr: Int = 0,
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
-) : StandardVideoController(context, attrs, defStyleAttr, layoutId) {
+) : StandardVideoController(context, attrs, layoutId) {
 
     companion object {
 
@@ -403,7 +401,7 @@ open class TVVideoController @JvmOverloads constructor(
             val factor = 2.0.pow(eventTime / 1000.0)
 
             return (mStep * flag * factor).toInt().also {
-                plogv2(TAG){
+                plogv2(TAG) {
                     "calculateIncrement flag=$flag eventTime=$eventTime factor=$factor result=$it"
                 }
             }

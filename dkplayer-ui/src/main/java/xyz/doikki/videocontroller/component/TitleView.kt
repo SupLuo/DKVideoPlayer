@@ -16,6 +16,7 @@ import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import unics.player.UCSVideoView
 import droid.unicstar.player.ui.TVCompatible
+import unics.player.ScreenMode
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -93,7 +94,7 @@ class TitleView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         val controller = this.mController
-        if (screenMode == UCSVideoView.SCREEN_MODE_FULL) {
+        if (screenMode == ScreenMode.FULL_SCREEN) {
             if (controller != null && controller.isShowing && !controller.isLocked) {
                 visibility = VISIBLE
 //                mSysTime.text = PlayerUtils.getCurrentSystemTime()

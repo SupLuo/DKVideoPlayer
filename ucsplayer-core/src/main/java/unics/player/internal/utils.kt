@@ -13,9 +13,17 @@ import android.view.*
 import android.widget.Toast
 import androidx.annotation.StringRes
 import java.util.concurrent.Executors
+import kotlin.math.abs
 
 
 internal const val INVALIDATE_SEEK_POSITION = -1
+
+/**
+ * 判断两个浮点数是否约等于
+ */
+internal inline fun Float.approximatelyEquals(other: Float, tolerance: Double = 1e-10): Boolean {
+    return abs(this - other) < tolerance
+}
 
 //避免反复读取
 internal val sdkInt: Int = Build.VERSION.SDK_INT
@@ -27,7 +35,10 @@ internal val threadPool = Executors.newCachedThreadPool()
  */
 internal fun releasePlayer(mediaPlayer: MediaPlayer) {
     mediaPlayer.apply {
-        stop()
+        //必须在播放过程中才可以调用stop，否则可能出现“stop called in state 1, mPlayer(0x0)”问题
+        if(mediaPlayer.isPlaying)
+            stop()
+        mediaPlayer.reset()
         setOnErrorListener(null)
         setOnCompletionListener(null)
         setOnInfoListener(null)

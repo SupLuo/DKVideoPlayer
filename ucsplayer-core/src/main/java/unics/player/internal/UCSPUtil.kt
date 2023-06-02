@@ -35,9 +35,9 @@ object UCSPUtil {
     @JvmStatic
     fun screenMode2str(@ScreenMode mode: Int): String {
         val playerStateString: String = when (mode) {
-            UCSVideoView.SCREEN_MODE_NORMAL -> "normal"
-            UCSVideoView.SCREEN_MODE_FULL -> "full screen"
-            UCSVideoView.SCREEN_MODE_TINY -> "tiny screen"
+            ScreenMode.NORMAL -> "normal"
+            ScreenMode.FULL_SCREEN -> "full screen"
+            ScreenMode.TINY_SCREEN -> "tiny screen"
             else -> "normal"
         }
         return String.format("screenMode: %s", playerStateString)

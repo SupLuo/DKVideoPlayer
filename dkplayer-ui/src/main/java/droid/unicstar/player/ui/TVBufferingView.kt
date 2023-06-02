@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.doikki.videocontroller.R
 import unics.player.controller.MediaController
 import unics.player.kernel.UCSPlayer
-import xyz.doikki.videoplayer.controller.component.ControlComponent
+import unics.player.controller.ControlComponent
 
 /**
  * Created by Lucio on 2021/4/15.

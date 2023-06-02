@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.ImageView
 import unics.player.controller.MediaController
 import unics.player.kernel.UCSPlayer
-import xyz.doikki.videoplayer.controller.component.ControlComponent
+import unics.player.controller.ControlComponent
 
 /**
  * 播放器封面图

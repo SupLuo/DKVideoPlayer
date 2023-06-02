@@ -68,11 +68,6 @@ interface UCSPlayerControl : UCSPlayerBase {
     val currentState: Int
 
     /**
-     * 是否处于可播放状态
-     */
-    fun isInPlaybackState():Boolean
-
-    /**
      * 添加一个播放状态监听器，播放状态发生变化时将会调用。
      */
     fun addOnPlayStateChangeListener(listener: UCSPlayer.OnPlayStateChangeListener)

@@ -22,6 +22,12 @@ interface UCSPlayerBase {
     fun pause()
 
     /**
+     * 停止
+     * 即让暂停或者正在进行的播放停止，接下来想继续播放的话，得重新设置数据源并调用prepareAsync
+     */
+    fun stop()
+
+    /**
      * 播放时长
      *
      * @return

@@ -1,23 +1,20 @@
 package unics.player.controller
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
-import androidx.annotation.AttrRes
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
-import unics.player.*
+import androidx.annotation.MainThread
+import unics.player.ScreenMode
+import unics.player.UCSPManager
+import unics.player.UCSVideoView
 import unics.player.internal.*
-import unics.player.internal.NETWORK_MOBILE
-import unics.player.internal.getNetworkType
 import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerControl
-import xyz.doikki.videoplayer.controller.VideoViewController
-import xyz.doikki.videoplayer.controller.component.ControlComponent
 
 /**
  * 控制器基类：该类的职责是作为播放器与容器中各种小组件之间的纽带
@@ -43,32 +40,61 @@ import xyz.doikki.videoplayer.controller.component.ControlComponent
  * @see .onProgressChanged
  */
 open class MediaController @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr),
-    VideoViewController {
+    context: Context,
+    attrs: AttributeSet? = null
+) : FrameLayout(context, attrs), UCSMediaController {
+
+    private val TAG = "[MediaController@${this.hashCode()}]"
 
     //所关联的容器
-    protected var mContainerControl: UCSContainerControl? = null
+    @JvmField
+    protected var mBindContainerControl: UCSContainerControl? = null
 
-    /**
-     * 当前控制器中保存的所有控制组件
-     */
+    //绑定的播放器
+    @JvmField
+    protected var mBindPlayer: UCSPlayerControl? = null
+
+    //当前控制器中保存的所有控制组件
     @JvmField
     protected val mControlComponents = LinkedHashMap<ControlComponent, Boolean>()
 
-    /**
-     * 绑定的播放器
-     */
-    protected var mPlayer: UCSPlayerControl? = null
-
-    //是否处于锁定状态
-    private var mLocked = false
+    override var isLocked: Boolean = false
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            notifyLockStateChanged(value)
+        }
 
     /**
      * 当前播放器状态
      */
     @UCSPlayer.PlayState
-    private var mPlayerState = 0
+    private var mPlayState = UCSPlayer.STATE_IDLE
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            when (value) {
+                UCSPlayer.STATE_IDLE -> {
+                    isLocked = false
+                    this.isShowing = false
+                    //由于游离组件是独立于控制器存在的，
+                    //所以在播放器release的时候需要移除
+                    removeAllDissociateComponents()
+                }
+                UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
+                    isLocked = false
+                    this.isShowing = false
+                }
+                UCSPlayer.STATE_ERROR -> this.isShowing = false
+            }
+            for ((key) in mControlComponents) {
+                key.onPlayStateChanged(value)
+            }
+            onPlayerStateChanged(value)
+        }
+
 
     //显示动画
     private val mShowAnim: Animation = AlphaAnimation(0f, 1f).also {
@@ -101,10 +127,10 @@ open class MediaController @JvmOverloads constructor(
     private val progressUpdateRunnable: Runnable = object : Runnable {
         override fun run() {
             val pos = updateProgress()
-            if (mPlayer?.isPlaying() == true) {
+            if (isPlaying()) {
                 postDelayed(
                     this,
-                    ((1000 - pos % 1000) / (mPlayer?.getSpeed() ?: 1f)).toLong()
+                    ((1000 - pos % 1000) / (mBindPlayer?.getSpeed() ?: 1f)).toLong()
                 )
             } else {
                 mProgressRefreshing = false
@@ -115,17 +141,29 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 控制器是否处于显示状态
      */
-    protected var mShowing = false
+    override var isShowing: Boolean = false
+        protected set
 
     @JvmField
     protected var mActivity: Activity? = null
 
-    val playerControl: UCSPlayerControl? get() = mPlayer
+    @ScreenMode
+    private var mScreenMode: Int = ScreenMode.UNKNOWN
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            //非未知才通知变化
+            if (value != ScreenMode.UNKNOWN)
+                onScreenModeChanged(value)
+        }
 
-    val containerControl: UCSContainerControl? get() = mContainerControl
+    val playerControl: UCSPlayerControl? get() = mBindPlayer
 
-    init {
-        mActivity = UCSPUtil.getActivityContext(context)
+    val containerControl: UCSContainerControl? get() = mBindContainerControl
+
+    protected inline fun isPlaying(): Boolean {
+        return mBindPlayer?.isPlaying() == true
     }
 
     /**
@@ -134,66 +172,104 @@ open class MediaController @JvmOverloads constructor(
      * @return
      */
     protected val isInPlaybackState: Boolean
-        get() = mPlayer != null
-                && mPlayerState != UCSPlayer.STATE_ERROR
-                && mPlayerState != UCSPlayer.STATE_IDLE
-                && mPlayerState != UCSPlayer.STATE_PREPARING
-                && mPlayerState != UCSPlayer.STATE_PREPARED
-                && mPlayerState != UCSPlayer.STATE_PREPARED_BUT_ABORT
-                && mPlayerState != UCSPlayer.STATE_PLAYBACK_COMPLETED
+        get() = mBindPlayer != null
+                && mPlayState != UCSPlayer.STATE_ERROR
+                && mPlayState != UCSPlayer.STATE_IDLE
+                && mPlayState != UCSPlayer.STATE_PREPARING
+                && mPlayState != UCSPlayer.STATE_PREPARED
+                && mPlayState != UCSPlayer.STATE_PREPARED_BUT_ABORT
+                && mPlayState != UCSPlayer.STATE_PLAYBACK_COMPLETED
 
-    protected val isInCompleteState: Boolean get() = mPlayerState == UCSPlayer.STATE_PLAYBACK_COMPLETED
+    protected val isInCompleteState: Boolean get() = mPlayState == UCSPlayer.STATE_PLAYBACK_COMPLETED
 
-    protected val isInErrorState: Boolean get() = mPlayerState == UCSPlayer.STATE_ERROR
+    protected val isInErrorState: Boolean get() = mPlayState == UCSPlayer.STATE_ERROR
+
+    private val mScreenModeChangeListener =
+        UCSContainerControl.OnScreenModeChangeListener { screenMode ->
+            mScreenMode = screenMode
+        }
+
+    private val mPlayStateChangeListener = UCSPlayer.OnPlayStateChangeListener { playState ->
+        plogd2(TAG) { "OnPlayStateChangeListener -> playState = ${UCSPUtil.playState2str(playState)}($playState)" }
+        mPlayState = playState
+    }
 
     /**
      * 绑定所属的容器
      */
+    @CallSuper
     open fun bindContainer(container: UCSContainerControl) {
-        if (mContainerControl == container)
+        plogd2(TAG) { "bindContainer($container)" }
+        if (mBindContainerControl == container) {
+            plogd2(TAG) { "bindContainer -> container is same with current, ignore set." }
             return
-        mContainerControl = container
-        setScreenMode(container.screenMode)
+        }
+        plogd2(TAG) { "bindContainer -> container is changed, add screen mode listener and update screen mode immediately" }
+        mBindContainerControl = container
+        container.removeOnScreenModeChangeListener(mScreenModeChangeListener)
+        container.addOnScreenModeChangeListener(mScreenModeChangeListener)
+        //更新一次
+        mScreenMode = container.screenMode
+    }
+
+    @CallSuper
+    open fun unbindContainer() {
+        plogd2(TAG) { "unbindContainer -> remove screen mode listener ,and set current screen mode to unknown." }
+        mBindContainerControl?.removeOnScreenModeChangeListener(mScreenModeChangeListener)
+        mBindContainerControl = null
+        mScreenMode = ScreenMode.UNKNOWN
+    }
+
+    /**
+     * 重要：此方法用于将[UCSVideoView] 和控制器绑定
+     */
+    @CallSuper
+    open fun setMediaPlayer(mediaPlayer: UCSPlayerControl?) {
+        plogd2(TAG) { "setMediaPlayer($mediaPlayer)" }
+        if (mBindPlayer == mediaPlayer) {
+            plogd2(TAG) { "setMediaPlayer -> media player is same with current, ignore set." }
+            return
+        }
+
+        val prev = mBindPlayer
+        if (prev != null) {
+            plogd2(TAG) { "setMediaPlayer -> prev media player is not null ,unbind it:remove play state change listener and notify to control components." }
+            prev.removeOnPlayStateChangeListener(mPlayStateChangeListener)
+            for ((component) in mControlComponents) {
+                component.onPlayerDetached(prev)
+            }
+        }
+        mBindPlayer = mediaPlayer
+        //绑定ControlComponent和Controller
+        if (mediaPlayer != null) {
+            plogd2(TAG) { "setMediaPlayer -> bind media player : add play state change listener and notify to control components." }
+            mediaPlayer.addOnPlayStateChangeListener(mPlayStateChangeListener)
+            for ((component) in mControlComponents) {
+                component.onPlayerAttached(mediaPlayer)
+            }
+            mPlayState = mediaPlayer.currentState
+        }
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         //自动注入上级容器
-        if (mContainerControl == null) {
+        if (mBindContainerControl == null) {
             val parent = this.parent
             if (parent is UCSContainerControl) {
+                plogd2(TAG) { "onAttachedToWindow -> try auto inject container control." }
                 bindContainer(parent)
             }
         }
     }
 
     /**
-     * 重要：此方法用于将[UCSVideoView] 和控制器绑定
-     */
-    open fun setMediaPlayer(mediaPlayer: UCSPlayerControl?) {
-        if (mPlayer == mediaPlayer)
-            return
-        val prv = mPlayer
-        if (prv != null) {
-            for ((component) in mControlComponents) {
-                component.onPlayerDetached(prv)
-            }
-        }
-        mPlayer = mediaPlayer
-        //绑定ControlComponent和Controller
-        if (mediaPlayer != null) {
-            for ((component) in mControlComponents) {
-                component.onPlayerAttached(mediaPlayer)
-            }
-        }
-    }
-    /***********START 关键方法代码 */
-    /**
      * 添加控制组件，最后面添加的在最下面，合理组织添加顺序，可让ControlComponent位于不同的层级
      */
     fun addControlComponent(vararg component: ControlComponent) {
-        for (item in component) {
-            addControlComponent(item, false)
+        plogd2(TAG) { "" }
+        component.forEach {
+            addControlComponent(it, false)
         }
     }
 
@@ -213,18 +289,21 @@ open class MediaController @JvmOverloads constructor(
      * 假设有这样一种需求，播放器控制区域在显示区域的下面，此时你就可以通过自定义 ControlComponent
      * 并将 isDissociate 设置为 true 来实现这种效果。
      */
+    @MainThread
     fun addControlComponent(component: ControlComponent, isDissociate: Boolean) {
         mControlComponents[component] = isDissociate
         component.attachController(this)
-        val view = component.getView()
-        if (view != null && !isDissociate) {
-            addView(view, 0)
+        if (!isDissociate) {
+            component.getView()?.let {
+                addView(it, 0)
+            }
         }
     }
 
     /**
      * 移除某个控制组件
      */
+    @MainThread
     fun removeControlComponent(component: ControlComponent) {
         removeControlComponentView(component)
         mControlComponents.remove(component)
@@ -233,6 +312,7 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 移除所有控制组件
      */
+    @MainThread
     fun removeAllControlComponent() {
         for ((key) in mControlComponents) {
             removeControlComponentView(key)
@@ -263,94 +343,26 @@ open class MediaController @JvmOverloads constructor(
         val view = component.getView() ?: return
         removeView(view)
     }
-    /***********END 关键方法代码 */
+
 
     /***********START 关键方法代码 */
-    override fun isFullScreen(): Boolean {
-        return mContainerControl?.isFullScreen() ?: false
-    }
+
+    override val isFullScreen: Boolean
+        get() = mBindContainerControl?.isFullScreen() ?: false
 
     /**
      * 横竖屏切换
      */
     override fun toggleFullScreen(): Boolean {
-        return mContainerControl?.toggleFullScreen() ?: false
+        return mBindContainerControl?.toggleFullScreen() ?: false
     }
 
     override fun startFullScreen(isLandscapeReversed: Boolean): Boolean {
-        return mContainerControl?.startFullScreen(isLandscapeReversed) ?: false
+        return mBindContainerControl?.startFullScreen(isLandscapeReversed) ?: false
     }
 
     override fun stopFullScreen(): Boolean {
-        return mContainerControl?.stopFullScreen() ?: false
-    }
-
-    /**
-     * 设置锁定状态
-     *
-     * @param locked 是否锁定
-     */
-    override fun setLocked(locked: Boolean) {
-        mLocked = locked
-        notifyLockStateChanged(locked)
-    }
-
-    /**
-     * 判断是否锁定
-     *
-     * @return true:当前已锁定界面
-     */
-    override fun isLocked(): Boolean {
-        return mLocked
-    }
-
-    /**
-     * 设置当前[UCSVideoView]界面模式：竖屏、全屏、小窗模式等
-     * 是当[UCSVideoView]修改视图之后，调用此方法向控制器同步状态
-     */
-    @CallSuper
-    open fun setScreenMode(@ScreenMode screenMode: Int) {
-        //通知界面模式发生改变
-        for ((component) in mControlComponents) {
-            component.onScreenModeChanged(screenMode)
-        }
-        onScreenModeChanged(screenMode)
-    }
-
-    /**
-     * call by [UCSVideoView],设置播放器当前播放状态
-     */
-    @SuppressLint("SwitchIntDef")
-    @CallSuper
-    fun setPlayerState(@UCSPlayer.PlayState playState: Int) {
-        mPlayerState = playState
-        for ((key) in mControlComponents) {
-            key.onPlayStateChanged(playState)
-        }
-        when (playState) {
-            UCSPlayer.STATE_IDLE -> {
-                mLocked = false
-                mShowing = false
-                //由于游离组件是独立于控制器存在的，
-                //所以在播放器release的时候需要移除
-                removeAllDissociateComponents()
-            }
-            UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
-                mLocked = false
-                mShowing = false
-            }
-            UCSPlayer.STATE_ERROR -> mShowing = false
-        }
-        onPlayerStateChanged(playState)
-    }
-
-    /**
-     * 控制器是否已隐藏
-     *
-     * @return
-     */
-    override fun isShowing(): Boolean {
-        return mShowing
+        return mBindContainerControl?.stopFullScreen() ?: false
     }
 
     /**
@@ -358,9 +370,9 @@ open class MediaController @JvmOverloads constructor(
      */
     override fun show() {
         startFadeOut()
-        if (mShowing) return
+        if (this.isShowing) return
         handleVisibilityChanged(true, mShowAnim)
-        mShowing = true
+        this.isShowing = true
     }
 
     /**
@@ -368,9 +380,9 @@ open class MediaController @JvmOverloads constructor(
      */
     override fun hide() {
         stopFadeOut()
-        if (!mShowing) return
+        if (!this.isShowing) return
         handleVisibilityChanged(false, mHideAnim)
-        mShowing = false
+        this.isShowing = false
     }
 
     /**
@@ -383,6 +395,7 @@ open class MediaController @JvmOverloads constructor(
             mDefaultTimeout = timeout.toLong()
         }
     }
+
 
     /**
      * 开始倒计时隐藏控制器
@@ -445,13 +458,13 @@ open class MediaController @JvmOverloads constructor(
      * @return true:调用了重播方法，false则表示未处理任何
      */
     fun replay(resetPosition: Boolean = true) {
-        mPlayer?.replay(resetPosition)
+        mBindPlayer?.replay(resetPosition)
     }
 
     //------------------------ start handle event change ------------------------//
 
     private fun handleVisibilityChanged(isVisible: Boolean, anim: Animation?) {
-        if (!mLocked) { //没锁住时才向ControlComponent下发此事件
+        if (!isLocked) { //没锁住时才向ControlComponent下发此事件
             for ((component) in mControlComponents) {
                 component.onVisibilityChanged(isVisible, anim)
             }
@@ -464,7 +477,7 @@ open class MediaController @JvmOverloads constructor(
      * @return 当前播放位置
      */
     private fun updateProgress(): Int {
-        val player = mPlayer ?: return 0
+        val player = mBindPlayer ?: return 0
         val position = player.getCurrentPosition().toInt()
         val duration = player.getDuration().toInt()
         for ((component) in mControlComponents) {
@@ -505,7 +518,13 @@ open class MediaController @JvmOverloads constructor(
     /**
      * 用于子类重写
      */
-    protected open fun onScreenModeChanged(screenMode: Int) {}
+    @CallSuper
+    protected open fun onScreenModeChanged(screenMode: Int) {
+        //通知界面模式发生改变
+        for ((component) in mControlComponents) {
+            component.onScreenModeChanged(screenMode)
+        }
+    }
 
     /**
      * 用于子类重写
@@ -530,7 +549,7 @@ open class MediaController @JvmOverloads constructor(
      * 切换显示/隐藏状态
      */
     fun toggleShowState() {
-        if (isShowing) {
+        if (this.isShowing) {
             hide()
         } else {
             show()
@@ -545,7 +564,7 @@ open class MediaController @JvmOverloads constructor(
         showToast: Boolean = true,
         block: (UCSPlayerControl) -> R
     ): R? {
-        val player = mPlayer
+        val player = mBindPlayer
         if (player == null) {
             if (showToast) {
                 toast("请先调用setMediaPlayer方法绑定播放器.")
@@ -562,7 +581,7 @@ open class MediaController @JvmOverloads constructor(
         showToast: Boolean = true,
         block: (UCSContainerControl) -> R
     ): R? {
-        val control = mContainerControl
+        val control = mBindContainerControl
         if (control == null) {
             if (showToast) {
                 toast("请先调用${::bindContainer.name}方法绑定所在的容器.")
@@ -595,4 +614,9 @@ open class MediaController @JvmOverloads constructor(
 //            }
 //        }
 //    }
+
+    init {
+        mActivity = UCSPUtil.getActivityContext(context)
+    }
+
 }
