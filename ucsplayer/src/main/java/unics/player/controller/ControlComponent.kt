@@ -14,7 +14,7 @@ interface ControlComponent {
     /**
      * 将 控制器 传递到当前 ControlComponent 中
      */
-    fun attachController(controller: MediaController)
+    fun onControllerAttached(controller: MediaController)
 
     /**
      * 绑定了播放器:用于先绑定controller之后，再绑定的播放器情况
@@ -83,4 +83,5 @@ interface ControlComponent {
      * @param position 播放进度
      */
     fun onProgressChanged(duration: Int, position: Int) {}
+
 }

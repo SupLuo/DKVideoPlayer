@@ -19,7 +19,7 @@ class CoverImageView @JvmOverloads constructor(
 
     protected var mController: MediaController? = null
 
-    override fun attachController(controller: MediaController) {
+    override fun onControllerAttached(controller: MediaController) {
         this.mController = controller
     }
 

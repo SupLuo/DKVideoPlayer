@@ -6,10 +6,10 @@ import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.annotation.ColorInt
 import unics.player.internal.plogw
-import unics.player.kernel.UCSPlayerFactory
 import unics.player.kernel.UCSPlayer
-import unics.player.render.UCSRenderFactory
+import unics.player.kernel.UCSPlayerFactory
 import unics.player.render.UCSRender
+import unics.player.render.UCSRenderFactory
 import unics.player.widget.ProgressManager
 
 /**
@@ -114,7 +114,7 @@ object UCSPManager {
      */
     @JvmStatic
     @ColorInt
-    var defaultPlayerBackgroundColor:Int = Color.BLACK
+    var defaultPlayerBackgroundColor: Int = Color.BLACK
 
     /**
      * [UCSRender] 是否重用（即在播放器调用播放或者重新播放的时候，是否重用已有的RenderView：以前的版本是每次都会创建一个新的RenderView）
@@ -129,6 +129,13 @@ object UCSPManager {
      */
     @JvmStatic
     var isPlayerKernelReusable: Boolean = false
+
+
+    /**
+     * [unics.player.controller.ControlComponent]是否倒叙添加到MediaController中，默认不是，即Controller#addControlComponent的顺序就是view的添加顺序：原版都是后添加的放在viewtree的第一个位置
+     */
+    @JvmStatic
+    var isControlIndexRevers: Boolean = false
 
     /**
      * 创建播放器内核
@@ -147,7 +154,7 @@ object UCSPManager {
      * @note 该方法预留在此处，用于处理以后处理某些盒子芯片只支持单个播放器实例的情况
      */
     @JvmStatic
-    internal fun createMediaPlayer():MediaPlayer{
+    internal fun createMediaPlayer(): MediaPlayer {
         return MediaPlayer()
     }
 

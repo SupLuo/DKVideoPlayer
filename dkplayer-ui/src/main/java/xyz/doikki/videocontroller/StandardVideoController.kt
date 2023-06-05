@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.ProgressBar
-import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
@@ -17,7 +16,7 @@ import unics.player.internal.UCSPUtil
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.toast
 import unics.player.ScreenMode
-import unics.player.controller.GestureVideoController
+import unics.player.controller.GestureMediaController
 
 /**
  * 直播/点播控制器
@@ -30,7 +29,7 @@ open class StandardVideoController @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
-) : GestureVideoController(context, attrs) {
+) : GestureMediaController(context, attrs) {
 
     protected val lockButton: View
     protected val loadingIndicator: ProgressBar?

@@ -53,7 +53,7 @@ class TVBufferingView @JvmOverloads constructor(
         visibility = View.GONE
     }
 
-    override fun attachController(controller: MediaController) {
+    override fun onControllerAttached(controller: MediaController) {
         mController = controller
     }
 

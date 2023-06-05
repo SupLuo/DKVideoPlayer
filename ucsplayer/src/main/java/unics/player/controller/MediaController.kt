@@ -41,8 +41,9 @@ import unics.player.kernel.UCSPlayerControl
  */
 open class MediaController @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null
-) : FrameLayout(context, attrs), UCSMediaController {
+    attrs: AttributeSet? = null,
+    defStyleAttr:Int = 0
+) : FrameLayout(context, attrs,defStyleAttr), UCSMediaController {
 
     private val TAG = "[MediaController@${this.hashCode()}]"
 
@@ -81,7 +82,7 @@ open class MediaController @JvmOverloads constructor(
                     this.isShowing = false
                     //由于游离组件是独立于控制器存在的，
                     //所以在播放器release的时候需要移除
-                    removeAllDissociateComponents()
+                    removeAllDissociateComponent()
                 }
                 UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                     isLocked = false
@@ -275,7 +276,6 @@ open class MediaController @JvmOverloads constructor(
 
     /**
      * 添加控制组件，最后面添加的在最下面，合理组织添加顺序，可让ControlComponent位于不同的层级
-     *
      * @param isDissociate 是否为游离的控制组件，
      * 如果为 true ControlComponent 不会添加到控制器中，ControlComponent 将独立于控制器而存在，
      * 如果为 false ControlComponent 将会被添加到控制器中，并显示出来。
@@ -292,12 +292,16 @@ open class MediaController @JvmOverloads constructor(
     @MainThread
     fun addControlComponent(component: ControlComponent, isDissociate: Boolean) {
         mControlComponents[component] = isDissociate
-        component.attachController(this)
         if (!isDissociate) {
             component.getView()?.let {
-                addView(it, 0)
+                if (UCSPManager.isControlIndexRevers) {
+                    addView(it, 0)
+                } else {
+                    addView(it)
+                }
             }
         }
+        component.onControllerAttached(this)
     }
 
     /**
@@ -307,6 +311,16 @@ open class MediaController @JvmOverloads constructor(
     fun removeControlComponent(component: ControlComponent) {
         removeControlComponentView(component)
         mControlComponents.remove(component)
+    }
+
+    /**
+     * 移除某个控制组件
+     */
+    @MainThread
+    fun removeControlComponent(vararg component: ControlComponent) {
+        component.forEach {
+            removeControlComponent(it)
+        }
     }
 
     /**
@@ -324,7 +338,7 @@ open class MediaController @JvmOverloads constructor(
      * 移除所有的游离控制组件
      * 关于游离控制组件的定义请看 [.addControlComponent] 关于 isDissociate 的解释
      */
-    fun removeAllDissociateComponents() {
+    fun removeAllDissociateComponent() {
         val it: MutableIterator<Map.Entry<*, Boolean>> = mControlComponents.iterator()
         while (it.hasNext()) {
             val (_, value) = it.next()
@@ -344,9 +358,7 @@ open class MediaController @JvmOverloads constructor(
         removeView(view)
     }
 
-
     /***********START 关键方法代码 */
-
     override val isFullScreen: Boolean
         get() = mBindContainerControl?.isFullScreen() ?: false
 
@@ -395,7 +407,6 @@ open class MediaController @JvmOverloads constructor(
             mDefaultTimeout = timeout.toLong()
         }
     }
-
 
     /**
      * 开始倒计时隐藏控制器
@@ -619,4 +630,7 @@ open class MediaController @JvmOverloads constructor(
         mActivity = UCSPUtil.getActivityContext(context)
     }
 
+    fun release() {
+        removeAllControlComponent()
+    }
 }

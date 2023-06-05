@@ -1,0 +1,41 @@
+/**
+ * android source.jar 和 javadoc.jar生成任务配置
+ */
+
+/**
+ * 申明javadoc 任务
+ */
+task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+    source = android.sourceSets.main.java.source
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+/**
+ * 生成JavaDoc对应的jar包
+ * @param dependsOn kotlin依赖dokkaJavadoc任务
+ */
+task javadocJar(type: Jar, dependsOn: Javadoc) {
+    group = 'jar'
+    classifier = 'javadoc'
+    //通过javadoc任务获取目标目录，也就是这里依赖前面定义的javadoc任务
+    from javadoc.destinationDir
+}
+
+/**
+ * 源码任务
+ */
+task sourcesJar(type: Jar) {
+//    group = 'jar'
+//    from android.sourceSets.main.java.srcDirs
+    from android.sourceSets.main.java.source
+    classifier = 'sources'
+}
+
+/**
+ * 这两个任务对应打包产物
+ */
+//artifacts {
+//    archives sourcesJar
+//    archives androidJavadocsJar
+//}

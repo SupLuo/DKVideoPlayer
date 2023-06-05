@@ -1,0 +1,15 @@
+/**
+ * java library 生成源码和javadoc jar的任务
+ */
+
+// 生成源码产物
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+// 生成 javadoc 产物
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}

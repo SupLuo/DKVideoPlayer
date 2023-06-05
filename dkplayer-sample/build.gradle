@@ -95,8 +95,8 @@ dependencies {
     implementation "com.google.android.material:material:1.6.1"
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation "androidx.activity:activity-ktx:1.4.0"
+    implementation project(':ucsplayer')
 
-    implementation project(':ucsplayer-core')
     implementation project(':ucsplayer-usecase')
 
     implementation project(':dkplayer-ui')

@@ -35,7 +35,7 @@ abstract class BaseControlComponent @JvmOverloads constructor(
         view.isFocusableInTouchMode = true
     }
 
-    override fun attachController(controller: MediaController) {
+    override fun onControllerAttached(controller: MediaController) {
         mController = controller
     }
 

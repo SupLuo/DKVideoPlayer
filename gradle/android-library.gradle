@@ -1,0 +1,8 @@
+/*包含 library module的常规配置*/
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+}
+
+apply from: "$rootDir/gradle/base-project-config.gradle"
+

@@ -1,0 +1,11 @@
+/*配置maven发布的android library module*/
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+/*module 统一配置*/
+apply from: "$rootDir/gradle/base-project-config.gradle"
+
+/*发布的统一配置*/
+apply from: "$rootDir/gradle/maven-publish-config.gradle"
+

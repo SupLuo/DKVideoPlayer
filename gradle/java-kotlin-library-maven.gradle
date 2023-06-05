@@ -1,0 +1,11 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin' //与该库的区别？ org.jetbrains.kotlin.jvm
+
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+
+/*发布的统一配置*/
+apply from: "$rootDir/gradle/maven-publish-config.gradle"
+

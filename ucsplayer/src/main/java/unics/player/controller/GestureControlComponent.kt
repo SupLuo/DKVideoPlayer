@@ -1,5 +1,7 @@
 package unics.player.controller
 
+import androidx.annotation.IntRange
+
 
 /**
  * 与手势操作相关的控制组件
@@ -27,11 +29,11 @@ interface GestureControlComponent : ControlComponent {
      * 滑动调整亮度
      * @param percent 亮度百分比
      */
-    fun onBrightnessChange(percent: Int)
+    fun onBrightnessChange(@IntRange(from = 0, to = 100) percent: Int)
 
     /**
      * 滑动调整音量
      * @param percent 音量百分比
      */
-    fun onVolumeChange(percent: Int)
+    fun onVolumeChange(@IntRange(from = 0, to = 100) percent: Int)
 }

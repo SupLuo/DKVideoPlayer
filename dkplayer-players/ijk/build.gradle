@@ -15,7 +15,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    compileOnly project(':ucsplayer-core')
+    compileOnly project(':ucsplayer')
 }
 
 ext {

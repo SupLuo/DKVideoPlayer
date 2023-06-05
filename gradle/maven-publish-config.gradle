@@ -1,0 +1,84 @@
+/*用于发布maven*/
+/*使用步骤
+* 1、 在需要发布的module中引入本文件(在apply plugin语句后增加）
+* apply from: "$rootDir/gradle/maven-publish-config.gradle"
+*
+* 2、在module目录下创建gradle.properties文件，定义如下变量值
+PROJECT_NAME = {工程名字} //注意不要加单引号或者双引号
+PROJECT_VERSION = {版本号} //注意不要加单引号或者双引号
+GROUP_ID =
+ARTIFACT_ID =
+*/
+
+apply plugin: 'maven-publish'
+
+//读取local.properties中仓库配置信息
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def NEXUS_USER = properties.getProperty('NEXUS_USER')
+def NEXUS_PWD = properties.getProperty('NEXUS_PWD')
+def NEXUS_URL = properties.getProperty('NEXUS_URL')
+def NEXUS_URL_SNAPSHOT = properties.getProperty('NEXUS_URL_SNAPSHOT')
+
+afterEvaluate { project ->
+    def isAndroid = project.getPlugins().hasPlugin('com.android.application') || project.getPlugins().hasPlugin('com.android.library')
+    def isKotlin = project.getPlugins().hasPlugin('kotlin') || project.getPlugins().hasPlugin('kotlin-android')
+    if (isAndroid) {
+        if (isKotlin) {
+            apply from: "$rootDir/gradle/javadoc-android-dokka.gradle"
+        } else {
+            apply from: "$rootDir/gradle/javadoc-android.gradle"
+        }
+    } else {
+        if (isKotlin) {
+            apply from: "$rootDir/gradle/javadoc-java-dokka.gradle"
+        } else {
+            apply from: "$rootDir/gradle/javadoc-java.gradle"
+        }
+    }
+    // Java8 适配
+    if (JavaVersion.current().isJava8Compatible()) {
+        allprojects {
+            tasks.withType(Javadoc) {
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
+        }
+    }
+
+    allprojects {
+        //设置javadoc的编码格式
+        tasks.withType(Javadoc) {
+            options.encoding = "utf-8"
+            options.charSet = "utf-8"
+        }
+    }
+
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = GROUP_ID
+                artifactId = ARTIFACT_ID
+                version = PROJECT_VERSION
+                //android 和 java 有不同的产物
+                from isAndroid ? components.release : components.java
+                /*Javadoc*/
+                artifact javadocJar
+                /*源码*/
+                artifact sourcesJar
+            }
+        }
+        repositories {
+            //仓库配置
+            maven {
+                //对于非 https 的仓库地址，需要设置 allowInsecureProtocol true
+                allowInsecureProtocol true
+                name = PROJECT_NAME //可选
+                url = PROJECT_VERSION.endsWith('SNAPSHOT') ? NEXUS_URL_SNAPSHOT : NEXUS_URL
+                credentials {
+                    username = NEXUS_USER
+                    password = NEXUS_PWD
+                }
+            }
+        }
+    }
+}

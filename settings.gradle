@@ -1,4 +1,4 @@
-include ':ucsplayer-core'
+include ':ucsplayer'
 
 include ':dkplayer-sample',
         ':dkplayer-videocache'
@@ -6,3 +6,6 @@ include ':dkplayer-ui'
 include 'dkplayer-players:ijk'
 include 'dkplayer-players:exo'
 include ':ucsplayer-usecase'
+
+include ':oknote'
+project(':oknote').projectDir = new File("../Bas/oknote/")

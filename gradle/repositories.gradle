@@ -1,0 +1,41 @@
+/*用于备注仓库，无法直接使用该文档*/
+
+repositories {
+    maven { url 'https://www.jitpack.io' }
+    /*阿里云镜像仓库，替代mavenCentral()和jcenter()*/
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/jcenter' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
+
+    /*替代google()仓库*/
+    maven { url 'https://dl.google.com/dl/android/maven2/' }
+
+//        maven { url 'https://repo1.maven.org/maven2'}
+    // release maven url
+    maven {
+        url "http://nexus.ucuxin.com/repository/droid-app-release/"
+        allowInsecureProtocol = true
+    }
+    // snapshot maven url
+    maven {
+        url 'http://nexus.ucuxin.com/repository/droid-app-snapshot/'
+        allowInsecureProtocol = true
+    }
+//        google()
+//        mavenCentral()
+//        //旧的阿里云仓库
+//        maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
+//        //新的阿里云镜像仓库
+//        jcenter { url 'https://maven.aliyun.com/repository/public' }
+//
+//
+//        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+//
+//        maven { url 'https://maven.aliyun.com/nexus/content/repositories/google' }
+
+//        maven { url 'https://repo1.maven.org/maven2'}
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
+
+}

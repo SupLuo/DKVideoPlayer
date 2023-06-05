@@ -10,23 +10,21 @@ import android.view.View.OnTouchListener
 import unics.player.ScreenMode
 import unics.player.internal.INVALIDATE_SEEK_POSITION
 import unics.player.internal.UCSPUtil
-
 import unics.player.internal.getScreenWidth
 import kotlin.math.abs
 
 /**
- * 包含手势操作的VideoController
+ * 在[MediaController]的基础上，增加了手势操作
  * Created by Doikki on 2018/1/6.
  */
-abstract class GestureVideoController @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : MediaController(context, attrs),
-    GestureDetector.OnGestureListener,
-    GestureDetector.OnDoubleTapListener,
+abstract class GestureMediaController @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : MediaController(context, attrs, defStyleAttr),
     OnTouchListener {
 
     private val mGestureDetector: GestureDetector
-    private val mAudioManager: AudioManager
+    private val mAudioManager: AudioManager =
+        context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     //竖屏模式是否启用手势操作
     private var mGestureInPortraitEnabled = false
@@ -56,10 +54,108 @@ abstract class GestureVideoController @JvmOverloads constructor(
     private var mChangeBrightness = false
     private var mChangeVolume = false
 
-    init {
-        mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        mGestureDetector = GestureDetector(context, this)
-        setOnTouchListener(this)
+    private var mGestureListener = object : GestureDetector.OnGestureListener {
+
+        /**
+         * 手指按下的瞬间
+         */
+        override fun onDown(e: MotionEvent): Boolean {
+            if (!isInPlaybackState //不处于播放状态
+                || !mGestureEnabled //关闭了手势
+                || UCSPUtil.isEdge(context, e)
+            ) //处于屏幕边沿
+                return true
+            mStreamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            val activity = UCSPUtil.getActivityContext(context)
+            mBrightness = activity?.window?.attributes?.screenBrightness ?: 0f
+            mFirstTouch = true
+            mChangePosition = false
+            mChangeBrightness = false
+            mChangeVolume = false
+            return true
+        }
+
+        /**
+         * 在屏幕上滑动
+         */
+        override fun onScroll(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
+            if (!isInPlaybackState //不处于播放状态
+                || !mGestureEnabled //关闭了手势
+                || !mCanSlide //关闭了滑动手势
+                || isLocked //锁住了屏幕
+                || UCSPUtil.isEdge(context, e1)
+            ) //处于屏幕边沿
+                return true
+            val deltaX = e1.x - e2.x
+            val deltaY = e1.y - e2.y
+            if (mFirstTouch) {
+                mChangePosition = abs(distanceX) >= abs(distanceY)
+                if (!mChangePosition) {
+                    //半屏宽度
+                    val halfScreen = getScreenWidth(context, true) / 2
+                    if (e2.x > halfScreen) {
+                        mChangeVolume = true
+                    } else {
+                        mChangeBrightness = true
+                    }
+                }
+                if (mChangePosition) {
+                    //根据用户设置是否可以滑动调节进度来决定最终是否可以滑动调节进度
+                    mChangePosition = seekEnabled
+                }
+                if (mChangePosition || mChangeBrightness || mChangeVolume) {
+                    for ((component) in mControlComponents) {
+                        if (component is GestureControlComponent) {
+                            component.onStartSlide()
+                        }
+                    }
+                }
+                mFirstTouch = false
+            }
+            if (mChangePosition) {
+                slideToChangePosition(deltaX)
+            } else if (mChangeBrightness) {
+                slideToChangeBrightness(deltaY)
+            } else if (mChangeVolume) {
+                slideToChangeVolume(deltaY)
+            }
+            return true
+        }
+
+        override fun onFling(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean = false
+
+        override fun onLongPress(e: MotionEvent) {}
+        override fun onShowPress(e: MotionEvent) {}
+        override fun onSingleTapUp(e: MotionEvent): Boolean = false
+    }
+
+    private val mDoubleTapListener = object : GestureDetector.OnDoubleTapListener {
+
+        //单击
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+            if (isInPlaybackState) {
+                toggleShowState()
+            }
+            return true
+        }
+
+        override fun onDoubleTapEvent(e: MotionEvent): Boolean = false
+
+        //双击
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            if (mDoubleTapTogglePlayEnabled && !isLocked && isInPlaybackState) togglePlay()
+            return true
+        }
     }
 
     /**
@@ -97,92 +193,6 @@ abstract class GestureVideoController @JvmOverloads constructor(
     }
 
     /**
-     * 手指按下的瞬间
-     */
-    override fun onDown(e: MotionEvent): Boolean {
-        if (!isInPlaybackState //不处于播放状态
-            || !mGestureEnabled //关闭了手势
-            || UCSPUtil.isEdge(context, e)
-        ) //处于屏幕边沿
-            return true
-        mStreamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-        val activity = UCSPUtil.getActivityContext(context)
-        mBrightness = activity?.window?.attributes?.screenBrightness ?: 0f
-        mFirstTouch = true
-        mChangePosition = false
-        mChangeBrightness = false
-        mChangeVolume = false
-        return true
-    }
-
-    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        if (isInPlaybackState) {
-            toggleShowState()
-        }
-        return true
-    }
-
-    /**
-     * 双击
-     */
-    override fun onDoubleTap(e: MotionEvent): Boolean {
-        if (mDoubleTapTogglePlayEnabled && !isLocked && isInPlaybackState) togglePlay()
-        return true
-    }
-
-    /**
-     * 在屏幕上滑动
-     */
-    override fun onScroll(
-        e1: MotionEvent,
-        e2: MotionEvent,
-        distanceX: Float,
-        distanceY: Float
-    ): Boolean {
-        if (!isInPlaybackState //不处于播放状态
-            || !mGestureEnabled //关闭了手势
-            || !mCanSlide //关闭了滑动手势
-            || isLocked //锁住了屏幕
-            || UCSPUtil.isEdge(context, e1)
-        ) //处于屏幕边沿
-            return true
-        val deltaX = e1.x - e2.x
-        val deltaY = e1.y - e2.y
-        if (mFirstTouch) {
-            mChangePosition = abs(distanceX) >= abs(distanceY)
-            if (!mChangePosition) {
-                //半屏宽度
-                val halfScreen = getScreenWidth(context, true) / 2
-                if (e2.x > halfScreen) {
-                    mChangeVolume = true
-                } else {
-                    mChangeBrightness = true
-                }
-            }
-            if (mChangePosition) {
-                //根据用户设置是否可以滑动调节进度来决定最终是否可以滑动调节进度
-                mChangePosition = seekEnabled
-            }
-            if (mChangePosition || mChangeBrightness || mChangeVolume) {
-                for ((component) in mControlComponents) {
-                    if (component is GestureControlComponent) {
-                        component.onStartSlide()
-                    }
-                }
-            }
-            mFirstTouch = false
-        }
-        if (mChangePosition) {
-            slideToChangePosition(deltaX)
-        } else if (mChangeBrightness) {
-            slideToChangeBrightness(deltaY)
-        } else if (mChangeVolume) {
-            slideToChangeVolume(deltaY)
-        }
-        return true
-    }
-
-    /**
      * 滑动切换播放位置
      */
     protected fun slideToChangePosition(deltaX: Float) {
@@ -196,7 +206,6 @@ abstract class GestureVideoController @JvmOverloads constructor(
             setPendingSeekPositionAndNotify(position, currentPosition, duration)
         }
     }
-
 
     protected fun slideToChangeBrightness(deltaY: Float) {
         val activity = UCSPUtil.getActivityContext(context) ?: return
@@ -234,6 +243,8 @@ abstract class GestureVideoController @JvmOverloads constructor(
             }
         }
     }
+
+
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         //滑动结束时事件处理
@@ -286,22 +297,10 @@ abstract class GestureVideoController @JvmOverloads constructor(
         }
     }
 
-    override fun onFling(
-        e1: MotionEvent,
-        e2: MotionEvent,
-        velocityX: Float,
-        velocityY: Float
-    ): Boolean {
-        return false
+
+    init {
+        mGestureDetector = GestureDetector(context, mGestureListener)
+        setOnTouchListener(this)
     }
 
-    override fun onLongPress(e: MotionEvent) {}
-    override fun onShowPress(e: MotionEvent) {}
-    override fun onDoubleTapEvent(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        return false
-    }
 }
