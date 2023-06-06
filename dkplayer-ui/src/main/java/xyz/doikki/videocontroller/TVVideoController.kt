@@ -65,6 +65,11 @@ open class TVVideoController @JvmOverloads constructor(
      */
     var keyEventEnable: Boolean = true
 
+    /**
+     * 是否是直播
+     */
+    var isLive: Boolean = false
+
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
 
         override fun handleMessage(msg: Message) {
@@ -171,16 +176,29 @@ open class TVVideoController @JvmOverloads constructor(
             KeyEvent.KEYCODE_ENTER,
             KeyEvent.KEYCODE_DPAD_CENTER
             -> {//播放/暂停切换键
-                if (uniqueDown) {  //第一次按下Ok键/播放暂停键/空格键
-                    if (isInPlaybackState) {
-                        //正在播放过程中，则切换播放
-                        togglePlay()
-                    } else if (isInCompleteState) {
-                        replay(resetPosition = true)
-                    } else if (isInErrorState) {
-                        replay(resetPosition = false)
+                if (isLive) {
+                    if (uniqueDown) {//没有在播放中，则开始播放
+                        invokeOnPlayerAttached(showToast = false) {
+                            if (isInCompleteState) {
+                                replay(resetPosition = true)
+                            } else if (isInErrorState) {
+                                replay(resetPosition = false)
+                            }
+                        }
+                        show()
                     }
-                    show()
+                } else {
+                    if (uniqueDown) {  //第一次按下Ok键/播放暂停键/空格键
+                        if (isInPlaybackState) {
+                            //正在播放过程中，则切换播放
+                            togglePlay()
+                        } else if (isInCompleteState) {
+                            replay(resetPosition = true)
+                        } else if (isInErrorState) {
+                            replay(resetPosition = false)
+                        }
+                        show()
+                    }
                 }
                 return true
             }
@@ -195,7 +213,7 @@ open class TVVideoController @JvmOverloads constructor(
             }
             KeyEvent.KEYCODE_MEDIA_STOP,
             KeyEvent.KEYCODE_MEDIA_PAUSE -> {//暂停键
-                if (uniqueDown && isInPlaybackState) {
+                if (!isLive && uniqueDown && isInPlaybackState) {
                     invokeOnPlayerAttached(showToast = false) { player ->
                         player.pause()
                     }
@@ -213,6 +231,11 @@ open class TVVideoController @JvmOverloads constructor(
                 return super.dispatchKeyEvent(event)
             }
             KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_LEFT -> {//左右键，做seek行为
+                if (isLive) {
+                    plogv2(TAG) { "is live mode ,not response dpad left and right key event." }
+                    return false
+                }
+
                 plogv2(TAG) { "handle dpad right or left key for pending seek." }
                 if (!(seekEnabled && isInPlaybackState)) {//不允许拖动
                     plogv2(TAG) { "pending seek disabled." }

@@ -52,7 +52,7 @@ internal fun releasePlayer(mediaPlayer: MediaPlayer) {
         val temp = mediaPlayer
         override fun run() {
             try {
-                plogi() { "releasePlayer($temp) -> invoke on thread" }
+                plogi { "releasePlayer($temp) -> invoke on thread" }
                 temp.release()
             } catch (e: Exception) {
                 ploge(e) {
