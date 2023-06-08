@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <unics.player.control.FloatStatableSeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:fssb_floatText="5555"
+        app:fssb_progress="50"/>
+</LinearLayout>

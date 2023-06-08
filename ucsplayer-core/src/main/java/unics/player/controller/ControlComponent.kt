@@ -4,7 +4,6 @@ import android.view.View
 import android.view.animation.Animation
 import unics.player.ScreenMode
 import unics.player.UCSPManager
-import unics.player.controller.MediaController
 import unics.player.kernel.UCSPlayerControl
 
 /**

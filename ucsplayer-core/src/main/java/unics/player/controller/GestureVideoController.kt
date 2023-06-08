@@ -7,7 +7,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
-import androidx.annotation.AttrRes
 import unics.player.ScreenMode
 import unics.player.internal.INVALIDATE_SEEK_POSITION
 import unics.player.internal.UCSPUtil
