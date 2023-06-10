@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="ucsp_ctrl_theme" format="reference" />
+    <color name="ucsp_ctrl_accent_color">#FF5FFFD8</color>
+    <color name="ucsp_ctrl_accent_color_dark">#39C5BB</color>
+
+
+    <!--seek thum 大小-->
+    <dimen name="ucsp_ctrl_seekbar_thumb_size">16dp</dimen>
+    <!--控制器seekbar背景高度-->
+    <dimen name="ucsp_ctrl_seekbar_height">3dp</dimen>
+    <!--默认背景色：20%白色-->
+    <color name="ucsp_ctrl_seekbar_background_color">#33FFFFFF</color>
+    <!--默认二级进度颜色：70%白色-->
+    <color name="ucsp_ctrl_seekbar_secondary_progress_color">#B2FFFFFF</color>
+    <!--进度值颜色-->
+    <color name="ucsp_ctrl_seekbar_progress_color">@color/ucsp_ctrl_accent_color</color>
+
+    <style name="UcspCtrl" />
+
+    <!--圆角进度条-->
+    <style name="UcspCtrl.SeekBar">
+        <!--让thumb显示完全：在两端不会被裁剪-->
+        <item name="android:thumbOffset">0dp</item>
+        <!--设置左右间隙为0，避免左右留出空白区域-->
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>
+        <!--限定进度条高度：与控件高度有区别-->
+        <item name="android:minHeight">@dimen/ucsp_ctrl_seekbar_height</item>
+        <item name="android:maxHeight">@dimen/ucsp_ctrl_seekbar_height</item>
+        <!--背景-->
+        <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress</item>
+    </style>
+
+    <!--圆角进度条-->
+    <style name="UcspCtrl.SeekBar.Rounded">
+        <!--不知道为啥要显示写下面的属性预览才有效果-->
+        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>
+        <!--限定进度条高度：与控件高度有区别???不知道为啥也需要重新写定义这个属性，不然在xml预览的时候，进度条高度变得特别高-->
+        <item name="android:minHeight">@dimen/ucsp_ctrl_seekbar_height</item>
+        <item name="android:maxHeight">@dimen/ucsp_ctrl_seekbar_height</item>
+
+        <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress_rounded</item>
+    </style>
+
+
+    <style name="UcspCtrl.ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress</item>
+    </style>
+
+    <style name="UcspCtrl.ProgressBar.Overlay">
+        <item name="android:alpha">0.5</item>
+        <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress</item>
+    </style>
+
+
+</resources>

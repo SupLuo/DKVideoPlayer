@@ -16,7 +16,6 @@ import androidx.annotation.LayoutRes
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.toTimeString
 import unics.player.ScreenMode
-import unics.player.UCSVideoView
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.videocontroller.R
 
@@ -31,13 +30,13 @@ open class VodControlView @JvmOverloads constructor(
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
 
-    private var mBottomContainer: LinearLayout? = null
-    private val mFullScreen: ImageView?
-    private var mTotalTime: TextView? = null
-    private var mCurrTime: TextView? = null
-    private var mPlayButton: ImageView? = null
-    private var mVideoProgress: SeekBar? = null
-    private var mBottomProgress: ProgressBar? = null
+    private var mVodCtrlContainer: LinearLayout? = null
+    private var mDurationView: TextView? = null
+    private var mTimeView: TextView? = null
+    private val mFullScreenView: ImageView?
+    private var mPlayView: ImageView? = null
+    private var mProgressBar: SeekBar? = null
+    private var mProgressBarOverlay: ProgressBar? = null
 
     /**
      * 是否正在拖动SeekBar
@@ -68,7 +67,7 @@ open class VodControlView @JvmOverloads constructor(
             mController?.playerControl?.let { player ->
                 val duration = player.getDuration()
                 val newPosition = duration * progress / seekBar.max.coerceAtLeast(1)
-                mCurrTime?.text = newPosition.toTimeString()
+                mTimeView?.text = newPosition.toTimeString()
             }
         }
 
@@ -99,17 +98,17 @@ open class VodControlView @JvmOverloads constructor(
 
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (isVisible) {
-            mBottomContainer?.let { bottomContainer ->
+            mVodCtrlContainer?.let { bottomContainer ->
                 bottomContainer.visibility = VISIBLE
                 anim?.let {
                     bottomContainer.startAnimation(it)
                 }
             }
             if (showBottomProgress) {
-                mBottomProgress?.visibility = GONE
+                mProgressBarOverlay?.visibility = GONE
             }
         } else {
-            mBottomContainer?.let { bottomContainer ->
+            mVodCtrlContainer?.let { bottomContainer ->
                 bottomContainer.visibility = GONE
                 anim?.let {
                     bottomContainer.startAnimation(it)
@@ -117,7 +116,7 @@ open class VodControlView @JvmOverloads constructor(
             }
 
             if (showBottomProgress) {
-                mBottomProgress?.let { bottomProgress ->
+                mProgressBarOverlay?.let { bottomProgress ->
                     bottomProgress.visibility = VISIBLE
                     val animation = AlphaAnimation(0f, 1f)
                     animation.duration = 300
@@ -131,11 +130,11 @@ open class VodControlView @JvmOverloads constructor(
         when (playState) {
             UCSPlayer.STATE_IDLE, UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 visibility = GONE
-                mBottomProgress?.let {
+                mProgressBarOverlay?.let {
                     it.progress = 0
                     it.secondaryProgress = 0
                 }
-                mVideoProgress?.let {
+                mProgressBar?.let {
                     it.progress = 0
                     it.secondaryProgress = 0
                 }
@@ -143,30 +142,30 @@ open class VodControlView @JvmOverloads constructor(
             UCSPlayer.STATE_PREPARED_BUT_ABORT, UCSPlayer.STATE_PREPARING,
             UCSPlayer.STATE_PREPARED, UCSPlayer.STATE_ERROR -> visibility = GONE
             UCSPlayer.STATE_PLAYING -> {
-                mPlayButton?.isSelected = true
+                mPlayView?.isSelected = true
                 if (showBottomProgress) {
                     if (mController?.isShowing == true) {
-                        mBottomProgress?.visibility = GONE
-                        mBottomContainer?.visibility = VISIBLE
+                        mProgressBarOverlay?.visibility = GONE
+                        mVodCtrlContainer?.visibility = VISIBLE
                     } else {
-                        mBottomContainer?.visibility = GONE
-                        mBottomProgress?.visibility = VISIBLE
+                        mVodCtrlContainer?.visibility = GONE
+                        mProgressBarOverlay?.visibility = VISIBLE
                     }
                 } else {
-                    mBottomContainer?.visibility = GONE
+                    mVodCtrlContainer?.visibility = GONE
                 }
                 visibility = VISIBLE
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
-            UCSPlayer.STATE_PAUSED -> mPlayButton?.isSelected = false
+            UCSPlayer.STATE_PAUSED -> mPlayView?.isSelected = false
             UCSPlayer.STATE_BUFFERING -> {
-                mPlayButton?.isSelected = playerControl?.isPlaying() ?: false
+                mPlayView?.isSelected = playerControl?.isPlaying() ?: false
                 // 停止刷新进度
                 mController?.stopUpdateProgress()
             }
             UCSPlayer.STATE_BUFFERED -> {
-                mPlayButton?.isSelected = playerControl?.isPlaying() ?: false
+                mPlayView?.isSelected = playerControl?.isPlaying() ?: false
                 //开始刷新进度
                 mController?.startUpdateProgress()
             }
@@ -176,13 +175,13 @@ open class VodControlView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         when (screenMode) {
-            ScreenMode.NORMAL -> mFullScreen?.isSelected = false
-            ScreenMode.FULL_SCREEN -> mFullScreen?.isSelected = true
+            ScreenMode.NORMAL -> mFullScreenView?.isSelected = false
+            ScreenMode.FULL_SCREEN -> mFullScreenView?.isSelected = true
         }
 
         val activity = this.activity ?: return
-        val bottomContainer = mBottomContainer
-        val bottomProgress = mBottomProgress
+        val bottomContainer = mVodCtrlContainer
+        val bottomProgress = mProgressBarOverlay
 
         //底部容器和进度都为空，则不用处理后续逻辑
         if (bottomContainer == null && bottomProgress == null)
@@ -228,27 +227,27 @@ open class VodControlView @JvmOverloads constructor(
         if (mTrackingTouch) {
             return
         }
-        mVideoProgress?.let { seekBar ->
+        mProgressBar?.let { seekBar ->
             if (duration > 0) {
                 seekBar.isEnabled = true
                 val pos = (position * 1.0 / duration * seekBar.max).toInt()
                 seekBar.progress = pos
-                mBottomProgress?.progress = pos
+                mProgressBarOverlay?.progress = pos
             } else {
                 seekBar.isEnabled = false
             }
             val percent = playerControl?.getBufferedPercentage() ?: 0
             if (percent >= 95) { //解决缓冲进度不能100%问题
                 seekBar.secondaryProgress = seekBar.max
-                mBottomProgress?.secondaryProgress = mBottomProgress?.max ?: 100
+                mProgressBarOverlay?.secondaryProgress = mProgressBarOverlay?.max ?: 100
             } else {
                 seekBar.secondaryProgress = percent * 10
-                mBottomProgress?.secondaryProgress = percent * 10
+                mProgressBarOverlay?.secondaryProgress = percent * 10
             }
         }
 
-        mTotalTime?.text = duration.toTimeString()
-        mCurrTime?.text = position.toTimeString()
+        mDurationView?.text = duration.toTimeString()
+        mTimeView?.text = position.toTimeString()
     }
 
     init {
@@ -256,28 +255,29 @@ open class VodControlView @JvmOverloads constructor(
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
         } else {
-            layoutInflater.inflate(R.layout.dkplayer_layout_vod_control_view, this)
+            layoutInflater.inflate(R.layout.ucsp_ctrl_vod_control_layout, this)
         }
 
-        mFullScreen = findViewById(R.id.fullscreen)
-        mFullScreen?.setOnClickListener(innerViewClick)
+        mFullScreenView = findViewById(R.id.ucsp_ctrl_fullScreen)
+        mFullScreenView?.setOnClickListener(innerViewClick)
         if (isTelevisionUiMode()) {//tv 模式不会显示全屏按钮
-            mFullScreen?.visibility = View.GONE
+            mFullScreenView?.visibility = View.GONE
         }
 
-        mBottomContainer = findViewById(R.id.bottom_container)
-        mVideoProgress = findViewById<SeekBar?>(R.id.seekBar)?.also {
+        mVodCtrlContainer = findViewById(R.id.ucsp_ctrl_vodCtrlContainer)
+        mProgressBar = findViewById<SeekBar?>(R.id.ucsp_ctrl_seekBar)?.also {
             it.setOnSeekBarChangeListener(innerSeekBarChangeListener)
             //5.1以下系统SeekBar高度需要设置成WRAP_CONTENT
             if (Build.VERSION.SDK_INT <= 22) {
                 it.layoutParams?.height = ViewGroup.LayoutParams.WRAP_CONTENT
             }
         }
+        mProgressBarOverlay = findViewById(R.id.ucsp_ctrl_progressOverlay)
 
-        mTotalTime = findViewById(R.id.total_time)
-        mCurrTime = findViewById(R.id.curr_time)
-        mPlayButton = findViewById(R.id.iv_play)
-        mPlayButton?.setOnClickListener(innerViewClick)
-        mBottomProgress = findViewById(R.id.bottom_progress)
+        mDurationView = findViewById(R.id.ucsp_ctrl_duration)
+        mTimeView = findViewById(R.id.ucsp_ctrl_time)
+        mPlayView = findViewById(R.id.ucsp_ctrl_play)
+        mPlayView?.setOnClickListener(innerViewClick)
+
     }
 }

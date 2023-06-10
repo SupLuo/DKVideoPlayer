@@ -17,6 +17,8 @@ android {
                 '-Xjvm-default=all'
         ]
     }
+
+    resourcePrefix 'ucsp_ctrl'
 }
 
 dependencies {

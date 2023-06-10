@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--默认高度-->
-    <dimen name="fssb_barHeight">3dp</dimen>
 
-    <!--默认背景色：20%白色-->
-    <color name="fssb_barColor">#33FFFFFF</color>
-    <!--默认二级进度颜色：90%白色-->
-    <color name="fssb_secondaryProgressColor">#E6FFFFFF</color>
-    <!--进度值颜色-->
-    <color name="fssb_progressColor">#5FFFD8</color>
 
     <!--具备float提示和暂停状态的seekbar：比较适合用于TV播放器进度条-->
     <declare-styleable name="FloatStatableSeekBar">

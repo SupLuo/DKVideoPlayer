@@ -534,24 +534,24 @@ open class FloatStatableSeekBar @JvmOverloads constructor(context: Context, attr
             context.obtainStyledAttributes(attrs, R.styleable.FloatStatableSeekBar, defStyleAttr, 0)
         mBarHeight = ta.getDimension(
             R.styleable.FloatStatableSeekBar_fssb_barHeight,
-            context.resources.getDimension(R.dimen.fssb_barHeight)
+            context.resources.getDimension(R.dimen.ucsp_ctrl_seekbar_height)
         ).also {
             mBarCornerRadius = ceil(it / 2)
         }
 
         mBarColor = ta.getColor(
             R.styleable.FloatStatableSeekBar_fssb_barColor,
-            ContextCompat.getColor(context, R.color.fssb_barColor)
+            ContextCompat.getColor(context, R.color.ucsp_ctrl_seekbar_background_color)
         )
         mSecondaryProgressColor =
             ta.getColor(
                 R.styleable.FloatStatableSeekBar_fssb_progressColor,
-                ContextCompat.getColor(context, R.color.fssb_secondaryProgressColor)
+                ContextCompat.getColor(context, R.color.ucsp_ctrl_seekbar_secondary_progress_color)
             )
         mProgressColor =
             ta.getColor(
                 R.styleable.FloatStatableSeekBar_fssb_progressColor,
-                ContextCompat.getColor(context, R.color.fssb_progressColor)
+                ContextCompat.getColor(context, R.color.ucsp_ctrl_seekbar_progress_color)
             )
 
 
