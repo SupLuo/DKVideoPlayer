@@ -41,7 +41,6 @@
         <!--限定进度条高度：与控件高度有区别???不知道为啥也需要重新写定义这个属性，不然在xml预览的时候，进度条高度变得特别高-->
         <item name="android:minHeight">@dimen/ucsp_ctrl_seekbar_height</item>
         <item name="android:maxHeight">@dimen/ucsp_ctrl_seekbar_height</item>
-
         <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress_rounded</item>
     </style>
 
@@ -53,6 +52,10 @@
     <style name="UcspCtrl.ProgressBar.Overlay">
         <item name="android:alpha">0.5</item>
         <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress</item>
+    </style>
+
+    <style name="UcspCtrl.DefaultSeekBarTheme">
+        <item name="android:seekBarStyle">@style/UcspCtrl.SeekBar.Rounded</item>
     </style>
 
 

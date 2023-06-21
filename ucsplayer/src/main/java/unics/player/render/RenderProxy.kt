@@ -13,7 +13,7 @@ import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerBase
 
 /**
- * Render代理：只管播Render相关
+ * Render代理：只管Render相关
  * 本类设计：视频渲染层代理，在渲染层基础功能的情况下（旋转、镜像旋转、截屏、比例缩放），新增图层切换、工厂切换、渲染层是否重用等功能控制
  *
  * 注意：注意：注意： 在使用之前，必须调用[bindContainer]指定容器,使用[bindPlayer]绑定播放器，这是两个关键

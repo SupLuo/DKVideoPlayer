@@ -1,8 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <unics.player.control.widget.FloatTextIndicatorSeekBar
+            android:id="@+id/ucsp_ctrl_seekBar2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="1000"
+            android:textColor="@android:color/white"
+            app:ucsp_endpointMode="offsetText"
+            app:ucsp_floatTextMargin="18dp"
+            android:shadowRadius="5"
+            android:shadowDx="5"
+            android:shadowColor="@android:color/holo_red_light"/>
+
+        <unics.player.control.widget.FloatTextIndicatorSeekBar
+            android:id="@+id/ucsp_ctrl_seekBar3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="1000"
+            android:layout_marginTop="100dp"
+            android:textColor="@android:color/white"
+            app:ucsp_endpointMode="offsetSeekBar"
+            app:ucsp_floatTextMargin="18dp"
+            android:shadowRadius="5"
+            android:shadowDy="5"
+            android:shadowColor="@android:color/black"/>
+
+        <unics.player.control.widget.FloatTextIndicatorSeekBar
+            android:id="@+id/ucsp_ctrl_seekBar4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="1000"
+            android:layout_marginTop="200dp"
+            android:textColor="@android:color/white"
+            app:ucsp_endpointMode="clipText"
+            app:ucsp_floatTextMargin="18dp"
+            android:shadowRadius="5"
+            android:shadowColor="@android:color/holo_orange_dark"/>
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/ucsp_ctrl_vodCtrlContainer"
@@ -39,8 +84,7 @@
             android:layout_weight="1"
             android:background="@null"
             android:max="1000"
-
-            tools:progress="50" />
+            tools:progress="0" />
 
         <TextView
             android:id="@+id/ucsp_ctrl_duration"

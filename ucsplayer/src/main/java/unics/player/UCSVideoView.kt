@@ -194,6 +194,5 @@ open class UCSVideoView @JvmOverloads constructor(
         if (activity != null) {
             bindActivity(activity)
         }
-
     }
 }

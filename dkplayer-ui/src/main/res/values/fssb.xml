@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
+    <declare-styleable name="FloatTextIndicatorSeekBar" tools:ignore="ResourceName">
+        <!--seek bar 样式-->
+        <attr name="ucsp_seekBarStyle" format="reference" />
+        <!--float文本颜色-->
+        <attr name="android:textColor" />
+        <!--float文本大小，默认14sp-->
+        <attr name="android:textSize" />
+        <attr name="android:shadowColor" />
+        <attr name="android:shadowDx" />
+        <attr name="android:shadowDy" />
+        <attr name="android:shadowRadius" />
+        <!--时移格式(float文本格式)，默认 HH:mm:ss-->
+        <attr name="ucsp_timeShiftPattern" format="string|reference" />
+        <!--float文本垂直方向的间距，默认4dp-->
+        <attr name="ucsp_floatTextMargin" format="dimension|reference" />
+        <!--端点文本和seekbar的模式，默认offsetText-->
+        <attr name="ucsp_endpointMode" format="flags">
+            <!--偏移文本，让文本显示完全-->
+            <flag name="offsetText" value="0" />
+            <!--偏移seekbar让文本显示完全-->
+            <flag name="offsetSeekBar" value="1" />
+            <!--裁剪文本，即文本在断点的时候，部分文本会显示不全（如果其parent 开启clipChildren = false则文本也能查看）-->
+            <flag name="clipText" value="2" />
+        </attr>
+
+    </declare-styleable>
 
 
     <!--具备float提示和暂停状态的seekbar：比较适合用于TV播放器进度条-->
@@ -27,7 +53,7 @@
         <!--进度条圆形指示器 内圆颜色-->
         <attr name="fssb_indicatorInnerColor" format="color|reference" />
         <!--二级指示器图标大小，默认24dp-->
-        <attr name="fssb_secondaryIndicatorSize" format="dimension|reference"/>
+        <attr name="fssb_secondaryIndicatorSize" format="dimension|reference" />
 
         <!--float背景色：三角形和文字框背景色-->
         <attr name="fssb_floatColor" format="color|reference" />

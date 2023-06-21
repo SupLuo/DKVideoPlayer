@@ -42,8 +42,8 @@ import unics.player.kernel.UCSPlayerControl
 open class MediaController @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr:Int = 0
-) : FrameLayout(context, attrs,defStyleAttr), UCSMediaController {
+    defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr), UCSMediaController {
 
     private val TAG = "[MediaController@${this.hashCode()}]"
 
@@ -129,9 +129,14 @@ open class MediaController @JvmOverloads constructor(
         override fun run() {
             val pos = updateProgress()
             if (isPlaying()) {
+
+                var divisor = mBindPlayer?.getSpeed() ?: 1f
+                if (divisor == 0f) {
+                    divisor = 1f
+                }
                 postDelayed(
                     this,
-                    ((1000 - pos % 1000) / (mBindPlayer?.getSpeed() ?: 1f)).toLong()
+                    ((1000 - pos % 1000) / divisor).toLong()
                 )
             } else {
                 mProgressRefreshing = false

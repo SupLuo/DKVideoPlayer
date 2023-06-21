@@ -54,7 +54,7 @@ abstract class GestureMediaController @JvmOverloads constructor(
     private var mChangeBrightness = false
     private var mChangeVolume = false
 
-    private var mGestureListener = object : GestureDetector.OnGestureListener {
+    private var mGestureListener = object : GestureDetector.SimpleOnGestureListener() {
 
         /**
          * 手指按下的瞬间
@@ -127,20 +127,6 @@ abstract class GestureMediaController @JvmOverloads constructor(
             return true
         }
 
-        override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean = false
-
-        override fun onLongPress(e: MotionEvent) {}
-        override fun onShowPress(e: MotionEvent) {}
-        override fun onSingleTapUp(e: MotionEvent): Boolean = false
-    }
-
-    private val mDoubleTapListener = object : GestureDetector.OnDoubleTapListener {
-
         //单击
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (isInPlaybackState) {
@@ -148,8 +134,6 @@ abstract class GestureMediaController @JvmOverloads constructor(
             }
             return true
         }
-
-        override fun onDoubleTapEvent(e: MotionEvent): Boolean = false
 
         //双击
         override fun onDoubleTap(e: MotionEvent): Boolean {
@@ -245,7 +229,6 @@ abstract class GestureMediaController @JvmOverloads constructor(
     }
 
 
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
         //滑动结束时事件处理
         if (!mGestureDetector.onTouchEvent(event)) {
@@ -296,7 +279,6 @@ abstract class GestureMediaController @JvmOverloads constructor(
             }
         }
     }
-
 
     init {
         mGestureDetector = GestureDetector(context, mGestureListener)

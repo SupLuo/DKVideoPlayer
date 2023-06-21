@@ -135,7 +135,7 @@ object UCSPManager {
      * [unics.player.controller.ControlComponent]是否倒叙添加到MediaController中，默认不是，即Controller#addControlComponent的顺序就是view的添加顺序：原版都是后添加的放在viewtree的第一个位置
      */
     @JvmStatic
-    var isControlIndexRevers: Boolean = false
+    var isControlIndexRevers: Boolean = true
 
     /**
      * 创建播放器内核

@@ -36,9 +36,9 @@ internal val threadPool = Executors.newCachedThreadPool()
 internal fun releasePlayer(mediaPlayer: MediaPlayer) {
     mediaPlayer.apply {
         //必须在播放过程中才可以调用stop，否则可能出现“stop called in state 1, mPlayer(0x0)”问题
-        if(mediaPlayer.isPlaying)
+        if(isPlaying)
             stop()
-        mediaPlayer.reset()
+        reset()
         setOnErrorListener(null)
         setOnCompletionListener(null)
         setOnInfoListener(null)

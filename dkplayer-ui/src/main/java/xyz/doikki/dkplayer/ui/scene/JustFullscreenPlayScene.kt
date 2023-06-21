@@ -110,7 +110,7 @@ class JustFullscreenPlayScene private constructor(
             // 如果你想对某个组件进行定制，直接将该组件的代码复制一份，改成你想要的样子
             vodControlView.findViewById<View>(R.id.fullscreen).visibility = View.GONE
             val lp =
-                vodControlView.findViewById<View>(R.id.total_time).layoutParams as LinearLayout.LayoutParams
+                vodControlView.findViewById<View>(R.id.ucsp_ctrl_duration).layoutParams as LinearLayout.LayoutParams
             lp.rightMargin = UCSPUtil.dpInt(context,16f)
             addControlComponent(vodControlView)
             //最后添加手势view

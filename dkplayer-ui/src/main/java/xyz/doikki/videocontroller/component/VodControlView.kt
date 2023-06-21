@@ -16,6 +16,7 @@ import androidx.annotation.LayoutRes
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.toTimeString
 import unics.player.ScreenMode
+import unics.player.control.widget.FloatTextIndicatorSeekBar
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.videocontroller.R
 
@@ -36,6 +37,9 @@ open class VodControlView @JvmOverloads constructor(
     private val mFullScreenView: ImageView?
     private var mPlayView: ImageView? = null
     private var mProgressBar: SeekBar? = null
+    private var mTimeShiftBar:FloatTextIndicatorSeekBar? = null
+    private var mTimeShiftBar2:FloatTextIndicatorSeekBar? = null
+    private var mTimeShiftBar3:FloatTextIndicatorSeekBar? = null
     private var mProgressBarOverlay: ProgressBar? = null
 
     /**
@@ -50,10 +54,10 @@ open class VodControlView @JvmOverloads constructor(
 
     private val innerViewClick: OnClickListener = OnClickListener {
         when (it.id) {
-            R.id.fullscreen -> {
+            R.id.ucsp_ctrl_fullScreen -> {
                 toggleFullScreen()
             }
-            R.id.iv_play -> {
+            R.id.ucsp_ctrl_play -> {
                 mController?.togglePlay()
             }
         }
@@ -137,6 +141,18 @@ open class VodControlView @JvmOverloads constructor(
                 mProgressBar?.let {
                     it.progress = 0
                     it.secondaryProgress = 0
+                }
+                mTimeShiftBar?.let {
+                    it.setProgress(0)
+                    it.setSecondaryProgress(0)
+                }
+                mTimeShiftBar2?.let {
+                    it.setProgress(0)
+                    it.setSecondaryProgress(0)
+                }
+                mTimeShiftBar3?.let {
+                    it.setProgress(0)
+                    it.setSecondaryProgress(0)
                 }
             }
             UCSPlayer.STATE_PREPARED_BUT_ABORT, UCSPlayer.STATE_PREPARING,
@@ -246,6 +262,58 @@ open class VodControlView @JvmOverloads constructor(
             }
         }
 
+        mTimeShiftBar?.let { seekBar ->
+            if (duration > 0) {
+                seekBar.isEnabled = true
+                val pos = (position * 1.0 / duration * seekBar.getMax()).toInt()
+                seekBar.setProgress(pos)
+                mProgressBarOverlay?.progress = pos
+            } else {
+                seekBar.isEnabled = false
+            }
+            val percent = playerControl?.getBufferedPercentage() ?: 0
+            if (percent >= 95) { //解决缓冲进度不能100%问题
+                seekBar.setSecondaryProgress(seekBar.getMax())
+                mProgressBarOverlay?.secondaryProgress = mProgressBarOverlay?.max ?: 100
+            } else {
+                seekBar.setSecondaryProgress( percent * 10)
+                mProgressBarOverlay?.secondaryProgress = percent * 10
+            }
+        }
+
+        mTimeShiftBar2?.let { seekBar ->
+            if (duration > 0) {
+                seekBar.isEnabled = true
+                val pos = (position * 1.0 / duration * seekBar.getMax()).toInt()
+                seekBar.setProgress(pos)
+            } else {
+                seekBar.isEnabled = false
+            }
+            val percent = playerControl?.getBufferedPercentage() ?: 0
+            if (percent >= 95) { //解决缓冲进度不能100%问题
+                seekBar.setSecondaryProgress(seekBar.getMax())
+            } else {
+                seekBar.setSecondaryProgress( percent * 10)
+            }
+        }
+
+        mTimeShiftBar3?.let { seekBar ->
+            if (duration > 0) {
+                seekBar.isEnabled = true
+                val pos = (position * 1.0 / duration * seekBar.getMax()).toInt()
+                seekBar.setProgress(pos)
+            } else {
+                seekBar.isEnabled = false
+            }
+            val percent = playerControl?.getBufferedPercentage() ?: 0
+            if (percent >= 95) { //解决缓冲进度不能100%问题
+                seekBar.setSecondaryProgress(seekBar.getMax())
+            } else {
+                seekBar.setSecondaryProgress( percent * 10)
+            }
+        }
+
+
         mDurationView?.text = duration.toTimeString()
         mTimeView?.text = position.toTimeString()
     }
@@ -272,6 +340,9 @@ open class VodControlView @JvmOverloads constructor(
                 it.layoutParams?.height = ViewGroup.LayoutParams.WRAP_CONTENT
             }
         }
+        mTimeShiftBar = findViewById(R.id.ucsp_ctrl_seekBar2)
+        mTimeShiftBar2 = findViewById(R.id.ucsp_ctrl_seekBar3)
+        mTimeShiftBar3 = findViewById(R.id.ucsp_ctrl_seekBar4)
         mProgressBarOverlay = findViewById(R.id.ucsp_ctrl_progressOverlay)
 
         mDurationView = findViewById(R.id.ucsp_ctrl_duration)
