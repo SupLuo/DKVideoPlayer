@@ -9,10 +9,10 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import unics.player.UCSVideoView
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.isVisible
 import unics.player.ScreenMode
+import unics.player.control.BaseControlComponent
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -90,7 +90,7 @@ class CompleteView @JvmOverloads constructor(
             layoutInflater.inflate(layoutId, this)
         } else {
             layoutInflater.inflate(
-                if (isTelevisionUiMode()) R.layout.dkplayer_layout_complete_view_tv else R.layout.dkplayer_layout_complete_view,
+                if (isTelevisionUiMode) R.layout.dkplayer_layout_complete_view_tv else R.layout.dkplayer_layout_complete_view,
                 this
             )
         }

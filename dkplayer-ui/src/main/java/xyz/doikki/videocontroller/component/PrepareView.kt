@@ -11,6 +11,7 @@ import xyz.doikki.videocontroller.R
 import unics.player.UCSPManager
 import unics.player.kernel.UCSPlayer
 import droid.unicstar.player.ui.TVCompatible
+import unics.player.control.BaseControlComponent
 
 /**
  * 准备播放界面

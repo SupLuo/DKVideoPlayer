@@ -10,6 +10,7 @@ import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
 import unics.player.kernel.UCSPlayer
 import droid.unicstar.player.ui.TVCompatible
+import unics.player.control.BaseControlComponent
 import kotlin.math.abs
 
 /**
@@ -101,6 +102,6 @@ class ErrorView @JvmOverloads constructor(
 //            isClickable = true
 //        }
         //设置当前容器能点击的原因是为了避免事件穿透
-        isClickable = !isTelevisionUiMode()
+        isClickable = !isTelevisionUiMode
     }
 }

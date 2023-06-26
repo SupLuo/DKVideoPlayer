@@ -41,9 +41,8 @@ interface ControlComponent {
      *
      * @return
      */
-    fun isTelevisionUiMode(): Boolean {
-        return UCSPManager.isTelevisionUiMode
-    }
+    val isTelevisionUiMode:Boolean get() = UCSPManager.isTelevisionUiMode
+
 
     /**
      * 播放器界面模式发生了变化；如果你只是单纯的想监听此状态，建议使用 [DKVideoView.addOnStateChangeListener]监听

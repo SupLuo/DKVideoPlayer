@@ -10,42 +10,43 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <unics.player.control.widget.FloatTextIndicatorSeekBar
+        <unics.player.control.widget.TimeShiftFloatTextIndicatorSeekBar
             android:id="@+id/ucsp_ctrl_seekBar2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="1000"
+            android:shadowColor="@android:color/holo_red_light"
+            android:shadowDx="5"
+            android:shadowRadius="5"
             android:textColor="@android:color/white"
             app:ucsp_endpointMode="offsetText"
-            app:ucsp_floatTextMargin="18dp"
-            android:shadowRadius="5"
-            android:shadowDx="5"
-            android:shadowColor="@android:color/holo_red_light"/>
+            app:ucsp_floatTextMargin="18dp" />
 
-        <unics.player.control.widget.FloatTextIndicatorSeekBar
+        <unics.player.control.widget.TimeShiftFloatTextIndicatorSeekBar
             android:id="@+id/ucsp_ctrl_seekBar3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="1000"
             android:layout_marginTop="100dp"
+            android:max="1000"
+            android:shadowColor="@android:color/black"
+            android:shadowDy="5"
+            android:shadowRadius="5"
             android:textColor="@android:color/white"
             app:ucsp_endpointMode="offsetSeekBar"
-            app:ucsp_floatTextMargin="18dp"
-            android:shadowRadius="5"
-            android:shadowDy="5"
-            android:shadowColor="@android:color/black"/>
+            app:ucsp_floatTextMargin="8dp" />
 
-        <unics.player.control.widget.FloatTextIndicatorSeekBar
+        <unics.player.control.widget.TimeShiftFloatTextIndicatorSeekBar
             android:id="@+id/ucsp_ctrl_seekBar4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="1000"
             android:layout_marginTop="200dp"
+            android:max="1000"
+            android:shadowColor="@android:color/holo_orange_dark"
+            android:shadowRadius="5"
             android:textColor="@android:color/white"
             app:ucsp_endpointMode="clipText"
-            app:ucsp_floatTextMargin="18dp"
-            android:shadowRadius="5"
-            android:shadowColor="@android:color/holo_orange_dark"/>
+            app:ucsp_includeTextBounds="false"
+            app:ucsp_floatTextMargin="8dp" />
 
     </FrameLayout>
 
@@ -54,7 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dkplayer_controller_height"
         android:layout_gravity="bottom"
-        android:background="@drawable/dkplayer_shape_stardard_controller_bottom_bg"
+        android:background="@drawable/ucsp_ctrl_bottom_gradient_transparent_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -62,7 +63,7 @@
             android:id="@+id/ucsp_ctrl_play"
             android:layout_width="@dimen/dkplayer_controller_height"
             android:layout_height="@dimen/dkplayer_controller_height"
-            android:padding="@dimen/dkplayer_controller_icon_padding"
+            android:padding="@dimen/ucsp_ctrl_icon_padding"
             android:src="@drawable/dkplayer_selector_play_button" />
 
         <TextView
@@ -73,7 +74,7 @@
             android:textSize="@dimen/dkplayer_controller_time_text_size"
             tools:text="00:00" />
 
-        <SeekBar
+        <unics.player.control.widget.TimeShiftSeekBarImpl
             android:id="@+id/ucsp_ctrl_seekBar"
             style="@style/UcspCtrl.SeekBar.Rounded"
             android:layout_width="0dp"
@@ -98,17 +99,16 @@
             android:id="@+id/ucsp_ctrl_fullScreen"
             android:layout_width="@dimen/dkplayer_controller_height"
             android:layout_height="@dimen/dkplayer_controller_height"
-            android:padding="@dimen/dkplayer_controller_icon_padding"
+            android:padding="@dimen/ucsp_ctrl_icon_padding"
             android:src="@drawable/dkplayer_selector_full_screen_button" />
     </LinearLayout>
 
-    <ProgressBar
+    <unics.player.control.widget.TimeShiftProgressBar
         android:id="@+id/ucsp_ctrl_progressOverlay"
         style="@style/UcspCtrl.ProgressBar.Overlay"
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:layout_gravity="bottom"
-        android:max="1000"
         android:visibility="gone"
         tools:visibility="visible" />
 

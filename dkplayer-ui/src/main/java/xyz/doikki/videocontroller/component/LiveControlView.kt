@@ -9,7 +9,7 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import unics.player.ScreenMode
-import unics.player.UCSVideoView
+import unics.player.control.BaseControlComponent
 import unics.player.internal.UCSPUtil
 
 import unics.player.kernel.UCSPlayer

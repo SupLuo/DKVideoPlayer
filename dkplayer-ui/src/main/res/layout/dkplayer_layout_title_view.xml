@@ -18,7 +18,7 @@
             android:layout_width="@dimen/dkplayer_controller_height"
             android:layout_height="@dimen/dkplayer_controller_height"
             android:layout_gravity="center"
-            android:padding="@dimen/dkplayer_controller_icon_padding"
+            android:padding="@dimen/ucsp_ctrl_icon_padding"
             android:src="@drawable/dkplayer_ic_action_arrow_back" />
 
         <TextView

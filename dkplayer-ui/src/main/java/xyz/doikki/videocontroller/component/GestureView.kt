@@ -14,6 +14,7 @@ import droid.unicstar.player.ui.toTimeString
 import xyz.doikki.videocontroller.R
 import unics.player.kernel.UCSPlayer
 import droid.unicstar.player.ui.TVCompatible
+import unics.player.control.BaseControlComponent
 import unics.player.controller.KeyControlComponent
 
 /**

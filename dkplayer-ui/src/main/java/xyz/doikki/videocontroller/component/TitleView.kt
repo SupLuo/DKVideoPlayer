@@ -14,9 +14,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import unics.player.UCSVideoView
 import droid.unicstar.player.ui.TVCompatible
 import unics.player.ScreenMode
+import unics.player.control.BaseControlComponent
 import unics.player.kernel.UCSPlayer
 
 /**
@@ -147,7 +147,7 @@ class TitleView @JvmOverloads constructor(
 
     init {
         visibility = GONE
-        val isTelevisionUiMode = isTelevisionUiMode()
+        val isTelevisionUiMode = isTelevisionUiMode
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
         } else {

@@ -11,6 +11,7 @@ import xyz.doikki.videocontroller.R
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
 import unics.player.UCSVideoView
+import unics.player.control.VodControlComponent
 import unics.player.controller.MediaController
 import unics.player.internal.UCSPUtil
 import unics.player.internal.adaptCutout
@@ -105,7 +106,7 @@ class JustFullscreenPlayScene private constructor(
                 it.setTitle(title)
             })
 
-            val vodControlView = VodControlView(activity)
+            val vodControlView = VodControlComponent(activity)
             // 我这里隐藏了全屏按钮并且调整了边距，我不推荐这样做，我这样只是为了方便，
             // 如果你想对某个组件进行定制，直接将该组件的代码复制一份，改成你想要的样子
             vodControlView.findViewById<View>(R.id.fullscreen).visibility = View.GONE

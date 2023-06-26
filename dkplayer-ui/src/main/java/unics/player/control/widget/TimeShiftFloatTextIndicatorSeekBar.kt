@@ -20,12 +20,13 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FloatTextIndicatorSeekBar @JvmOverloads constructor(
+class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ViewGroup(context, attrs, defStyleAttr) {
+) : ViewGroup(context, attrs, defStyleAttr), TimeShiftSeekBar {
 
     companion object {
         const val DEFAULT_PATTERN = "HH:mm:ss"
+
         const val ENDPOINT_MODE_OFFSET_TEXT = 0
         const val ENDPOINT_MODE_OFFSET_SEEKBAR = 1
         const val ENDPOINT_MODE_CLIP_TEXT = 2
@@ -48,26 +49,53 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
     //seekbar额外偏移的距离
     private var mSeekBarExtraOffsetH: Int = 0
 
+    private var mIncludeTextBounds: Boolean = true
+
+    private var mEnsureTextDisplay: Boolean = true
+
+    private var mUserSeekBarChangedListener: SeekBar.OnSeekBarChangeListener? = null
+
+    private val mSeekBarChangedListenerGlue = object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(
+            seekBar: SeekBar?,
+            progress: Int,
+            fromUser: Boolean
+        ) {
+            if (fromUser) {
+                invalidate()
+            }
+            mUserSeekBarChangedListener?.onProgressChanged(seekBar, progress, fromUser)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            mUserSeekBarChangedListener?.onStartTrackingTouch(seekBar)
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            mUserSeekBarChangedListener?.onStopTrackingTouch(seekBar)
+        }
+    }
+
     /**
-     * 设置当前时间
+     * 设置当前时间：将事件转换成文本显示
      */
     fun setTime(time: Long) {
         mDate.time = time
         setText(mDateFormat.format(mDate))
-        androidx.appcompat.R.styleable.AppCompatSeekBar
     }
 
+    /**
+     * 设置文本
+     */
     fun setText(text: String) {
         mText = text
         invalidate()
     }
 
-    fun setProgress(progress: Int) {
+    override fun setProgress(progress: Int) {
         if (mSeekBar.progress == progress)
             return
         mSeekBar.progress = progress
-//        //重绘自己
-//        invalidate()
     }
 
     fun setProgress(progress: Int, animate: Boolean) {
@@ -80,25 +108,47 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
             setProgress(progress)
     }
 
-    fun setSecondaryProgress(secondaryProgress: Int) {
+    /**
+     * @param progress 进度条进度
+     * @param time 时间
+     */
+    fun setProgressAndText(progress: Int, time: Long) {
+        setProgress(progress)
+        setTime(time)
+    }
+
+    /**
+     * @param progress 进度条进度
+     * @param text 指示器文本
+     */
+    fun setProgressAndText(progress: Int, text: String) {
+        setProgress(progress)
+        setText(text)
+    }
+
+    override fun setSecondaryProgress(secondaryProgress: Int) {
         if (mSeekBar.secondaryProgress == secondaryProgress)
             return
         mSeekBar.secondaryProgress = secondaryProgress
     }
 
-    fun getProgress(): Int {
+    override fun setOnSeekBarChangeListener(l: SeekBar.OnSeekBarChangeListener?) {
+        mUserSeekBarChangedListener = l
+    }
+
+    override fun getProgress(): Int {
         return mSeekBar.progress
     }
 
-    fun getSecondaryProgress(): Int {
+    override fun getSecondaryProgress(): Int {
         return mSeekBar.secondaryProgress
     }
 
-    fun getMax(): Int {
+    override fun getMax(): Int {
         return mSeekBar.max
     }
 
-    fun setMax(max: Int) {
+    override fun setMax(max: Int) {
         if (mSeekBar.max == max)
             return
         mSeekBar.max = max
@@ -116,11 +166,46 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
         return MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        //包含文字区域或者不需要保障文字显示完全的情况不需要做额外处理
+        if (mIncludeTextBounds || !mEnsureTextDisplay)
+            return
+        (parent as? ViewGroup)?.let { parent ->
+            val textBoundsHeight = calculateTextBoundsHeight()
+            val childTopMargin = (layoutParams as? MarginLayoutParams)?.topMargin ?: 0
+            if (childTopMargin > textBoundsHeight) {
+                //修改parent不裁剪child，以便文字能够显示完全
+                parent.clipChildren = false
+            } else {
+                val parentTopPadding = parent.paddingTop
+                if (parentTopPadding < textBoundsHeight) {
+                    parent.setPadding(
+                        parent.paddingLeft,
+                        textBoundsHeight,
+                        parent.paddingRight,
+                        parent.paddingBottom
+                    )
+                }
+                parent.clipToPadding = false
+                parent.clipChildren = false
+            }
+        }
+    }
+
+    private fun calculateTextBoundsHeight(): Int {
         if (!::mTextFontMetricsInt.isInitialized) {
             setup()
         }
-        val textHeight = mTextFontMetricsInt.bottom - mTextFontMetricsInt.top
+        return mTextFontMetricsInt.bottom - mTextFontMetricsInt.top + mTextOffset
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val textBoundsHeight = if (mIncludeTextBounds) {
+            calculateTextBoundsHeight()
+        } else {
+            0
+        }
         for (i in 0 until childCount) {
             val child = getChildAt(i)
             if (child == mSeekBar) {
@@ -129,14 +214,14 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
                     widthMeasureSpec,
                     mSeekBarExtraOffsetH * 2,//左右预留的空间，避免文本显示不全
                     heightMeasureSpec,
-                    textHeight + mTextOffset
+                    textBoundsHeight
                 )
             }
         }
         val lp = mSeekBar.layoutParams as MarginLayoutParams
         setMeasuredDimension(
             paddingLeft + mSeekBarExtraOffsetH + lp.leftMargin + mSeekBar.measuredWidth + lp.rightMargin + mSeekBarExtraOffsetH + paddingRight,
-            paddingTop + textHeight + mTextOffset + lp.topMargin + mSeekBar.measuredHeight + lp.bottomMargin + paddingBottom
+            paddingTop + textBoundsHeight + lp.topMargin + mSeekBar.measuredHeight + lp.bottomMargin + paddingBottom
         )
     }
 
@@ -153,14 +238,10 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
         )
     }
 
-    override fun dispatchDraw(canvas: Canvas) {
-        super.dispatchDraw(canvas)
+    override fun draw(canvas: Canvas) {
+        super.draw(canvas)
         drawText(canvas)
     }
-
-//    override fun onDraw(canvas: Canvas) {
-//        super.onDraw(canvas)
-//    }
 
     private fun drawText(canvas: Canvas) {
         val text = mText
@@ -182,13 +263,21 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
                 textCenterX
             }
         }
+
         val fm = mTextFontMetricsInt
-        //绘制文字
-        val distance = (fm.descent - fm.ascent) / 2f - fm.bottom
-        mTextRect.centerY()
-        val baseline: Float =
-            (height - paddingTop - paddingBottom - mSeekBar.height - mTextOffset) / 2 + distance
-        canvas.drawText(text, x.toFloat(), baseline, mTextPaint)
+        if (mIncludeTextBounds) {
+            //绘制文字
+            val distance = (fm.descent - fm.ascent) / 2f - fm.bottom
+            val baseline: Float =
+                (height - paddingTop - paddingBottom - mSeekBar.height - mTextOffset) / 2 + distance
+            canvas.drawText(text, x.toFloat(), baseline, mTextPaint)
+        } else {
+            //绘制文字
+            val baseline =
+                fm.bottom / 2f - fm.top / 2f - fm.bottom - height / 2f - mTextOffset
+            canvas.drawText(text, x.toFloat(), baseline, mTextPaint)
+        }
+
     }
 
     /**
@@ -241,72 +330,58 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
     init {
         context.obtainStyledAttributes(
             attrs,
-            R.styleable.FloatTextIndicatorSeekBar,
+            R.styleable.TimeShiftFloatTextIndicatorSeekBar,
             defStyleAttr,
             0
         ).use {
+            mIncludeTextBounds = it.getBoolean(
+                R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_includeTextBounds,
+                mIncludeTextBounds
+            )
             mTextPaint.textSize = it.getDimension(
-                R.styleable.FloatTextIndicatorSeekBar_android_textSize,
+                R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textSize,
                 context.sp(14)
             )
             mTextPaint.setShadowLayer(
-                it.getFloat(R.styleable.FloatTextIndicatorSeekBar_android_shadowRadius, 0f),
-                it.getFloat(R.styleable.FloatTextIndicatorSeekBar_android_shadowDx, 0f),
-                it.getFloat(R.styleable.FloatTextIndicatorSeekBar_android_shadowDy, 0f),
+                it.getFloat(
+                    R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_shadowRadius,
+                    0f
+                ),
+                it.getFloat(R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_shadowDx, 0f),
+                it.getFloat(R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_shadowDy, 0f),
                 it.getColor(
-                    R.styleable.FloatTextIndicatorSeekBar_android_shadowColor,
+                    R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_shadowColor,
                     Color.TRANSPARENT
                 )
             )
-            mTextColor = if (it.hasValue(R.styleable.FloatTextIndicatorSeekBar_android_textColor)) {
-                it.getColorStateList(R.styleable.FloatTextIndicatorSeekBar_android_textColor)
-                    ?: ColorStateList.valueOf(Color.BLACK)
-            } else {
-                ColorStateList.valueOf(Color.BLACK)
-            }
+            mTextColor =
+                if (it.hasValue(R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textColor)) {
+                    it.getColorStateList(R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textColor)
+                        ?: ColorStateList.valueOf(Color.BLACK)
+                } else {
+                    ColorStateList.valueOf(Color.BLACK)
+                }
             mTextOffset = it.getDimensionPixelSize(
-                R.styleable.FloatTextIndicatorSeekBar_ucsp_floatTextMargin,
+                R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_floatTextMargin,
                 mTextOffset
             )
             val pattern =
-                if (it.hasValue(R.styleable.FloatTextIndicatorSeekBar_ucsp_timeShiftPattern))
-                    it.getString(R.styleable.FloatTextIndicatorSeekBar_ucsp_timeShiftPattern)
+                if (it.hasValue(R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_timeShiftPattern))
+                    it.getString(R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_timeShiftPattern)
                 else DEFAULT_PATTERN
             mDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
             mEndpointMode = it.getInt(
-                R.styleable.FloatTextIndicatorSeekBar_ucsp_endpointMode,
+                R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_endpointMode,
                 mEndpointMode
             )
 
             val styleRes =
                 it.getResourceId(
-                    R.styleable.FloatTextIndicatorSeekBar_ucsp_seekBarStyle,
+                    R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_seekBarStyle,
                     R.style.UcspCtrl_DefaultSeekBarTheme
                 )
             mSeekBar = SeekBar(android.view.ContextThemeWrapper(context, styleRes))
-//            mSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//                override fun onProgressChanged(
-//                    seekBar: SeekBar?,
-//                    progress: Int,
-//                    fromUser: Boolean
-//                ) {
-////                    if(fromUser){
-////                        invalidate()
-////                    }
-//                }
-//
-//                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-//
-//                }
-//
-//                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-//                }
-//
-//            })
-//            mSeekBar.viewTreeObserver.addOnPreDrawListener {
-//                invalidate()
-//                true
-//            }
+            mSeekBar.setOnSeekBarChangeListener(mSeekBarChangedListenerGlue)
             addView(mSeekBar, generateDefaultLayoutParams())
         }
 
@@ -316,9 +391,10 @@ class FloatTextIndicatorSeekBar @JvmOverloads constructor(
 
     override fun onDescendantInvalidated(child: View, target: View) {
         if (target == mSeekBar) {
-            super.onDescendantInvalidated(child, this)
+            invalidate()
         } else {
             super.onDescendantInvalidated(child, target)
         }
     }
+
 }

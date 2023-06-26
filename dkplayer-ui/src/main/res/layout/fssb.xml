@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
-    <unics.player.control.FloatStatableSeekBar
+    <FloatStatableSeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:fssb_floatText="5555"

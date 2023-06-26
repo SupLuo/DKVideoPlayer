@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <declare-styleable name="FloatTextIndicatorSeekBar" tools:ignore="ResourceName">
+    <declare-styleable name="TimeShiftFloatTextIndicatorSeekBar" tools:ignore="ResourceName">
         <!--seek bar 样式-->
         <attr name="ucsp_seekBarStyle" format="reference" />
         <!--float文本颜色-->
@@ -25,6 +25,14 @@
             <!--裁剪文本，即文本在断点的时候，部分文本会显示不全（如果其parent 开启clipChildren = false则文本也能查看）-->
             <flag name="clipText" value="2" />
         </attr>
+
+        <!--
+        控件大小是否包含文字区域，默认为true，即包含文字区域作为控件测量的大小
+        该属性的作用：为了更好的让seekbar跟其他的view连同使用时方便定位和布局，可以将该属性设置为false，那么整个控件的大小只包括seekbar的大小，
+        不过为了让文本可见，需要让parent view group设置clipChildren=false，但是仍然需要本控件在parent中top区域有足够的空间显示文本（比如设置parent 设置paddingTop并且设置clipPadding为false）-->
+        <attr name="ucsp_includeTextBounds" format="boolean"/>
+        <!--确保文字正确显示：即不管ucsp_includeTextBounds是否为true，均确保文本能够正常显示出来，但是在文本本身显示不全的情况下，修正会改变parent或者当前控件的属性-->
+        <attr name="ucsp_ensureTextDisplay" format="boolean"/>
 
     </declare-styleable>
 

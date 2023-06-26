@@ -1,4 +1,4 @@
-package xyz.doikki.videocontroller.component
+package unics.player.control
 
 import android.app.Activity
 import android.content.Context
@@ -6,12 +6,11 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import unics.player.controller.ControlComponent
 import unics.player.controller.MediaController
 import unics.player.controller.UCSContainerControl
 import unics.player.internal.UCSPUtil
-
 import unics.player.kernel.UCSPlayerControl
-import unics.player.controller.ControlComponent
 
 abstract class BaseControlComponent @JvmOverloads constructor(
     context: Context,
@@ -43,8 +42,7 @@ abstract class BaseControlComponent @JvmOverloads constructor(
         return this
     }
 
-
-    companion object{
+    companion object {
 
         const val UNDEFINED_LAYOUT = -1
     }

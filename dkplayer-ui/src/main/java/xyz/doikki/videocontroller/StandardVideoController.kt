@@ -16,6 +16,7 @@ import unics.player.internal.UCSPUtil
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.toast
 import unics.player.ScreenMode
+import unics.player.control.VodControlComponent
 import unics.player.controller.GestureMediaController
 
 /**
@@ -64,7 +65,7 @@ open class StandardVideoController @JvmOverloads constructor(
         if (isLive) {
             addControlComponent(LiveControlView(context))
         } else {
-            addControlComponent(VodControlView(context))
+            addControlComponent(VodControlComponent(context))
         }
         addControlComponent(GestureView(context))
         seekEnabled = !isLive
