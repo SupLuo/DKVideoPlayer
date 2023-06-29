@@ -93,7 +93,7 @@ object UCSPManager {
      * 是否采用硬解码：系统播放器只支持硬解码，IJK播放器默认软解；EXO不了解
      */
     @JvmStatic
-    var isMediacodec: Boolean = false
+    var isMediacodec: Boolean = true
 
     /**
      * 是否在移动网络下直接播放视频

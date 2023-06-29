@@ -38,7 +38,8 @@ internal fun releasePlayer(mediaPlayer: MediaPlayer) {
         //必须在播放过程中才可以调用stop，否则可能出现“stop called in state 1, mPlayer(0x0)”问题
         if(mediaPlayer.isPlaying)
             stop()
-        mediaPlayer.reset()
+        //临时去掉reset：在创维定制盒子上，出现anr（但不一定是这个原因，只是日志显示anr的引用堆栈是这句代码，奇怪的是其他界面使用没有anr问题）
+//        mediaPlayer.reset()
         setOnErrorListener(null)
         setOnCompletionListener(null)
         setOnInfoListener(null)
@@ -54,6 +55,7 @@ internal fun releasePlayer(mediaPlayer: MediaPlayer) {
             try {
                 plogi { "releasePlayer($temp) -> invoke on thread" }
                 temp.release()
+                plogi { "releasePlayer($temp) -> invoke on thread complete." }
             } catch (e: Exception) {
                 ploge(e) {
                     "release($temp) on thread error"

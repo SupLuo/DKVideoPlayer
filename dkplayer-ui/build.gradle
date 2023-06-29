@@ -9,6 +9,7 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles "consumer-rules.pro"
     }
 
     kotlinOptions{
