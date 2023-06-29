@@ -29,7 +29,7 @@ class LiveControlView @JvmOverloads constructor(
     private val mBottomContainer: LinearLayout
     private val mPlayButton: ImageView
 
-    override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
+    override fun onControllerVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (isVisible) {
             if (visibility == GONE) {
                 visibility = VISIBLE
@@ -82,7 +82,7 @@ class LiveControlView @JvmOverloads constructor(
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {
-        onVisibilityChanged(!isLocked, null)
+        onControllerVisibilityChanged(!isLocked, null)
     }
 
     override fun onClick(v: View) {

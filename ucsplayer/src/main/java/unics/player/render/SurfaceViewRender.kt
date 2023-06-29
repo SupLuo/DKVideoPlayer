@@ -158,6 +158,14 @@ class SurfaceViewRender @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Overrides hidden method View.setTransitionVisibility() to disable visibility changes
+     * in activity transition.
+     * 参考来源官方的leanback
+     */
+    override fun setTransitionVisibility(visibility: Int) {
+
+    }
     init {
         val surfaceHolder = holder
         surfaceHolder.addCallback(mSurfaceHolderCallback)

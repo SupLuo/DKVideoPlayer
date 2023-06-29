@@ -129,7 +129,6 @@ open class MediaController @JvmOverloads constructor(
         override fun run() {
             val pos = updateProgress()
             if (isPlaying()) {
-
                 var divisor = mBindPlayer?.getSpeed() ?: 1f
                 if (divisor == 0f) {
                     divisor = 1f
@@ -201,10 +200,10 @@ open class MediaController @JvmOverloads constructor(
     }
 
     /**
-     * 绑定所属的容器
+     * 绑定到了所属的容器
      */
     @CallSuper
-    open fun bindContainer(container: UCSContainerControl) {
+    open fun onAttachedToContainer(container: UCSContainerControl) {
         plogd2(TAG) { "bindContainer($container)" }
         if (mBindContainerControl == container) {
             plogd2(TAG) { "bindContainer -> container is same with current, ignore set." }
@@ -218,8 +217,11 @@ open class MediaController @JvmOverloads constructor(
         mScreenMode = container.screenMode
     }
 
+    /**
+     * 从所属的容器中移除
+     */
     @CallSuper
-    open fun unbindContainer() {
+    open fun onDetachedFromContainer() {
         plogd2(TAG) { "unbindContainer -> remove screen mode listener ,and set current screen mode to unknown." }
         mBindContainerControl?.removeOnScreenModeChangeListener(mScreenModeChangeListener)
         mBindContainerControl = null
@@ -264,7 +266,7 @@ open class MediaController @JvmOverloads constructor(
             val parent = this.parent
             if (parent is UCSContainerControl) {
                 plogd2(TAG) { "onAttachedToWindow -> try auto inject container control." }
-                bindContainer(parent)
+                onAttachedToContainer(parent)
             }
         }
     }
@@ -482,7 +484,7 @@ open class MediaController @JvmOverloads constructor(
     private fun handleVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (!isLocked) { //没锁住时才向ControlComponent下发此事件
             for ((component) in mControlComponents) {
-                component.onVisibilityChanged(isVisible, anim)
+                component.onControllerVisibilityChanged(isVisible, anim)
             }
         }
         onVisibilityChanged(isVisible, anim)
@@ -600,7 +602,7 @@ open class MediaController @JvmOverloads constructor(
         val control = mBindContainerControl
         if (control == null) {
             if (showToast) {
-                toast("请先调用${::bindContainer.name}方法绑定所在的容器.")
+                toast("请先调用${::onAttachedToContainer.name}方法绑定所在的容器.")
             }
             plogw2("MediaController") {
                 "error on ${Thread.currentThread().stackTrace[2].methodName} method invoke.but throwable is ignored."

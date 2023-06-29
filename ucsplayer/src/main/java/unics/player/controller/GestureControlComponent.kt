@@ -7,6 +7,7 @@ import androidx.annotation.IntRange
  * 与手势操作相关的控制组件
  */
 interface GestureControlComponent : ControlComponent {
+
     /**
      * 开始滑动
      */

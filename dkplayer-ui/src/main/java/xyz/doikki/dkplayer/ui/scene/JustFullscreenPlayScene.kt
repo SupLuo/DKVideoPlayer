@@ -11,7 +11,7 @@ import xyz.doikki.videocontroller.R
 import xyz.doikki.videocontroller.TVVideoController
 import xyz.doikki.videocontroller.component.*
 import unics.player.UCSVideoView
-import unics.player.control.VodControlComponent
+import unics.player.control.*
 import unics.player.controller.MediaController
 import unics.player.internal.UCSPUtil
 import unics.player.internal.adaptCutout
@@ -26,7 +26,7 @@ class JustFullscreenPlayScene private constructor(
 ) : BasePlayScene() {
 
     private lateinit var controller: MediaController
-    private lateinit var titleView: TitleView
+    private lateinit var titleView: TitleBarControlComponent
 
     init {
         if (autoRequestOrientation) {
@@ -95,10 +95,10 @@ class JustFullscreenPlayScene private constructor(
      */
     private fun createDefaultController(title: CharSequence): MediaController {
         return TVVideoController(activity).apply {
-            addControlComponent(CompleteView(context))
-            addControlComponent(ErrorView(context))
+            addControlComponent(CompleteControlComponent(context))
+            addControlComponent(ErrorControlComponent(context))
             addControlComponent(PrepareView(context))
-            addControlComponent(TitleView(context).also {
+            addControlComponent(TitleBarControlComponent(context).also {
                 this@JustFullscreenPlayScene.titleView = it
                 it.setOnBackClickListener {
                     this@JustFullscreenPlayScene.onBackPressed()
@@ -115,7 +115,8 @@ class JustFullscreenPlayScene private constructor(
             lp.rightMargin = UCSPUtil.dpInt(context,16f)
             addControlComponent(vodControlView)
             //最后添加手势view
-            addControlComponent(GestureView(context))
+            addControlComponent(GestureControlComponent(context))
+            setGestureInPortraitEnabled(true)
         }
     }
 

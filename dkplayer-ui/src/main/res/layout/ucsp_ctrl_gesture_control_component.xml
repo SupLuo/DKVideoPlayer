@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:parentTag="unics.player.control.BaseControlComponent">
 
     <LinearLayout
-        android:id="@+id/center_container"
+        android:id="@+id/ucsp_ctrl_gestureCtrlContainer"
         android:layout_width="160dp"
         android:layout_height="120dp"
         android:layout_gravity="center"
@@ -16,13 +17,13 @@
         tools:visibility="visible">
 
         <ImageView
-            android:id="@+id/iv_icon"
+            android:id="@+id/ucsp_ctrl_image"
             android:layout_width="36dp"
             android:layout_height="36dp"
             tools:src="@drawable/dkplayer_ic_action_volume_up" />
 
         <TextView
-            android:id="@+id/tv_percent"
+            android:id="@+id/ucsp_ctrl_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
@@ -31,7 +32,7 @@
             tools:text="100" />
 
         <ProgressBar
-            android:id="@+id/pro_percent"
+            android:id="@+id/ucsp_ctrl_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="100dp"
             android:layout_height="3dp"
@@ -39,4 +40,4 @@
             android:progressDrawable="@drawable/ucsp_ctrl_seekbar_progress_rounded" />
 
     </LinearLayout>
-</FrameLayout>
+</merge>

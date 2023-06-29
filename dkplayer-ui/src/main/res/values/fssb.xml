@@ -8,12 +8,11 @@
         <attr name="android:textColor" />
         <!--float文本大小，默认14sp-->
         <attr name="android:textSize" />
+        <attr name="android:textStyle"/>
         <attr name="android:shadowColor" />
         <attr name="android:shadowDx" />
         <attr name="android:shadowDy" />
         <attr name="android:shadowRadius" />
-        <!--时移格式(float文本格式)，默认 HH:mm:ss-->
-        <attr name="ucsp_timeShiftPattern" format="string|reference" />
         <!--float文本垂直方向的间距，默认4dp-->
         <attr name="ucsp_floatTextMargin" format="dimension|reference" />
         <!--端点文本和seekbar的模式，默认offsetText-->

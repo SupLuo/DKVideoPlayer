@@ -1,4 +1,4 @@
-package xyz.doikki.videocontroller.component
+package unics.player.control
 
 import android.content.Context
 import android.util.AttributeSet
@@ -7,10 +7,9 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import xyz.doikki.videocontroller.R
-import unics.player.kernel.UCSPlayer
 import droid.unicstar.player.ui.TVCompatible
-import unics.player.control.BaseControlComponent
+import unics.player.kernel.UCSPlayer
+import xyz.doikki.videocontroller.R
 import kotlin.math.abs
 
 /**
@@ -19,7 +18,7 @@ import kotlin.math.abs
  * update by luochao on022/9/28 调整基类接口变更引起的变动，去掉无用代码
  */
 @TVCompatible(message = "不用做什么特殊处理")
-class ErrorView @JvmOverloads constructor(
+class ErrorControlComponent @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -30,22 +29,20 @@ class ErrorView @JvmOverloads constructor(
     private var mDownX = 0f
     private var mDownY = 0f
 
-    var errorButton: View? = null
-        private set
+    private val mButtonView: View?
 
-    var errorTextView: TextView? = null
-        private set
+    private val mTextView: TextView?
 
     fun setErrorMessage(message: CharSequence?) {
-        errorTextView?.text = message
+        mTextView?.text = message
     }
 
     override fun onPlayStateChanged(playState: Int) {
-        if (playState == UCSPlayer.STATE_ERROR) {
+        visibility = if (playState == UCSPlayer.STATE_ERROR) {
             bringToFront()
-            visibility = VISIBLE
-        }else{
-            visibility = GONE
+            VISIBLE
+        } else {
+            GONE
         }
     }
 
@@ -81,19 +78,19 @@ class ErrorView @JvmOverloads constructor(
         if (isInEditMode) {
             visibility = VISIBLE
         }
-        setBackgroundResource(R.color.dkplayer_control_component_container_color)
+        setBackgroundResource(R.color.ucsp_ctrl_control_component_background_color)
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
         } else {
-            layoutInflater.inflate(R.layout.dkplayer_layout_error_view, this)
+            layoutInflater.inflate(R.layout.ucsp_ctrl_error_control_component, this)
         }
-        errorButton = findViewById(R.id.status_btn)
-        errorButton?.setOnClickListener {
+        mButtonView = findViewById(R.id.ucsp_ctrl_btn)
+        mButtonView?.setOnClickListener {
             visibility = GONE
             mController?.replay(false)
         }
 
-        errorTextView = findViewById(R.id.message)
+        mTextView = findViewById(R.id.ucsp_ctrl_text)
 //        if (isTelevisionUiMode()) {
 //            statusBtn.isFocusable = true
 //            statusBtn.isFocusableInTouchMode = true

@@ -283,12 +283,12 @@ open class DisplayContainer @JvmOverloads constructor(
                 )
                 addView(controller, params)
             }
+            controller.onAttachedToContainer(this)
+            plogi2(TAG) { "setVideoController -> controller attached to display container." }
             //如果已经绑定了播放器，则将播放器传递给controller
             mBindPlayerRef?.get().let {
                 controller.setMediaPlayer(it)
             }
-            controller.bindContainer(this)
-            plogi2(TAG) { "setVideoController -> controller attached to display container." }
         }
     }
 
@@ -300,7 +300,7 @@ open class DisplayContainer @JvmOverloads constructor(
         val vc = videoController ?: return null
         if (vc.parent == this) {
             removeView(vc)
-            vc.unbindContainer()
+            vc.onDetachedFromContainer()
         }
         videoController = null
         return vc

@@ -4,32 +4,13 @@ import android.view.View
 import android.view.animation.Animation
 import unics.player.ScreenMode
 import unics.player.UCSPManager
+import unics.player.kernel.UCSPlayer
 import unics.player.kernel.UCSPlayerControl
 
 /**
  * 控制器中的控制组件
  */
 interface ControlComponent {
-
-    /**
-     * 将 控制器 传递到当前 ControlComponent 中
-     */
-    fun onControllerAttached(controller: MediaController)
-
-    /**
-     * 绑定了播放器:用于先绑定controller之后，再绑定的播放器情况
-     */
-    fun onPlayerAttached(player: UCSPlayerControl) {}
-
-    /**
-     * 解除了播放器绑定
-     */
-    fun onPlayerDetached(player: UCSPlayerControl?){}
-
-    /**
-     * 绑定了容器控制器
-     */
-    fun onContainerAttached(containerControl: UCSPlayerControl) {}
 
     /**
      * 如果 ControlComponent 是 View，返回当前控件（this）即可；如果不是，返回null
@@ -41,8 +22,36 @@ interface ControlComponent {
      *
      * @return
      */
-    val isTelevisionUiMode:Boolean get() = UCSPManager.isTelevisionUiMode
+    val isTelevisionUiMode: Boolean get() = UCSPManager.isTelevisionUiMode
 
+    /**
+     * 将 控制器 传递到当前 ControlComponent 中
+     */
+    fun onControllerAttached(controller: MediaController)
+
+    /**
+     * 回调控制器显示和隐藏状态，
+     * 此方法可用于控制 ControlComponent 中的控件的跟随手指点击显示和隐藏
+     *
+     * @param isVisible true 代表要显示， false 代表要隐藏
+     * @param anim      显示和隐藏的动画，是一个补间Alpha动画
+     */
+    fun onControllerVisibilityChanged(isVisible: Boolean, anim: Animation?) {}
+
+    /**
+     * 绑定了播放器:用于先绑定controller之后，再绑定的播放器情况
+     */
+    fun onPlayerAttached(player: UCSPlayerControl) {}
+
+    /**
+     * 解除了播放器绑定
+     */
+    fun onPlayerDetached(player: UCSPlayerControl?) {}
+
+//    /**
+//     * 绑定了容器控制器
+//     */
+//    fun onContainerAttached(containerControl: UCSPlayerControl) {}
 
     /**
      * 播放器界面模式发生了变化；如果你只是单纯的想监听此状态，建议使用 [DKVideoView.addOnStateChangeListener]监听
@@ -60,20 +69,11 @@ interface ControlComponent {
     fun onLockStateChanged(isLocked: Boolean) {}
 
     /**
-     * 回调控制器显示和隐藏状态，
-     * 此方法可用于控制 ControlComponent 中的控件的跟随手指点击显示和隐藏
-     *
-     * @param isVisible true 代表要显示， false 代表要隐藏
-     * @param anim      显示和隐藏的动画，是一个补间Alpha动画
-     */
-    fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {}
-
-    /**
      * 回调播放器的播放器状态变更；如果只是单纯的想监听状态变更，可以通过[DKVideoView.addOnStateChangeListener]方法增加监听
      *
      * @param playState 播放状态
      */
-    fun onPlayStateChanged(playState: Int) {}
+    fun onPlayStateChanged(@UCSPlayer.PlayState playState: Int) {}
 
     /**
      * 回调播放进度，1秒回调一次

@@ -10,8 +10,8 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import unics.player.control.dip
-import unics.player.control.sp
+import unics.player.control.internal.dip
+import unics.player.control.internal.sp
 import xyz.doikki.videocontroller.R
 import kotlin.math.ceil
 

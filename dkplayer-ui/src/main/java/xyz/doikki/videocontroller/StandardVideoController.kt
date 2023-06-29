@@ -14,9 +14,9 @@ import xyz.doikki.videocontroller.component.*
 import unics.player.UCSPManager
 import unics.player.internal.UCSPUtil
 import droid.unicstar.player.ui.TVCompatible
-import droid.unicstar.player.ui.toast
 import unics.player.ScreenMode
-import unics.player.control.VodControlComponent
+import unics.player.control.*
+import unics.player.control.internal.toast
 import unics.player.controller.GestureMediaController
 
 /**
@@ -55,11 +55,11 @@ open class StandardVideoController @JvmOverloads constructor(
      * @param isLive 是否为直播
      */
     fun addDefaultControlComponent(title: String?, isLive: Boolean) {
-        val completeView = CompleteView(context)
-        val errorView = ErrorView(context)
+        val completeView = CompleteControlComponent(context)
+        val errorView = ErrorControlComponent(context)
         val prepareView = PrepareView(context)
         prepareView.setClickStart()
-        val titleView = TitleView(context)
+        val titleView = TitleBarControlComponent(context)
         titleView.setTitle(title)
         addControlComponent(completeView, errorView, prepareView, titleView)
         if (isLive) {
@@ -67,7 +67,7 @@ open class StandardVideoController @JvmOverloads constructor(
         } else {
             addControlComponent(VodControlComponent(context))
         }
-        addControlComponent(GestureView(context))
+        addControlComponent(GestureControlComponent(context))
         seekEnabled = !isLive
     }
 

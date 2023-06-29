@@ -2,31 +2,26 @@ package unics.player.control.widget
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
-import android.os.Build
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import unics.player.control.dip
-import unics.player.control.orDefault
-import unics.player.control.sp
-import unics.player.control.use
+import androidx.annotation.ColorInt
+import androidx.annotation.Px
+import androidx.core.graphics.TypefaceCompat
+import unics.player.control.internal.dip
+import unics.player.control.internal.orDefault
+import unics.player.control.internal.sp
+import unics.player.control.internal.use
 import xyz.doikki.videocontroller.R
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlin.math.abs
 
 class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr), TimeShiftSeekBar {
 
     companion object {
-        const val DEFAULT_PATTERN = "HH:mm:ss"
-
         const val ENDPOINT_MODE_OFFSET_TEXT = 0
         const val ENDPOINT_MODE_OFFSET_SEEKBAR = 1
         const val ENDPOINT_MODE_CLIP_TEXT = 2
@@ -37,22 +32,34 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         //设置水平居中展示
         it.textAlign = Paint.Align.CENTER
     }
-    private lateinit var mTextFontMetricsInt: Paint.FontMetricsInt
+    private var mTextFontMetricsInt: Paint.FontMetricsInt? = null
     private var mText: String = "00:00:00"
     private val mTextRect: Rect = Rect()
     private var mTextOffset: Int = context.dip(4).toInt()
-    private val mDateFormat: DateFormat
-    private val mDate: Date = Date()
-    private val mTextColor: ColorStateList
+    private var mTextColor: ColorStateList
+
+    /**
+     * 采样文本
+     * 主要用于[mEndpointMode] == [ENDPOINT_MODE_OFFSET_SEEKBAR]时，用于计算float文本所占的最大宽度，从而让seekbar两端留出对应的空间
+     */
+    var samplingText: String = "00:00:00"
+
+    var textSize: Float = 0f
+        set(@Px value) {
+            if (abs(value - field) < 1e-10) {
+                return
+            }
+            field = value
+            mTextPaint.textSize = value
+            onTextSizeChanged()
+        }
+
     private var mEndpointMode: Int = ENDPOINT_MODE_OFFSET_TEXT
 
     //seekbar额外偏移的距离
     private var mSeekBarExtraOffsetH: Int = 0
-
     private var mIncludeTextBounds: Boolean = true
-
     private var mEnsureTextDisplay: Boolean = true
-
     private var mUserSeekBarChangedListener: SeekBar.OnSeekBarChangeListener? = null
 
     private val mSeekBarChangedListenerGlue = object : SeekBar.OnSeekBarChangeListener {
@@ -76,18 +83,20 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         }
     }
 
-    /**
-     * 设置当前时间：将事件转换成文本显示
-     */
-    fun setTime(time: Long) {
-        mDate.time = time
-        setText(mDateFormat.format(mDate))
+    fun setTextColor(@ColorInt colorInt: Int) {
+        mTextColor = ColorStateList.valueOf(colorInt)
+    }
+
+    fun setTextColor(color: ColorStateList) {
+        mTextColor = color
     }
 
     /**
      * 设置文本
      */
     fun setText(text: String) {
+        if (mText == text)
+            return
         mText = text
         invalidate()
     }
@@ -96,25 +105,6 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         if (mSeekBar.progress == progress)
             return
         mSeekBar.progress = progress
-    }
-
-    fun setProgress(progress: Int, animate: Boolean) {
-        if (mSeekBar.progress == progress)
-            return
-
-        if (Build.VERSION.SDK_INT >= 24)
-            mSeekBar.setProgress(progress, animate)
-        else
-            setProgress(progress)
-    }
-
-    /**
-     * @param progress 进度条进度
-     * @param time 时间
-     */
-    fun setProgressAndText(progress: Int, time: Long) {
-        setProgress(progress)
-        setTime(time)
     }
 
     /**
@@ -172,7 +162,25 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         if (mIncludeTextBounds || !mEnsureTextDisplay)
             return
         (parent as? ViewGroup)?.let { parent ->
-            val textBoundsHeight = calculateTextBoundsHeight()
+            val textBoundsHeight = calculateTextBoundsHeight() * 2 // 2倍，区域判断大一些，好看点
+            if (this.top > textBoundsHeight) {
+                //修改parent不裁剪child，以便文字能够显示完全
+                parent.clipChildren = false
+            } else {
+                val childTopMargin = (layoutParams as? MarginLayoutParams)?.topMargin ?: 0
+                val expectClipPaddingSize = textBoundsHeight - childTopMargin
+                if (parent.paddingTop < expectClipPaddingSize) {
+                    parent.setPadding(
+                        parent.paddingLeft,
+                        expectClipPaddingSize,
+                        parent.paddingRight,
+                        parent.paddingBottom
+                    )
+                }
+                parent.clipToPadding = false
+                parent.clipChildren = false
+            }
+
             val childTopMargin = (layoutParams as? MarginLayoutParams)?.topMargin ?: 0
             if (childTopMargin > textBoundsHeight) {
                 //修改parent不裁剪child，以便文字能够显示完全
@@ -193,11 +201,15 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         }
     }
 
-    private fun calculateTextBoundsHeight(): Int {
-        if (!::mTextFontMetricsInt.isInitialized) {
-            setup()
+    private fun requireFontMetricsInt(): Paint.FontMetricsInt {
+        return mTextFontMetricsInt ?: mTextPaint.fontMetricsInt.also {
+            mTextFontMetricsInt = it
         }
-        return mTextFontMetricsInt.bottom - mTextFontMetricsInt.top + mTextOffset
+    }
+
+    private fun calculateTextBoundsHeight(): Int {
+        val fm = requireFontMetricsInt()
+        return fm.bottom - fm.top + mTextOffset
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -247,6 +259,7 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         val text = mText
         if (text.isEmpty())
             return
+        mTextPaint.color = mTextColor.getColorForState(drawableState, mTextColor.defaultColor)
         val textCenterX = getThumbCenterX(getScale()) + mSeekBar.left
         //测量文本大小
         mTextPaint.getTextBounds(text, 0, text.length, mTextRect)
@@ -264,7 +277,7 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
             }
         }
 
-        val fm = mTextFontMetricsInt
+        val fm = requireFontMetricsInt()
         if (mIncludeTextBounds) {
             //绘制文字
             val distance = (fm.descent - fm.ascent) / 2f - fm.bottom
@@ -305,8 +318,9 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
         return if (max > 0) mSeekBar.progress / max.toFloat() else 0f
     }
 
-    private fun setup() {
+    private fun onTextSizeChanged() {
         mTextFontMetricsInt = mTextPaint.fontMetricsInt
+        val prevExtra = mSeekBarExtraOffsetH
         mSeekBarExtraOffsetH = when (mEndpointMode) {
             ENDPOINT_MODE_OFFSET_SEEKBAR -> {
                 val textWidth = calculateSimpleTextWidth()
@@ -316,11 +330,14 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
                 0
             }
         }
+        if (prevExtra != mSeekBarExtraOffsetH) {
+            requestLayout()
+        }
     }
 
     //计算采样文本宽度
     private fun calculateSimpleTextWidth(): Int {
-        val text = mDateFormat.format(Date())
+        val text = samplingText.ifEmpty { mText }
         mTextPaint.getTextBounds(
             text, 0, text.length, mTextRect
         )
@@ -338,10 +355,6 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
                 R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_includeTextBounds,
                 mIncludeTextBounds
             )
-            mTextPaint.textSize = it.getDimension(
-                R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textSize,
-                context.sp(14)
-            )
             mTextPaint.setShadowLayer(
                 it.getFloat(
                     R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_shadowRadius,
@@ -354,6 +367,17 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
                     Color.TRANSPARENT
                 )
             )
+            val textStyle = it.getInt(
+                R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textStyle,
+                Typeface.NORMAL
+            )
+            mTextPaint.typeface = TypefaceCompat.create(context, Typeface.DEFAULT, textStyle)
+
+            textSize = it.getDimension(
+                R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textSize,
+                context.sp(14)
+            )
+
             mTextColor =
                 if (it.hasValue(R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textColor)) {
                     it.getColorStateList(R.styleable.TimeShiftFloatTextIndicatorSeekBar_android_textColor)
@@ -365,11 +389,6 @@ class TimeShiftFloatTextIndicatorSeekBar @JvmOverloads constructor(
                 R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_floatTextMargin,
                 mTextOffset
             )
-            val pattern =
-                if (it.hasValue(R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_timeShiftPattern))
-                    it.getString(R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_timeShiftPattern)
-                else DEFAULT_PATTERN
-            mDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
             mEndpointMode = it.getInt(
                 R.styleable.TimeShiftFloatTextIndicatorSeekBar_ucsp_endpointMode,
                 mEndpointMode

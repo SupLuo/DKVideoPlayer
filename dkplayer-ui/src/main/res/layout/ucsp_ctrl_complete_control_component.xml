@@ -3,32 +3,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="#33000000"
+    tools:background="@color/ucsp_ctrl_control_component_background_color_opacity"
     tools:parentTag="android.widget.FrameLayout">
 
+    <ImageView
+        android:id="@+id/ucsp_ctrl_back"
+        style="@style/UcspCtrl.CtrlBack"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <LinearLayout
-        android:id="@+id/replay_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+        android:id="@+id/ucsp_ctrl_completeCtrlContainer"
+        style="@style/UcspCtrl.CtrlCenterLinearContainer">
 
         <ImageView
-            android:id="@+id/iv_replay"
+            android:id="@+id/ucsp_ctrl_image"
             android:layout_width="@dimen/dkplayer_play_btn_size"
             android:layout_height="@dimen/dkplayer_play_btn_size"
             android:layout_gravity="center"
             android:background="@drawable/dkplayer_shape_play_bg"
             android:padding="@dimen/ucsp_ctrl_icon_padding"
-            android:src="@drawable/dkplayer_ic_action_replay" />
+            android:src="@drawable/ucsp_ctrl_ic_replay" />
 
         <TextView
-            android:id="@+id/tv_replay"
+            android:id="@+id/ucsp_ctrl_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="@string/dkplayer_replay"
-            android:textColor="@android:color/white" />
+            android:text="@string/ucsp_ctrl_str_replay"
+            style="@style/UcspCtrl.Text.WithShadow" />
 
     </LinearLayout>
 

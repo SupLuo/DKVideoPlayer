@@ -1,10 +1,7 @@
 package droid.unicstar.player.ui
 
-import android.content.Context
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
-import androidx.annotation.StringRes
 import java.util.*
 
 /**
@@ -38,24 +35,4 @@ internal fun TextView.setTextOrGone(message: CharSequence?) {
         View.VISIBLE
     }
     text = message
-}
-
-@PublishedApi
-internal inline fun Context.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, message, length).show()
-}
-
-@PublishedApi
-internal inline fun Context.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, messageId, length).show()
-}
-
-@PublishedApi
-internal inline fun View.toast(message: String, length: Int = Toast.LENGTH_SHORT) {
-    context.toast(message, length)
-}
-
-@PublishedApi
-internal inline fun View.toast(@StringRes messageId: Int, length: Int = Toast.LENGTH_SHORT) {
-    context.toast(messageId, length)
 }

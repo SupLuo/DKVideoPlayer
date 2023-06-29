@@ -1,4 +1,4 @@
-package xyz.doikki.videocontroller.component
+package unics.player.control
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -13,41 +13,35 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import xyz.doikki.videocontroller.R
 import droid.unicstar.player.ui.TVCompatible
 import unics.player.ScreenMode
-import unics.player.control.BaseControlComponent
 import unics.player.kernel.UCSPlayer
+import xyz.doikki.videocontroller.R
 
 /**
  * 播放器顶部标题栏
  */
 @TVCompatible(message = "没指定布局id时，TV上运行和手机上运行会加载不同的默认布局，tv的布局不包含电量和返回按钮逻辑")
-class TitleView @JvmOverloads constructor(
+class TitleBarControlComponent @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
 
     private val mTitleContainer: LinearLayout
     private val mTitle: TextView
-//    private val mSysTime: TextView//系统当前时间
-
     private lateinit var mBatteryReceiver: BatteryReceiver
 
     //是否注册BatteryReceiver
     private var mBatteryReceiverRegistered = false
-
-    /**
-     * 是否启用电量检测功能
-     */
+    //是否启用电量检测功能
     private var mBatteryEnabled: Boolean = true
 
     fun setTitle(title: CharSequence?) {
         mTitle.text = title
     }
 
-    fun setOnBackClickListener(listener: OnClickListener?){
-        findViewById<View?>(R.id.back)?.setOnClickListener (listener)
+    fun setOnBackClickListener(listener: OnClickListener?) {
+        findViewById<View?>(R.id.ucsp_ctrl_back)?.setOnClickListener(listener)
     }
 
     override fun onDetachedFromWindow() {
@@ -66,12 +60,11 @@ class TitleView @JvmOverloads constructor(
         }
     }
 
-    override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
+    override fun onControllerVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         //只在全屏时才有效
         if (mController?.isFullScreen != true) return
         if (isVisible) {
             if (visibility == GONE) {
-//                mSysTime.text = PlayerUtils.getCurrentSystemTime()
                 visibility = VISIBLE
                 anim?.let { startAnimation(it) }
             }
@@ -97,7 +90,6 @@ class TitleView @JvmOverloads constructor(
         if (screenMode == ScreenMode.FULL_SCREEN) {
             if (controller != null && controller.isShowing && !controller.isLocked) {
                 visibility = VISIBLE
-//                mSysTime.text = PlayerUtils.getCurrentSystemTime()
             }
             mTitle.isSelected = true
         } else {
@@ -105,33 +97,48 @@ class TitleView @JvmOverloads constructor(
             mTitle.isSelected = false
         }
         val activity = this.activity ?: return
-        containerControl?.let {
-                containerControl->
-            if (containerControl.hasCutout()) {
-                val orientation = activity.requestedOrientation
-                val cutoutHeight = containerControl.getCutoutHeight()
-                when (orientation) {
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                        mTitleContainer.setPadding(0, 0, 0, 0)
-                    }
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
-                        mTitleContainer.setPadding(cutoutHeight, 0, 0, 0)
-                    }
-                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
-                        mTitleContainer.setPadding(0, 0, cutoutHeight, 0)
-                    }
+        containerControl?.let { containerControl ->
+            if (!containerControl.hasCutout())
+              return
+            when (activity.requestedOrientation) {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                    if (mTitleContainer.paddingLeft != 0 || mTitleContainer.paddingRight != 0)
+                        mTitleContainer.setPadding(
+                            0,
+                            mTitleContainer.paddingTop,
+                            0,
+                            mTitleContainer.paddingBottom
+                        )
+                }
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                    val cutoutHeight = containerControl.getCutoutHeight()
+                    if (mTitleContainer.paddingLeft != cutoutHeight)
+                        mTitleContainer.setPadding(
+                            cutoutHeight,
+                            mTitleContainer.paddingTop,
+                            0,
+                            mTitleContainer.paddingBottom
+                        )
+                }
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
+                    val cutoutHeight = containerControl.getCutoutHeight()
+                    if (mTitleContainer.paddingRight != cutoutHeight)
+                        mTitleContainer.setPadding(
+                            0,
+                            mTitleContainer.paddingTop,
+                            cutoutHeight,
+                            mTitleContainer.paddingBottom
+                        )
                 }
             }
         }
-
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {
-        if (isLocked) {
-            visibility = GONE
+        visibility = if (isLocked) {
+            GONE
         } else {
-            visibility = VISIBLE
-//            mSysTime.text = PlayerUtils.getCurrentSystemTime()
+            VISIBLE
         }
     }
 
@@ -152,7 +159,7 @@ class TitleView @JvmOverloads constructor(
             layoutInflater.inflate(layoutId, this)
         } else {
             layoutInflater.inflate(
-                if (isTelevisionUiMode) R.layout.dkplayer_layout_title_view_tv else R.layout.dkplayer_layout_title_view,
+                if (isTelevisionUiMode) R.layout.ucsp_ctrl_title_bar_control_component_leanback else R.layout.ucsp_ctrl_title_bar_control_component,
                 this
             )
         }
@@ -160,22 +167,22 @@ class TitleView @JvmOverloads constructor(
         if (isTelevisionUiMode) {
             mBatteryEnabled = false
             //tv模式不要电量，不要返回按钮
-            findViewById<View>(R.id.back)?.visibility = GONE
-            findViewById<View>(R.id.iv_battery)?.visibility = GONE
+            findViewById<View>(R.id.ucsp_ctrl_back)?.visibility = GONE
+            findViewById<View>(R.id.ucsp_ctrl_battery)?.visibility = GONE
         } else {
             mBatteryEnabled = true
-            findViewById<View?>(R.id.back)?.setOnClickListener {
+            findViewById<View?>(R.id.ucsp_ctrl_back)?.setOnClickListener {
                 val activity = activity
                 if (activity != null && mController?.isFullScreen == true) {
                     mController?.stopFullScreen()
                 }
             }
             //电量
-            val batteryLevel = findViewById<ImageView>(R.id.iv_battery)
+            val batteryLevel = findViewById<ImageView>(R.id.ucsp_ctrl_battery)
             mBatteryReceiver = BatteryReceiver(batteryLevel)
         }
         mTitleContainer = findViewById(R.id.title_container)
         mTitle = findViewById(R.id.title)
-//        mSysTime = findViewById(R.id.sys_time)
     }
+
 }

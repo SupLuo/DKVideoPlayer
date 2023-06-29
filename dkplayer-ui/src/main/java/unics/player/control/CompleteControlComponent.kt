@@ -1,4 +1,4 @@
-package xyz.doikki.videocontroller.component
+package unics.player.control
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,23 +12,21 @@ import xyz.doikki.videocontroller.R
 import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.isVisible
 import unics.player.ScreenMode
-import unics.player.control.BaseControlComponent
 import unics.player.kernel.UCSPlayer
 
 /**
  * 自动播放完成界面
- *
- *
  * update by luochao at 2022/9/28
  */
 @TVCompatible(message = "默认布局根据是否是tv模式加载不同布局")
-class CompleteView @JvmOverloads constructor(
+class CompleteControlComponent @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs) {
 
-    private val mStopFullscreen: View?
+    private val mBackView: View?
+
 
     /**
      * 设置播放结束按钮的文本（默认是“重新播放”）
@@ -36,13 +34,13 @@ class CompleteView @JvmOverloads constructor(
      * @param message
      */
     fun setCompleteText(message: CharSequence?) {
-        findViewById<TextView?>(R.id.tv_replay)?.text = message
+        findViewById<TextView?>(R.id.ucsp_ctrl_text)?.text = message
     }
 
     override fun onPlayStateChanged(playState: Int) {
         if (playState == UCSPlayer.STATE_PLAYBACK_COMPLETED) {
             visibility = VISIBLE
-            mStopFullscreen?.isVisible = mController?.isFullScreen ?: false
+            mBackView?.isVisible = mController?.isFullScreen ?: false
             bringToFront()
         } else {
             visibility = GONE
@@ -52,12 +50,12 @@ class CompleteView @JvmOverloads constructor(
     @SuppressLint("SwitchIntDef")
     override fun onScreenModeChanged(screenMode: Int) {
         //退出全屏按钮没指定
-        mStopFullscreen ?: return
+        mBackView ?: return
 
         if (screenMode == ScreenMode.FULL_SCREEN) {
-            mStopFullscreen.visibility = VISIBLE
+            mBackView.visibility = VISIBLE
         } else if (screenMode == ScreenMode.NORMAL) {
-            mStopFullscreen.visibility = GONE
+            mBackView.visibility = GONE
         }
 
         val activity = activity ?: return
@@ -67,7 +65,7 @@ class CompleteView @JvmOverloads constructor(
             if (containerControl.hasCutout()) {
                 val orientation = activity.requestedOrientation
                 val cutoutHeight = containerControl.getCutoutHeight()
-                val sflp = mStopFullscreen.layoutParams as LayoutParams
+                val sflp = mBackView.layoutParams as LayoutParams
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
                         sflp.setMargins(0, 0, 0, 0)
@@ -84,20 +82,21 @@ class CompleteView @JvmOverloads constructor(
     }
 
     init {
+
+        setBackgroundResource(R.color.ucsp_ctrl_control_component_background_color_opacity)
         //默认不显示
         visibility = GONE
+
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
         } else {
             layoutInflater.inflate(
-                if (isTelevisionUiMode) R.layout.dkplayer_layout_complete_view_tv else R.layout.dkplayer_layout_complete_view,
+                if (isTelevisionUiMode) R.layout.ucsp_ctrl_complete_control_component_leanback else R.layout.ucsp_ctrl_complete_control_component,
                 this
             )
         }
 
-        //在xml中去除了一个布局层级，因此xml中的背景色改为代码设置在当前布局中
-        setBackgroundColor(Color.parseColor("#33000000"))
-        findViewById<View?>(R.id.replay_layout)?.setOnClickListener {
+        findViewById<View?>(R.id.ucsp_ctrl_completeCtrlContainer)?.setOnClickListener {
             //重新播放
             mController?.replay(true)
         }
@@ -111,7 +110,7 @@ class CompleteView @JvmOverloads constructor(
         //防止touch模式下，事件穿透
         isClickable = true
 
-        mStopFullscreen = findViewById<View?>(R.id.stop_fullscreen)?.also {
+        mBackView = findViewById<View?>(R.id.ucsp_ctrl_back)?.also {
             it.setOnClickListener {
                 mController?.let { controller ->
                     if (controller.isFullScreen) {

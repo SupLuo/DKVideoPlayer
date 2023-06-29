@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:parentTag="android.widget.FrameLayout">
+
+    <LinearLayout
+        android:id="@+id/title_container"
+        style="@style/UcspCtrl.CtrlTitleBarContainer">
+
+        <TextView
+            android:id="@+id/ucsp_ctrl_title"
+            style="@style/UcspCtrl.CtrlTitleText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/ucsp_ctrl_icon_padding"
+            android:layout_weight="1"
+            tools:text="这是一个标题" />
+
+        <TextClock
+            android:id="@+id/ucsp_ctrl_timeClock"
+            style="@style/UcspCtrl.CtrlSystemTextClock"
+            tools:text="22:16" />
+
+    </LinearLayout>
+
+</merge>

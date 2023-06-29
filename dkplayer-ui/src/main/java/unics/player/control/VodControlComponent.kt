@@ -15,10 +15,11 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import droid.unicstar.player.ui.TVCompatible
-import droid.unicstar.player.ui.toTimeString
 import unics.player.ScreenMode
+import unics.player.control.widget.TimeFormatter
 import unics.player.control.widget.TimeShiftBar
 import unics.player.control.widget.TimeShiftFloatTextIndicatorSeekBar
 import unics.player.control.widget.TimeShiftSeekBar
@@ -41,14 +42,14 @@ open class VodControlComponent @JvmOverloads constructor(
     private var mTimeView: TextView? = null
     private val mFullScreenView: ImageView?
     private var mPlayView: ImageView? = null
-
     private var mTimeShiftBar: TimeShiftSeekBar? = null
     private var mTimeShiftSeekBarOverlay: TimeShiftBar? = null
 
-    /**
-     * 是否正在拖动SeekBar
-     */
-    private var mTrackingTouch = false
+    //是否正在拖动SeekBar
+    protected var mTrackingTouch = false
+
+    private var mTimeFormatter = TimeFormatter
+    private var mTotalTimeInMs = Long.MIN_VALUE
 
     /**
      * 是否显示底部进度条，默认显示
@@ -72,9 +73,9 @@ open class VodControlComponent @JvmOverloads constructor(
                 return
 
             mController?.playerControl?.let { player ->
-                val duration = player.getDuration()
-                val newPosition = duration * progress / seekBar.max.coerceAtLeast(1)
-                mTimeView?.text = newPosition.toTimeString()
+                val duration = player.getDuration().toInt()
+                val newPosition =  (progress.toDouble() / seekBar.max * duration).toInt()
+                setProgress(newPosition,duration)
             }
         }
 
@@ -103,7 +104,12 @@ open class VodControlComponent @JvmOverloads constructor(
         }
     }
 
-    override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
+    @CallSuper
+    override fun onControllerVisibilityChanged(isVisible: Boolean, anim: Animation?) {
+        setVodCtrlContainerVisibility(isVisible, anim)
+    }
+
+    protected fun setVodCtrlContainerVisibility(isVisible: Boolean, anim: Animation?) {
         if (isVisible) {
             mVodCtrlContainer?.let { bottomContainer ->
                 bottomContainer.visibility = VISIBLE
@@ -137,7 +143,9 @@ open class VodControlComponent @JvmOverloads constructor(
         when (playState) {
             UCSPlayer.STATE_IDLE, UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                 visibility = GONE
-                setProgress(0, 0, 0)
+                setProgress(0, 0)
+                mTimeShiftSeekBarOverlay?.secondaryProgress = 0
+
             }
             UCSPlayer.STATE_PREPARED_BUT_ABORT, UCSPlayer.STATE_PREPARING,
             UCSPlayer.STATE_PREPARED, UCSPlayer.STATE_ERROR -> visibility = GONE
@@ -209,7 +217,7 @@ open class VodControlComponent @JvmOverloads constructor(
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {
-        onVisibilityChanged(!isLocked, null)
+        onControllerVisibilityChanged(!isLocked, null)
     }
 
     /**
@@ -238,49 +246,54 @@ open class VodControlComponent @JvmOverloads constructor(
         mTimeShiftBar?.let { seekBar ->
             if (duration > 0) {
                 seekBar.isEnabled = true
-                val progress = (position.toDouble() / duration * seekBar.max).toInt()
+                setProgress(position, duration)
                 val secondaryProgress = calculateSecondaryProgress()
-                setProgress(progress, position, secondaryProgress)
+                mTimeShiftSeekBarOverlay?.secondaryProgress = secondaryProgress
             } else {
                 seekBar.isEnabled = false
             }
         }
-        mDurationView?.text = duration.toTimeString()
-        mTimeView?.text = position.toTimeString()
+        setTotalTime(duration.toLong())
     }
 
-    private fun setProgress(progress: Int, position: Int, secondaryProgress: Int) {
+    protected fun setProgress(position: Int, duration: Int) {
+        var currentLabel: String? = null
         mTimeShiftBar?.let { seekBar ->
+            val progress =
+                if (duration == 0) 0 else (position.toDouble() / duration * seekBar.max).toInt()
+            currentLabel = mTimeFormatter.format(position.toLong())
             if (seekBar is TimeShiftFloatTextIndicatorSeekBar) {
-                seekBar.setProgressAndText(progress, position.toLong())
+                seekBar.setProgressAndText(progress, currentLabel!!)
             } else {
                 seekBar.progress = progress
             }
             seekBar.secondaryProgress = progress
             mTimeShiftSeekBarOverlay?.progress = progress
-            mTimeShiftSeekBarOverlay?.secondaryProgress = secondaryProgress
+        }
+        mTimeView?.text = if (currentLabel.isNullOrEmpty()) {
+            mTimeFormatter.format(position.toLong())
+        } else {
+            currentLabel
         }
     }
 
-//    private fun setProgress(position: Int, duration: Int) {
-//        mTimeShiftBar?.let { seekBar ->
-//            val progress =
-//                if (duration > 0) (position.toDouble() / duration * seekBar.max).toInt() else 0
-//            if (seekBar is TimeShiftFloatTextIndicatorSeekBar) {
-//                seekBar.setProgressAndText(progress, position.toLong())
-//            } else {
-//                seekBar.progress = progress
-//            }
-//            mTimeShiftSeekBarOverlay?.progress = progress
-//        }
-//    }
+    private fun setTotalTime(totalTimeMs: Long) {
+        if (mTotalTimeInMs != totalTimeMs) {
+            mTotalTimeInMs = totalTimeMs
+            onSetDurationLabel(totalTimeMs)
+        }
+    }
+
+    protected open fun onSetDurationLabel(totalTimeMs: Long) {
+        mDurationView?.text = mTimeFormatter.format(totalTimeMs)
+    }
 
     init {
         visibility = GONE
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
         } else {
-            layoutInflater.inflate(R.layout.ucsp_ctrl_vod_control_layout, this)
+            layoutInflater.inflate(R.layout.ucsp_ctrl_vod_control_component, this)
         }
 
         mFullScreenView = findViewById(R.id.ucsp_ctrl_fullScreen)

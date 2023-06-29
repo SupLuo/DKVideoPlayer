@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:parentTag="android.widget.FrameLayout">
+
+    <LinearLayout
+        android:id="@+id/ucsp_ctrl_titleBarCtrlContainer"
+        style="@style/UcspCtrl.CtrlTitleBarContainer">
+
+        <ImageView
+            android:id="@+id/ucsp_ctrl_back"
+            style="@style/UcspCtrl.CtrlBack" />
+
+        <TextView
+            android:id="@+id/ucsp_ctrl_title"
+            style="@style/UcspCtrl.CtrlTitleText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="这是一个标题" />
+
+        <ImageView
+            android:id="@+id/ucsp_ctrl_battery"
+            style="@style/UcspCtrl.CtrlBattery" />
+
+        <TextClock
+            android:id="@+id/ucsp_ctrl_timeClock"
+            style="@style/UcspCtrl.CtrlSystemTextClock"
+            tools:text="22:16" />
+
+    </LinearLayout>
+
+</merge>

@@ -3,36 +3,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="@android:color/black"
+    tools:background="@color/ucsp_ctrl_control_component_background_color"
     tools:parentTag="android.widget.FrameLayout">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:id="@+id/ucsp_ctrl_errorCtrlContainer"
+        style="@style/UcspCtrl.CtrlCenterLinearContainer">
 
         <TextView
-            android:id="@+id/message"
+            android:id="@+id/ucsp_ctrl_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/dkplayer_error_message"
-            android:textColor="@android:color/white" />
+            style="@style/UcspCtrl.Text.WithShadow" />
 
         <TextView
-            android:id="@+id/status_btn"
+            android:id="@+id/ucsp_ctrl_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/dkplayer_shape_status_view_btn"
-            android:gravity="center"
-            android:paddingLeft="18dp"
-            android:paddingTop="4dp"
-            android:paddingRight="18dp"
-            android:paddingBottom="4dp"
-            android:text="@string/dkplayer_retry"
-            android:textColor="@android:color/white" />
+            android:paddingLeft="16dp"
+            android:paddingTop="6dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="6dp"
+            android:text="@string/ucsp_ctrl_str_retry"
+            style="@style/UcspCtrl.Text.WithShadow" />
 
     </LinearLayout>
 </merge>

@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="ucsp_ctrl_theme" format="reference" />
-    <color name="ucsp_ctrl_accent_color">#FF5FFFD8</color>
-    <color name="ucsp_ctrl_accent_color_dark">#39C5BB</color>
+    <color name="ucsp_ctrl_accent_color">#2EAF64</color>
+    <color name="ucsp_ctrl_accent_color_dark">#258C51</color>
+    <color name="ucsp_ctrl_control_component_background_color">@android:color/black</color>
+    <color name="ucsp_ctrl_control_component_background_color_opacity">#33000000</color>
+
+    <!--常规文字大小-->
+    <dimen name="ucsp_ctrl_text_size">15sp</dimen>
+    <dimen name="ucsp_ctrl_title_text_size">18sp</dimen>
     <color name="ucsp_ctrl_primary_text_color">#f1f1f1</color>
-    <dimen name="ucsp_ctrl_timeShift_float_text_size">14sp</dimen>
-    <color name="ucsp_ctrl_timeShift_float_text_color_shadow">@android:color/black</color>
+    <color name="ucsp_ctrl_primary_text_color_reverse">@android:color/black</color>
+    <integer name="ucsp_ctrl_text_shadow_radius">3</integer>
+    <dimen name="ucsp_ctrl_time_shift_float_text_size">18sp</dimen>
+    <dimen name="ucsp_ctrl_time_shift_float_text_margin">12dp</dimen>
+    <dimen name="ucsp_ctrl_title_bar_height">46dp</dimen>
+
 
     <!--图标大小-->
     <dimen name="ucsp_ctrl_icon_size">48dp</dimen>
+
     <!--图标四周间距-->
     <dimen name="ucsp_ctrl_icon_padding">12dp</dimen>
 
     <!--底部渐变起始色-->
-    <color name="ucsp_ctrl_bottom_gradient_start_color">#4D000000</color>
+    <color name="ucsp_ctrl_panel_gradient_start_color">@android:color/black</color>
+    <color name="ucsp_ctrl_panel_gradient_end_color">@android:color/transparent</color>
 
     <!--seek thum 大小-->
     <dimen name="ucsp_ctrl_seekbar_thumb_size">24dp</dimen>
@@ -29,6 +40,18 @@
 
     <style name="UcspCtrl" />
 
+    <style name="UcspCtrl.Text">
+        <item name="android:textSize">@dimen/ucsp_ctrl_text_size</item>
+        <item name="android:textColor">@color/ucsp_ctrl_primary_text_color</item>
+    </style>
+
+    <style name="UcspCtrl.Text.WithShadow">
+        <item name="android:shadowRadius">@integer/ucsp_ctrl_text_shadow_radius</item>
+        <item name="android:shadowColor">@color/ucsp_ctrl_primary_text_color_reverse</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">0</item>
+    </style>
+
     <style name="UcspCtrl.IconButton">
         <item name="android:layout_width">@dimen/ucsp_ctrl_icon_size</item>
         <item name="android:layout_height">@dimen/ucsp_ctrl_icon_size</item>
@@ -42,7 +65,8 @@
         <!--设置左右间隙为0，避免左右留出空白区域-->
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
-        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>
+        <!--        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>-->
+        <item name="android:thumb">@drawable/ucsp_ctrl_img_thumb_gradient_circle</item>
         <!--限定进度条高度：与控件高度有区别-->
         <item name="android:minHeight">@dimen/ucsp_ctrl_seekbar_height</item>
         <item name="android:maxHeight">@dimen/ucsp_ctrl_seekbar_height</item>
@@ -53,13 +77,13 @@
     <!--圆角进度条-->
     <style name="UcspCtrl.SeekBar.Rounded">
         <!--不知道为啥要显示写下面的属性预览才有效果-->
-        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>
+<!--        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>-->
+        <item name="android:thumb">@drawable/ucsp_ctrl_img_thumb_gradient_circle</item>
         <!--限定进度条高度：与控件高度有区别???不知道为啥也需要重新写定义这个属性，不然在xml预览的时候，进度条高度变得特别高-->
         <item name="android:minHeight">@dimen/ucsp_ctrl_seekbar_height</item>
         <item name="android:maxHeight">@dimen/ucsp_ctrl_seekbar_height</item>
         <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress_rounded</item>
     </style>
-
 
     <style name="UcspCtrl.ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/ucsp_ctrl_seekbar_progress</item>
@@ -75,14 +99,62 @@
         <item name="seekBarStyle">@style/UcspCtrl.SeekBar.Rounded</item>
     </style>
 
-
-    <style name="UcspCtrl.DefaultTimeShiftBar">
+    <style name="UcspCtrl.DefaultTimeShiftBar" parent="UcspCtrl.CtrlTimeText">
         <item name="ucsp_seekBarStyle">@style/UcspCtrl.DefaultSeekBarTheme</item>
-        <item name="android:textColor">@color/ucsp_ctrl_primary_text_color</item>
-        <item name="android:textSize">@dimen/ucsp_ctrl_timeShift_float_text_size</item>
-        <item name="android:shadowColor">@color/ucsp_ctrl_timeShift_float_text_color_shadow</item>
-        <item name="android:shadowRadius">4</item>
-        <item name="ucsp_floatTextMargin">12dp</item>
+        <item name="ucsp_floatTextMargin">@dimen/ucsp_ctrl_time_shift_float_text_margin</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlCenterLinearContainer">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlSystemTextClock" parent="UcspCtrl.Text.WithShadow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:format24Hour">HH:mm</item>
+        <item name="android:layout_marginEnd">14dp</item>
+        <item name="android:layout_marginRight">14dp</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlTimeText" parent="UcspCtrl.Text.WithShadow">
+        <item name="android:textSize">@dimen/ucsp_ctrl_time_shift_float_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlBack">
+        <item name="android:layout_width">@dimen/ucsp_ctrl_title_bar_height</item>
+        <item name="android:layout_height">@dimen/ucsp_ctrl_title_bar_height</item>
+        <item name="android:padding">@dimen/ucsp_ctrl_icon_padding</item>
+        <item name="android:src">@drawable/ucsp_ctrl_ic_arrow_back</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlTitleText" parent="UcspCtrl.Text">
+        <item name="android:textSize">@dimen/ucsp_ctrl_title_text_size</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:marqueeRepeatLimit">marquee_forever</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">6dp</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlBattery" >
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:src">@drawable/ucsp_ctrl_ic_battery_level_list</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlTitleBarContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/ucsp_ctrl_panel_top_gradient_transparent_bg</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <!--只是为了让背景更多渐变色-->
+        <item name="android:paddingBottom">100dp</item>
     </style>
 
 </resources>

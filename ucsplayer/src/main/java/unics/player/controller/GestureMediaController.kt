@@ -15,7 +15,10 @@ import kotlin.math.abs
 
 /**
  * 在[MediaController]的基础上，增加了手势操作
- * Created by Doikki on 2018/1/6.
+ * 单击:显示/隐藏
+ * 双击：播放/暂停
+ * 左侧屏幕上下滑动：修改亮度
+ * 右侧屏幕上下滑动：修改音量
  */
 abstract class GestureMediaController @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -85,12 +88,11 @@ abstract class GestureMediaController @JvmOverloads constructor(
             distanceY: Float
         ): Boolean {
             if (!isInPlaybackState //不处于播放状态
+                || isLocked //锁住了屏幕
                 || !mGestureEnabled //关闭了手势
                 || !mCanSlide //关闭了滑动手势
-                || isLocked //锁住了屏幕
-                || UCSPUtil.isEdge(context, e1)
-            ) //处于屏幕边沿
-                return true
+                || UCSPUtil.isEdge(context, e1)//处于屏幕边沿
+            ) return true
             val deltaX = e1.x - e2.x
             val deltaY = e1.y - e2.y
             if (mFirstTouch) {
@@ -252,7 +254,9 @@ abstract class GestureMediaController @JvmOverloads constructor(
         duration: Int
     ) {
         for ((component) in mControlComponents) {
-            if (component is GestureControlComponent) {
+            if (component is GestureControlComponent ) {
+                component.onPositionChange(position, currentPosition, duration)
+            }else if(component is KeyControlComponent){
                 component.onPositionChange(position, currentPosition, duration)
             }
         }
