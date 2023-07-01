@@ -1,4 +1,4 @@
-package xyz.doikki.videocontroller
+package unics.player.controller
 
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -8,16 +8,16 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.ProgressBar
 import androidx.annotation.LayoutRes
+import unics.player.ScreenMode
+import unics.player.UCSPManager
+import unics.player.control.*
+import unics.player.control.GestureControlComponent
+import unics.player.control.internal.toast
+import unics.player.internal.UCSPUtil
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
-import xyz.doikki.videocontroller.component.*
-import unics.player.UCSPManager
-import unics.player.internal.UCSPUtil
-import droid.unicstar.player.ui.TVCompatible
-import unics.player.ScreenMode
-import unics.player.control.*
-import unics.player.control.internal.toast
-import unics.player.controller.GestureMediaController
+import xyz.doikki.videocontroller.R
+import xyz.doikki.videocontroller.component.LiveControlView
 
 /**
  * 直播/点播控制器
@@ -32,22 +32,14 @@ open class StandardVideoController @JvmOverloads constructor(
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : GestureMediaController(context, attrs) {
 
-    protected val lockButton: View
-    protected val loadingIndicator: ProgressBar?
-    private var isBuffering = false
+    protected val mLockView: View
+    protected val mLoadingView: ProgressBar?
+    private var mBuffering = false
 
+    /**
+     * 是否启用Lock逻辑
+     */
     var enableLock: Boolean = !UCSPManager.isTelevisionUiMode
-
-    init {
-        if (layoutId > 0)
-            inflate(context, layoutId, this)
-        else {
-            inflate(context, R.layout.dkplayer_layout_standard_controller, this)
-        }
-        lockButton = findViewById(R.id.lock)
-        lockButton.setOnClickListener(::onLockClick)
-        loadingIndicator = findViewById(R.id.loading)
-    }
 
     /**
      * 快速添加各个组件
@@ -57,7 +49,7 @@ open class StandardVideoController @JvmOverloads constructor(
     fun addDefaultControlComponent(title: String?, isLive: Boolean) {
         val completeView = CompleteControlComponent(context)
         val errorView = ErrorControlComponent(context)
-        val prepareView = PrepareView(context)
+        val prepareView = PrepareControlComponent(context)
         prepareView.setClickStart()
         val titleView = TitleBarControlComponent(context)
         titleView.setTitle(title)
@@ -78,10 +70,10 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onLockStateChanged(isLocked: Boolean) {
         if (enableLock) {
             if (isLocked) {
-                lockButton.isSelected = true
+                mLockView.isSelected = true
                 toast(R.string.dkplayer_locked)
             } else {
-                lockButton.isSelected = false
+                mLockView.isSelected = false
                 toast(R.string.dkplayer_unlocked)
             }
         }
@@ -90,18 +82,19 @@ open class StandardVideoController @JvmOverloads constructor(
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         if (!enableLock)
             return
+
         if (isFullScreen) {
             if (isVisible) {
-                if (lockButton.visibility == GONE) {
-                    lockButton.visibility = VISIBLE
+                if (mLockView.visibility == GONE) {
+                    mLockView.visibility = VISIBLE
                     if (anim != null) {
-                        lockButton.startAnimation(anim)
+                        mLockView.startAnimation(anim)
                     }
                 }
             } else {
-                lockButton.visibility = GONE
+                mLockView.visibility = GONE
                 if (anim != null) {
-                    lockButton.startAnimation(anim)
+                    mLockView.startAnimation(anim)
                 }
             }
         }
@@ -117,12 +110,12 @@ open class StandardVideoController @JvmOverloads constructor(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-                lockButton.visibility = GONE
+                mLockView.visibility = GONE
             }
             ScreenMode.FULL_SCREEN -> if (isShowing) {
-                lockButton.visibility = VISIBLE
+                mLockView.visibility = VISIBLE
             } else {
-                lockButton.visibility = GONE
+                mLockView.visibility = GONE
             }
         }
 
@@ -130,19 +123,19 @@ open class StandardVideoController @JvmOverloads constructor(
             val activity = mActivity ?: return
             if (it.hasCutout()) {
                 val orientation = activity.requestedOrientation
-                val dp24 = UCSPUtil.dpInt(context,24)
+                val dp24 = UCSPUtil.dpInt(context, 24)
                 val cutoutHeight = it.getCutoutHeight()
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                        val lblp = lockButton.layoutParams as LayoutParams
+                        val lblp = mLockView.layoutParams as LayoutParams
                         lblp.setMargins(dp24, 0, dp24, 0)
                     }
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
-                        val layoutParams = lockButton.layoutParams as LayoutParams
+                        val layoutParams = mLockView.layoutParams as LayoutParams
                         layoutParams.setMargins(dp24 + cutoutHeight, 0, dp24 + cutoutHeight, 0)
                     }
                     ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
-                        val layoutParams = lockButton.layoutParams as LayoutParams
+                        val layoutParams = mLockView.layoutParams as LayoutParams
                         layoutParams.setMargins(dp24, 0, dp24, 0)
                     }
                 }
@@ -155,27 +148,27 @@ open class StandardVideoController @JvmOverloads constructor(
         super.onPlayerStateChanged(playState)
         when (playState) {
             UCSPlayer.STATE_IDLE -> {
-                lockButton.isSelected = false
-                loadingIndicator?.visibility = GONE
+                mLockView.isSelected = false
+                mLoadingView?.visibility = GONE
             }
             UCSPlayer.STATE_PLAYING, UCSPlayer.STATE_PAUSED, UCSPlayer.STATE_PREPARED, UCSPlayer.STATE_ERROR, UCSPlayer.STATE_BUFFERED -> {
                 if (playState == UCSPlayer.STATE_BUFFERED) {
-                    isBuffering = false
+                    mBuffering = false
                 }
-                if (!isBuffering) {
-                    loadingIndicator?.visibility = GONE
+                if (!mBuffering) {
+                    mLoadingView?.visibility = GONE
                 }
             }
             UCSPlayer.STATE_PREPARING, UCSPlayer.STATE_BUFFERING -> {
-                loadingIndicator?.visibility = VISIBLE
+                mLoadingView?.visibility = VISIBLE
                 if (playState == UCSPlayer.STATE_BUFFERING) {
-                    isBuffering = true
+                    mBuffering = true
                 }
             }
             UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
-                loadingIndicator?.visibility = GONE
-                lockButton.visibility = GONE
-                lockButton.isSelected = false
+                mLoadingView?.visibility = GONE
+                mLockView.visibility = GONE
+                mLockView.isSelected = false
             }
         }
     }
@@ -194,5 +187,16 @@ open class StandardVideoController @JvmOverloads constructor(
 //        return if (controlWrapper!!.isFullScreen) {
 //            stopFullScreen()
 //        } else super.onBackPressed()
+    }
+
+    init {
+        View.inflate(
+            context,
+            if (layoutId > 0) layoutId else R.layout.ucsp_ctrl_standard_controller,
+            this
+        )
+        mLockView = findViewById(R.id.ucsp_ctrl_lock)
+        mLockView.setOnClickListener(::onLockClick)
+        mLoadingView = findViewById(R.id.ucsp_ctrl_loading)
     }
 }

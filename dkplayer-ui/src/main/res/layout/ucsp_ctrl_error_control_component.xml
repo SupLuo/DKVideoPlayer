@@ -12,24 +12,19 @@
 
         <TextView
             android:id="@+id/ucsp_ctrl_text"
+            style="@style/UcspCtrl.Text.WithShadow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/dkplayer_error_message"
-            style="@style/UcspCtrl.Text.WithShadow" />
+            android:text="@string/dkplayer_error_message" />
 
         <TextView
             android:id="@+id/ucsp_ctrl_btn"
+            style="@style/UcspCtrl.CtrlButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@drawable/dkplayer_shape_status_view_btn"
-            android:paddingLeft="16dp"
-            android:paddingTop="6dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="6dp"
-            android:text="@string/ucsp_ctrl_str_retry"
-            style="@style/UcspCtrl.Text.WithShadow" />
+            android:text="@string/ucsp_ctrl_str_retry" />
 
     </LinearLayout>
 </merge>

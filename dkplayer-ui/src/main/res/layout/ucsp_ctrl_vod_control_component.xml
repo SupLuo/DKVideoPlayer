@@ -54,7 +54,7 @@
     <LinearLayout
         android:id="@+id/ucsp_ctrl_vodCtrlContainer"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
+        android:layout_height="@dimen/ucsp_ctrl_vod_bar_height"
         android:layout_gravity="bottom"
         android:background="@drawable/ucsp_ctrl_panel_bottom_gradient_transparent_bg"
         android:gravity="center_vertical"
@@ -62,10 +62,7 @@
 
         <ImageView
             android:id="@+id/ucsp_ctrl_play"
-            android:layout_width="@dimen/ucsp_ctrl_title_bar_height"
-            android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
-            android:padding="@dimen/ucsp_ctrl_icon_padding"
-            android:src="@drawable/dkplayer_selector_play_button" />
+            style="@style/UcspCtrl.CtrlVodBarImageButton.PlayPause" />
 
         <TextView
             android:id="@+id/ucsp_ctrl_time"
@@ -96,10 +93,7 @@
 
         <ImageView
             android:id="@+id/ucsp_ctrl_fullScreen"
-            android:layout_width="@dimen/ucsp_ctrl_title_bar_height"
-            android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
-            android:padding="@dimen/ucsp_ctrl_icon_padding"
-            android:src="@drawable/dkplayer_selector_full_screen_button" />
+            style="@style/UcspCtrl.CtrlVodBarImageButton.Fullscreen" />
     </LinearLayout>
 
     <unics.player.control.widget.TimeShiftProgressBar

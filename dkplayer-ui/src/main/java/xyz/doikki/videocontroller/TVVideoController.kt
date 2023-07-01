@@ -7,8 +7,9 @@ import android.os.Message
 import android.util.AttributeSet
 import android.view.KeyEvent
 import androidx.annotation.LayoutRes
-import droid.unicstar.player.ui.TVCompatible
+import unics.player.control.TVCompatible
 import unics.player.controller.KeyControlComponent
+import unics.player.controller.StandardVideoController
 import unics.player.internal.plogv2
 import xyz.doikki.dkplayer.ui.UNDEFINED_LAYOUT
 import kotlin.math.ceil

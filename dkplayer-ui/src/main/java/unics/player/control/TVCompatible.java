@@ -1,4 +1,4 @@
-package droid.unicstar.player.ui;
+package unics.player.control;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

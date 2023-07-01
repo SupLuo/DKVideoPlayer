@@ -25,6 +25,7 @@ abstract class BaseControlComponent @JvmOverloads constructor(
         const val UNDEFINED_LAYOUT = -1
     }
 
+    @JvmField
     protected var mController: MediaController? = null
 
     val playerControl: UCSPlayerControl? get() = mController?.playerControl

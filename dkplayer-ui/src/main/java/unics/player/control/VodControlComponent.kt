@@ -17,7 +17,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import droid.unicstar.player.ui.TVCompatible
 import unics.player.ScreenMode
 import unics.player.control.widget.TimeFormatter
 import unics.player.control.widget.TimeShiftBar

@@ -75,7 +75,7 @@ class JustFullscreenPlayScene private constructor(
             titleView.setOnBackClickListener(click)
             return
         }
-        controller.findViewById<View?>(R.id.back)?.setOnClickListener(click)
+        controller.findViewById<View?>(R.id.ucsp_ctrl_back)?.setOnClickListener(click)
     }
 
     override fun getVideoView(): UCSVideoView {
@@ -97,7 +97,7 @@ class JustFullscreenPlayScene private constructor(
         return TVVideoController(activity).apply {
             addControlComponent(CompleteControlComponent(context))
             addControlComponent(ErrorControlComponent(context))
-            addControlComponent(PrepareView(context))
+            addControlComponent(PrepareControlComponent(context))
             addControlComponent(TitleBarControlComponent(context).also {
                 this@JustFullscreenPlayScene.titleView = it
                 it.setOnBackClickListener {

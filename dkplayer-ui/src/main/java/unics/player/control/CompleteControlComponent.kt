@@ -3,13 +3,11 @@ package unics.player.control
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import droid.unicstar.player.ui.TVCompatible
 import droid.unicstar.player.ui.isVisible
 import unics.player.ScreenMode
 import unics.player.kernel.UCSPlayer
@@ -82,10 +80,11 @@ class CompleteControlComponent @JvmOverloads constructor(
     }
 
     init {
-
         setBackgroundResource(R.color.ucsp_ctrl_control_component_background_color_opacity)
         //默认不显示
         visibility = GONE
+        //防止touch模式下，事件穿透
+        isClickable = true
 
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
@@ -107,8 +106,7 @@ class CompleteControlComponent @JvmOverloads constructor(
 //            //防止touch模式下，事件穿透
 //            isClickable = true
 //        }
-        //防止touch模式下，事件穿透
-        isClickable = true
+
 
         mBackView = findViewById<View?>(R.id.ucsp_ctrl_back)?.also {
             it.setOnClickListener {

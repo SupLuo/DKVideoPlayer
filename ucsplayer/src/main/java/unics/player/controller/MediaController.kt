@@ -640,4 +640,5 @@ open class MediaController @JvmOverloads constructor(
     fun release() {
         removeAllControlComponent()
     }
+
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:parentTag="LinearLayout">
+
+    <TextView
+        android:id="@+id/ucsp_ctrl_text"
+        style="@style/UcspCtrl.Text.WithShadow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ucsp_ctrl_str_network_warning_tip" />
+
+    <TextView
+        android:id="@+id/ucsp_ctrl_back"
+        style="@style/UcspCtrl.CtrlButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/ucsp_ctrl_str_continue_play" />
+
+</merge>

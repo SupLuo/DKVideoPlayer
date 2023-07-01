@@ -10,22 +10,19 @@
         android:id="@+id/ucsp_ctrl_completeCtrlContainer"
         style="@style/UcspCtrl.CtrlCenterLinearContainer">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ucsp_ctrl_image"
-            android:layout_width="@dimen/dkplayer_play_btn_size"
-            android:layout_height="@dimen/dkplayer_play_btn_size"
+            style="@style/UcspCtrl.CtrlImageButton"
             android:layout_gravity="center"
-            android:background="@drawable/dkplayer_shape_play_bg"
-            android:padding="@dimen/ucsp_ctrl_icon_padding"
             android:src="@drawable/ucsp_ctrl_ic_replay" />
 
         <TextView
             android:id="@+id/ucsp_ctrl_text"
+            style="@style/UcspCtrl.Text.WithShadow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="@string/ucsp_ctrl_str_replay"
-            style="@style/UcspCtrl.Text.WithShadow" />
+            android:text="@string/ucsp_ctrl_str_replay" />
 
     </LinearLayout>
 

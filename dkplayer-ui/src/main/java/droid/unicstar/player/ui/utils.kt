@@ -19,8 +19,6 @@ fun Int.toTimeString(): String {
     }
 }
 
-inline fun Long.toTimeString():String = this.toInt().toTimeString()
-
 
 internal inline var View.isVisible: Boolean
     get() = visibility == View.VISIBLE

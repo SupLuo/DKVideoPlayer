@@ -935,7 +935,6 @@ open class FloatStatableSeekBar @JvmOverloads constructor(context: Context, attr
                 context.theme
             )!!
 
-
         mSecondaryIndicatorSize = ta.getDimensionPixelSize(
             R.styleable.FloatStatableSeekBar_fssb_secondaryIndicatorSize,
             (dip4 * 6).toInt()

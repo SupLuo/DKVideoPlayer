@@ -18,8 +18,7 @@
 
         <ImageView
             android:id="@+id/ucsp_ctrl_play"
-            style="@style/UcspCtrl.IconButton"
-            android:src="@drawable/dkplayer_selector_play_button" />
+            style="@style/UcspCtrl.CtrlVodBarImageButton.PlayPause" />
 
         <unics.player.control.widget.TimeShiftFloatTextIndicatorSeekBar
             android:id="@+id/ucsp_ctrl_seekBar"
@@ -44,8 +43,8 @@
 
         <ImageView
             android:id="@+id/ucsp_ctrl_fullScreen"
-            style="@style/UcspCtrl.IconButton"
-            android:src="@drawable/dkplayer_selector_full_screen_button" />
+            style="@style/UcspCtrl.CtrlVodBarImageButton.Fullscreen" />
+
     </LinearLayout>
 
     <unics.player.control.widget.TimeShiftProgressBar

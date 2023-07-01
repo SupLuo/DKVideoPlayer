@@ -13,7 +13,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import droid.unicstar.player.ui.TVCompatible
 import unics.player.ScreenMode
 import unics.player.kernel.UCSPlayer
 import xyz.doikki.videocontroller.R

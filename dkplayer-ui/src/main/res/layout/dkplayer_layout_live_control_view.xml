@@ -8,37 +8,30 @@
     <LinearLayout
         android:id="@+id/bottom_container"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
+        android:layout_height="@dimen/ucsp_ctrl_vod_bar_height"
         android:layout_gravity="bottom"
-        android:gravity="center_vertical"
         android:background="@drawable/ucsp_ctrl_panel_bottom_gradient_transparent_bg"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/iv_play"
-            android:layout_width="@dimen/ucsp_ctrl_title_bar_height"
-            android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
-            android:padding="@dimen/ucsp_ctrl_icon_padding"
-            android:src="@drawable/dkplayer_selector_play_button" />
+            style="@style/UcspCtrl.CtrlVodBarImageButton.PlayPause"
+            />
 
         <ImageView
             android:id="@+id/iv_refresh"
-            android:layout_width="@dimen/ucsp_ctrl_title_bar_height"
-            android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
-            android:padding="@dimen/ucsp_ctrl_icon_padding"
+            style="@style/UcspCtrl.CtrlVodBarImageButton"
             android:src="@drawable/dkplayer_ic_action_autorenew" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/fullscreen"
-            android:layout_width="@dimen/ucsp_ctrl_title_bar_height"
-            android:layout_height="@dimen/ucsp_ctrl_title_bar_height"
-            android:padding="@dimen/ucsp_ctrl_icon_padding"
-            android:src="@drawable/dkplayer_selector_full_screen_button" />
+            style="@style/UcspCtrl.CtrlVodBarImageButton.Fullscreen" />
     </LinearLayout>
 
 </merge>

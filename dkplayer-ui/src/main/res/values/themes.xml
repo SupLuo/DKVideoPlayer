@@ -3,8 +3,11 @@
 
     <color name="ucsp_ctrl_accent_color">#2EAF64</color>
     <color name="ucsp_ctrl_accent_color_dark">#258C51</color>
+    <color name="ucsp_ctrl_accent_color_opacity99">#992EAF64</color>
     <color name="ucsp_ctrl_control_component_background_color">@android:color/black</color>
-    <color name="ucsp_ctrl_control_component_background_color_opacity">#33000000</color>
+    <color name="ucsp_ctrl_control_component_background_color_opacity">#44000000</color>
+    <dimen name="ucsp_ctrl_semicircle_button_radius">30dp</dimen>
+    <dimen name="ucsp_ctrl_button_stroke_size">1dp</dimen>
 
     <!--常规文字大小-->
     <dimen name="ucsp_ctrl_text_size">15sp</dimen>
@@ -15,13 +18,15 @@
     <dimen name="ucsp_ctrl_time_shift_float_text_size">18sp</dimen>
     <dimen name="ucsp_ctrl_time_shift_float_text_margin">12dp</dimen>
     <dimen name="ucsp_ctrl_title_bar_height">46dp</dimen>
-
+    <dimen name="ucsp_ctrl_vod_bar_height">46dp</dimen>
 
     <!--图标大小-->
     <dimen name="ucsp_ctrl_icon_size">48dp</dimen>
-
+    <dimen name="ucsp_ctrl_icon_size_small">40dp</dimen>
+    <dimen name="ucsp_ctrl_icon_size_medium">54dp</dimen>
     <!--图标四周间距-->
     <dimen name="ucsp_ctrl_icon_padding">12dp</dimen>
+    <dimen name="ucsp_ctrl_icon_padding_small">10dp</dimen>
 
     <!--底部渐变起始色-->
     <color name="ucsp_ctrl_panel_gradient_start_color">@android:color/black</color>
@@ -58,6 +63,12 @@
         <item name="android:padding">@dimen/ucsp_ctrl_icon_padding</item>
     </style>
 
+    <style name="UcspCtrl.IconButton.Small">
+        <item name="android:layout_width">@dimen/ucsp_ctrl_icon_size_small</item>
+        <item name="android:layout_height">@dimen/ucsp_ctrl_icon_size_small</item>
+        <item name="android:padding">@dimen/ucsp_ctrl_icon_padding_small</item>
+    </style>
+
     <!--圆角进度条-->
     <style name="UcspCtrl.SeekBar">
         <!--让thumb显示完全：在两端不会被裁剪-->
@@ -77,7 +88,7 @@
     <!--圆角进度条-->
     <style name="UcspCtrl.SeekBar.Rounded">
         <!--不知道为啥要显示写下面的属性预览才有效果-->
-<!--        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>-->
+        <!--        <item name="android:thumb">@drawable/ucsp_ctrl_seekbar_thumb</item>-->
         <item name="android:thumb">@drawable/ucsp_ctrl_img_thumb_gradient_circle</item>
         <!--限定进度条高度：与控件高度有区别???不知道为啥也需要重新写定义这个属性，不然在xml预览的时候，进度条高度变得特别高-->
         <item name="android:minHeight">@dimen/ucsp_ctrl_seekbar_height</item>
@@ -133,6 +144,7 @@
     </style>
 
     <style name="UcspCtrl.CtrlTitleText" parent="UcspCtrl.Text">
+        <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/ucsp_ctrl_title_text_size</item>
         <item name="android:ellipsize">marquee</item>
         <item name="android:marqueeRepeatLimit">marquee_forever</item>
@@ -141,7 +153,7 @@
         <item name="android:paddingRight">6dp</item>
     </style>
 
-    <style name="UcspCtrl.CtrlBattery" >
+    <style name="UcspCtrl.CtrlBattery">
         <item name="android:layout_width">24dp</item>
         <item name="android:layout_height">24dp</item>
         <item name="android:src">@drawable/ucsp_ctrl_ic_battery_level_list</item>
@@ -155,6 +167,65 @@
         <item name="android:orientation">horizontal</item>
         <!--只是为了让背景更多渐变色-->
         <item name="android:paddingBottom">100dp</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlPrepareTextLeanback" parent="UcspCtrl.Text.WithShadow">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <!--电视上准备播放和缓冲的进度效果：横向loading-->
+    <style name="UcspCtrl.CtrlPrepareLoadingLeanback" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:indeterminate">true</item>
+        <item name="android:layout_marginLeft">120dp</item>
+        <item name="android:layout_marginRight">120dp</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlPrepareLoading">
+        <item name="android:layout_width">@dimen/ucsp_ctrl_icon_size_medium</item>
+        <item name="android:layout_height">@dimen/ucsp_ctrl_icon_size_medium</item>
+        <item name="android:indeterminateDrawable">@drawable/ucsp_ctrl_loading_ring</item>
+        <item name="android:indeterminateDuration">2000</item>
+    </style>
+
+
+    <style name="UcspCtrl.CtrlPrepareHintLeanback" parent="UcspCtrl.Text.WithShadow">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlButton" parent="UcspCtrl.Text">
+        <item name="android:textColor">@color/ucsp_ctrl_text_color_accent_to_primary_slt</item>
+        <item name="android:background">
+            @drawable/ucsp_ctrl_semicircle_button_accent_stroke_to_solid_slt
+        </item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlImageButton">
+        <item name="android:layout_width">@dimen/ucsp_ctrl_icon_size_medium</item>
+        <item name="android:layout_height">@dimen/ucsp_ctrl_icon_size_medium</item>
+        <item name="android:background">@drawable/ucsp_ctrl_image_button_circle_bg</item>
+        <item name="backgroundTint">@color/ucsp_ctrl_accent_color_opacity99</item>
+        <item name="android:padding">@dimen/ucsp_ctrl_icon_padding</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlVodBarImageButton">
+        <item name="android:layout_width">@dimen/ucsp_ctrl_vod_bar_height</item>
+        <item name="android:layout_height">@dimen/ucsp_ctrl_vod_bar_height</item>
+        <item name="android:padding">@dimen/ucsp_ctrl_icon_padding</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlVodBarImageButton.PlayPause">
+        <item name="android:src">@drawable/ucsp_ctrl_ic_play_pause</item>
+    </style>
+
+    <style name="UcspCtrl.CtrlVodBarImageButton.Fullscreen">
+        <item name="android:src">@drawable/ucsp_ctrl_ic_fullscreen_expand_collapse</item>
     </style>
 
 </resources>

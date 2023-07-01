@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.KeyEvent
 import androidx.annotation.LayoutRes
-import droid.unicstar.player.ui.TVCompatible
+import unics.player.control.TVCompatible
 import unics.player.control.VodControlComponent
 import unics.player.controller.KeyControlComponent
 import unics.player.internal.plogi2
