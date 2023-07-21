@@ -388,6 +388,9 @@ open class MediaController @JvmOverloads constructor(
      * 显示播放视图
      */
     override fun show() {
+        plogd2("TVController"){
+            "show"
+        }
         startFadeOut()
         if (this.isShowing) return
         handleVisibilityChanged(true, mShowAnim)
@@ -398,6 +401,9 @@ open class MediaController @JvmOverloads constructor(
      * 隐藏播放视图
      */
     override fun hide() {
+        plogd2("TVController"){
+            "hide"
+        }
         stopFadeOut()
         if (!this.isShowing) return
         handleVisibilityChanged(false, mHideAnim)
@@ -419,6 +425,9 @@ open class MediaController @JvmOverloads constructor(
      * 开始倒计时隐藏控制器
      */
     override fun startFadeOut() {
+        plogd2("TVController"){
+            "startFadeOut"
+        }
         //重新开始计时
         stopFadeOut()
         postDelayed(mFadeOut, mDefaultTimeout)
@@ -428,6 +437,9 @@ open class MediaController @JvmOverloads constructor(
      * 移除控制器隐藏倒计时
      */
     override fun stopFadeOut() {
+        plogd2("TVController"){
+            "stopFadeOut"
+        }
         removeCallbacks(mFadeOut)
     }
 

@@ -499,21 +499,30 @@ open class LeanbackVodControlComponent @JvmOverloads constructor(
 //
     override fun onStartLeftOrRightKeyPressedForSeeking(event: KeyEvent) {
         mTrackingTouch = true
-        setVodCtrlContainerVisibility(true, null)
+        //如果控制器没有显示才自己处理
+        if (!isControllerShowing) {
+            setVodCtrlContainerVisibility(true, null)
+        }
     }
 
     override fun onStopLeftOrRightKeyPressedForSeeking(event: KeyEvent) {
         mTrackingTouch = false
-        setVodCtrlContainerVisibility(false, null)
+        //如果控制器没有显示才自己隐藏
+        if (!isControllerShowing) {
+            setVodCtrlContainerVisibility(false, null)
+        }
     }
 
     override fun onCancelLeftOrRightKeyPressedForSeeking(keyEvent: KeyEvent) {
         mTrackingTouch = false
-        setVodCtrlContainerVisibility(false, null)
+        //如果控制器没有显示才自己隐藏
+        if (!isControllerShowing) {
+            setVodCtrlContainerVisibility(false, null)
+        }
     }
 
     override fun onPositionChange(slidePosition: Int, currentPosition: Int, duration: Int) {
-        plogi2("KeyCtrl"){
+        plogi2("KeyCtrl") {
             "slidePosition=$slidePosition ,currentPosition=$currentPosition ,duration=$duration"
         }
         setProgress(slidePosition, duration)

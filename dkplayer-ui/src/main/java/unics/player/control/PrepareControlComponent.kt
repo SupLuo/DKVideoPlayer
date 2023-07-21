@@ -2,16 +2,11 @@ package unics.player.control
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.LayoutRes
 import xyz.doikki.videocontroller.R
-import unics.player.UCSPManager
 import unics.player.kernel.UCSPlayer
-import unics.player.control.TVCompatible
-import unics.player.control.BaseControlComponent
 
 /**
  * 准备播放界面
@@ -60,7 +55,7 @@ class PrepareControlComponent @JvmOverloads constructor(
         if (layoutId > 0) {
             layoutInflater.inflate(layoutId, this)
         } else {
-            layoutInflater.inflate(R.layout.dkplayer_layout_prepare_view, this)
+            layoutInflater.inflate(R.layout.ucsp_ctrl_prepare_control_component, this)
         }
         mStartPlay = findViewById(R.id.ucsp_ctrl_play)
         mLoading = findViewById(R.id.ucsp_ctrl_loading)

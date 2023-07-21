@@ -6,7 +6,7 @@
     tools:parentTag="android.widget.FrameLayout">
 
     <LinearLayout
-        android:id="@+id/title_container"
+        android:id="@+id/ucsp_ctrl_titleBarCtrlContainer"
         style="@style/UcspCtrl.CtrlTitleBarContainer">
 
         <TextView

@@ -59,7 +59,7 @@ open class TVVideoController @JvmOverloads constructor(
      */
     private var mCurrentPendingSeekPosition: Int = 0
 
-    private val seekCalculator: PendingSeekCalculator = RatioStepSeekCalculator()
+    private var seekCalculator: PendingSeekCalculator = PendingSeekCalculator.dynamicAccelerateCalculator()
 
     /**
      * 是否处理KeyEvent
@@ -87,9 +87,11 @@ open class TVVideoController @JvmOverloads constructor(
                                 key.onStartLeftOrRightKeyPressedForSeeking(event)
                             }
                         }
-                        seekCalculator.prepareCalculate(event, currentPosition, duration, width)
+                        preparePendingSeekCalculator(event, currentPosition, duration, width)
+                        stopFadeOut()
                     }
                 }
+
                 WHAT_CANCEL_PENDING_SEEK -> {
                     cancelPendingSeek()
                     for ((key) in mControlComponents) {
@@ -98,6 +100,7 @@ open class TVVideoController @JvmOverloads constructor(
                         }
                     }
                 }
+
                 WHAT_UPDATE_PENDING_SEEK_POSITION -> {
                     invokeOnPlayerAttached { player ->
                         val duration = player.getDuration().toInt()
@@ -131,6 +134,7 @@ open class TVVideoController @JvmOverloads constructor(
                     }
 
                 }
+
                 WHAT_HANDLE_PENDING_SEEK -> {
                     val event = msg.obj as KeyEvent
                     //先做stop，再seek，避免loading指示器和seek指示器同时显示
@@ -145,12 +149,28 @@ open class TVVideoController @JvmOverloads constructor(
         }
     }
 
-    init {
-        //设置可以获取焦点
-        isFocusable = true
-        isFocusableInTouchMode = true
-        descendantFocusability = FOCUS_BEFORE_DESCENDANTS
+    private fun preparePendingSeekCalculator(
+        event: KeyEvent,
+        currentPosition: Int,
+        duration: Int,
+        viewWidth: Int
+    ) {
+//        if (duration < 1200000) {
+//            if (seekCalculator !is PendingSeekCalculator.LinearPendingSeekCalculator) {
+//                seekCalculator = PendingSeekCalculator.linearStepCalculator()
+//            }
+//        } else if (duration < 3600000) {
+//            if (seekCalculator !is PendingSeekCalculator.DynamicFixedStepPendingSeekCalculator) {
+//                seekCalculator = PendingSeekCalculator.dynamicFixedStepCalculator()
+//            }
+//        } else {
+//            if (seekCalculator !is PendingSeekCalculator.AcceleratePendingSeekCalculator) {
+//                seekCalculator = PendingSeekCalculator.accelerateCalculator()
+//            }
+//        }
+        seekCalculator.prepareCalculate(event, currentPosition, duration, viewWidth)
     }
+
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (!keyEventEnable)
@@ -171,6 +191,7 @@ open class TVVideoController @JvmOverloads constructor(
                 }
                 return false
             }
+
             KeyEvent.KEYCODE_HEADSETHOOK,
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
             KeyEvent.KEYCODE_SPACE,
@@ -203,6 +224,7 @@ open class TVVideoController @JvmOverloads constructor(
                 }
                 return true
             }
+
             KeyEvent.KEYCODE_MEDIA_PLAY -> {//播放键
                 if (uniqueDown && !isInPlaybackState) {//没有在播放中，则开始播放
                     invokeOnPlayerAttached(showToast = false) { player ->
@@ -212,6 +234,7 @@ open class TVVideoController @JvmOverloads constructor(
                 }
                 return true
             }
+
             KeyEvent.KEYCODE_MEDIA_STOP,
             KeyEvent.KEYCODE_MEDIA_PAUSE -> {//暂停键
                 if (!isLive && uniqueDown && isInPlaybackState) {
@@ -222,6 +245,7 @@ open class TVVideoController @JvmOverloads constructor(
                 }
                 return true
             }
+
             KeyEvent.KEYCODE_VOLUME_DOWN,
             KeyEvent.KEYCODE_VOLUME_UP,
             KeyEvent.KEYCODE_VOLUME_MUTE,
@@ -231,6 +255,7 @@ open class TVVideoController @JvmOverloads constructor(
                 //系统会显示对应的UI
                 return super.dispatchKeyEvent(event)
             }
+
             KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_LEFT -> {//左右键，做seek行为
                 if (isLive) {
                     plogv2(TAG) { "is live mode ,not response dpad left and right key event." }
@@ -270,11 +295,13 @@ open class TVVideoController @JvmOverloads constructor(
                     //按下down之后执行了up，相当于只按了一次方向键，
                     // 并且没有执行过pending行为（即单次按键的时候控制器还未显示，控制器已经显示的情况下单次按键是有效的行为），不做seek动作
                     plogv2(TAG) { "left/right dpad key up, but not dispatch pending seek,return directly." }
+                    show()
                     return true
                 }
                 dispatchPendingSeek(event)
                 return true
             }
+
             else -> {
                 show()
                 return super.dispatchKeyEvent(event)
@@ -341,12 +368,14 @@ open class TVVideoController @JvmOverloads constructor(
         super.handlePendingSeek()
         mHasDispatchPendingSeek = false
         mCurrentPendingSeekPosition = 0
+        startFadeOut()
     }
 
     override fun cancelPendingSeek() {
         super.cancelPendingSeek()
         mHasDispatchPendingSeek = false
         mCurrentPendingSeekPosition = 0
+        startFadeOut()
     }
 
     /**
@@ -356,146 +385,6 @@ open class TVVideoController @JvmOverloads constructor(
         return isInPlaybackState && seekEnabled
     }
 
-
-    abstract class PendingSeekCalculator {
-
-        /**
-         * 对外设置的用于控制的缩放系数
-         */
-        var seekRatio: Float = 1f
-
-        /**
-         * seek动作前做准备
-         * @param currentPosition 当前播放位置
-         * @param duration 总时间
-         * @param viewWidth 进度条宽度
-         */
-        abstract fun prepareCalculate(
-            event: KeyEvent,
-            currentPosition: Int,
-            duration: Int,
-            viewWidth: Int
-        )
-
-        /**
-         * 返回本次seek的增量
-         */
-        abstract fun calculateIncrement(
-            event: KeyEvent,
-            currentPosition: Int,
-            duration: Int,
-            viewWidth: Int
-        ): Int
-
-        abstract fun reset()
-
-    }
-
-    class RatioStepSeekCalculator : PendingSeekCalculator() {
-
-        //默认步长 10秒
-        private var mStep = DEFAULT_STEP
-
-        companion object {
-            private const val DEFAULT_STEP = 5 * 1000
-            private const val MIN_STEP = 5 * 1000
-            private const val MAX_STEP = 90 * 1000
-        }
-
-        override fun prepareCalculate(
-            event: KeyEvent,
-            currentPosition: Int,
-            duration: Int,
-            viewWidth: Int
-        ) {
-            val step = duration / 100
-            mStep = max(MIN_STEP, step)
-            mStep = min(mStep, MAX_STEP)
-        }
-
-        override fun calculateIncrement(
-            event: KeyEvent,
-            currentPosition: Int,
-            duration: Int,
-            viewWidth: Int
-        ): Int {
-            //方向系数
-            val flag = if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
-            val eventTime = event.eventTime - event.downTime
-            val factor = 2.0.pow(eventTime / 1000.0)
-
-            return (mStep * flag * factor).toInt().also {
-                plogv2(TAG) {
-                    "calculateIncrement flag=$flag eventTime=$eventTime factor=$factor result=$it"
-                }
-            }
-        }
-
-        override fun reset() {
-            mStep = DEFAULT_STEP
-        }
-    }
-
-
-    class DurationSamplingSeekCalculator : PendingSeekCalculator() {
-
-        /**
-         * 增量最大倍数:相当于用户按住方向键一直做seek多少s之后达到最大的seek步长
-         */
-        private val maxIncrementFactor: Float = 16f
-
-        /**
-         * 最大的时间增量：默认为时长的百分之一，最小1000
-         */
-        private var maxIncrementTimeMs: Int = 0
-
-        /**
-         * 最小时间增量:最小1000
-         */
-        private var minIncrementTimeMs: Int = 0
-
-        /**
-         * 最少seek多少次seek完整个时长，默认500次，一次事件大概需要50毫秒，所以大致需要25s事件，也就是说一个很长的视频，最快25s seek完，但是由于是采用不断加速的形式，因此实际时间远大于25s
-         */
-        private val leastSeekCount = 400
-
-        override fun reset() {
-            //假设一个场景：设定两个变量 s = 面条的长度（很长很长）  c = 一个人最快吃多少口可以吃完。
-            // 假定1s时间内一个人能够吃 20口
-            //则一个人吃一口的最大长度 umax = s / c    假定一个系数f   这个人吃一口的最小长度 umin = umax / f
-            // 现在这个人从umin的速度开始吃，时间作为系数（不超过f），那么这个人吃完s需要多少时间？
-
-            //假定  s = 7200000 c = 500  f = 16
-            maxIncrementTimeMs = 0
-            minIncrementTimeMs = 0
-        }
-
-        override fun prepareCalculate(
-            event: KeyEvent,
-            currentPosition: Int,
-            duration: Int,
-            viewWidth: Int
-        ) {
-            maxIncrementTimeMs = duration / leastSeekCount
-            minIncrementTimeMs = (maxIncrementTimeMs / maxIncrementFactor).toInt()
-        }
-
-        override fun calculateIncrement(
-            event: KeyEvent,
-            currentPosition: Int,
-            duration: Int,
-            viewWidth: Int
-        ): Int {
-            //方向系数
-            val flag = if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
-            val eventTime = event.eventTime - event.downTime
-            val factor =
-                ceil(eventTime / 1000f).coerceAtMost(maxIncrementFactor) //时间转换成秒，作为系数,不超过最大的倍数
-            //本次偏移距离
-            return (factor * minIncrementTimeMs * seekRatio).toInt().coerceAtLeast(1000) * flag
-        }
-
-    }
 
 //    class BasedOnWidthSeekCalculator : PendingSeekCalculator() {
 //
@@ -548,4 +437,11 @@ open class TVVideoController @JvmOverloads constructor(
 //
 //
 //    }
+
+    init {
+        //设置可以获取焦点
+        isFocusable = true
+        isFocusableInTouchMode = true
+        descendantFocusability = FOCUS_BEFORE_DESCENDANTS
+    }
 }

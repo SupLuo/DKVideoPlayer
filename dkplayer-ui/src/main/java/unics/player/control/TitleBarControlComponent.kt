@@ -26,8 +26,8 @@ class TitleBarControlComponent @JvmOverloads constructor(
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
 
-    private val mTitleContainer: LinearLayout
-    private val mTitle: TextView
+    private val mTitleCtrlContainer: LinearLayout?
+    private val mTitle: TextView?
     private lateinit var mBatteryReceiver: BatteryReceiver
 
     //是否注册BatteryReceiver
@@ -36,7 +36,7 @@ class TitleBarControlComponent @JvmOverloads constructor(
     private var mBatteryEnabled: Boolean = true
 
     fun setTitle(title: CharSequence?) {
-        mTitle.text = title
+        mTitle?.text = title
     }
 
     fun setOnBackClickListener(listener: OnClickListener?) {
@@ -90,43 +90,44 @@ class TitleBarControlComponent @JvmOverloads constructor(
             if (controller != null && controller.isShowing && !controller.isLocked) {
                 visibility = VISIBLE
             }
-            mTitle.isSelected = true
+            mTitle?.isSelected = true
         } else {
             visibility = GONE
-            mTitle.isSelected = false
+            mTitle?.isSelected = false
         }
         val activity = this.activity ?: return
+        val titleCtrlContainer = mTitleCtrlContainer?:return
         containerControl?.let { containerControl ->
             if (!containerControl.hasCutout())
               return
             when (activity.requestedOrientation) {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-                    if (mTitleContainer.paddingLeft != 0 || mTitleContainer.paddingRight != 0)
-                        mTitleContainer.setPadding(
+                    if (mTitleCtrlContainer.paddingLeft != 0 || mTitleCtrlContainer.paddingRight != 0)
+                        mTitleCtrlContainer.setPadding(
                             0,
-                            mTitleContainer.paddingTop,
+                            mTitleCtrlContainer.paddingTop,
                             0,
-                            mTitleContainer.paddingBottom
+                            mTitleCtrlContainer.paddingBottom
                         )
                 }
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
                     val cutoutHeight = containerControl.getCutoutHeight()
-                    if (mTitleContainer.paddingLeft != cutoutHeight)
-                        mTitleContainer.setPadding(
+                    if (mTitleCtrlContainer.paddingLeft != cutoutHeight)
+                        mTitleCtrlContainer.setPadding(
                             cutoutHeight,
-                            mTitleContainer.paddingTop,
+                            mTitleCtrlContainer.paddingTop,
                             0,
-                            mTitleContainer.paddingBottom
+                            mTitleCtrlContainer.paddingBottom
                         )
                 }
                 ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE -> {
                     val cutoutHeight = containerControl.getCutoutHeight()
-                    if (mTitleContainer.paddingRight != cutoutHeight)
-                        mTitleContainer.setPadding(
+                    if (mTitleCtrlContainer.paddingRight != cutoutHeight)
+                        mTitleCtrlContainer.setPadding(
                             0,
-                            mTitleContainer.paddingTop,
+                            mTitleCtrlContainer.paddingTop,
                             cutoutHeight,
-                            mTitleContainer.paddingBottom
+                            mTitleCtrlContainer.paddingBottom
                         )
                 }
             }
@@ -180,8 +181,8 @@ class TitleBarControlComponent @JvmOverloads constructor(
             val batteryLevel = findViewById<ImageView>(R.id.ucsp_ctrl_battery)
             mBatteryReceiver = BatteryReceiver(batteryLevel)
         }
-        mTitleContainer = findViewById(R.id.title_container)
-        mTitle = findViewById(R.id.title)
+        mTitleCtrlContainer = findViewById(R.id.ucsp_ctrl_titleBarCtrlContainer)
+        mTitle = findViewById(R.id.ucsp_ctrl_title)
     }
 
 }

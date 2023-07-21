@@ -5,6 +5,12 @@
     android:layout_height="match_parent"
     tools:parentTag="android.widget.FrameLayout">
 
+<!--    <ImageView-->
+<!--        android:id="@+id/coverImage"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:scaleType="centerCrop" />-->
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ucsp_ctrl_play"
         style="@style/UcspCtrl.CtrlImageButton"
