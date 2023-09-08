@@ -127,13 +127,6 @@ open class UCSVideoView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * 改变返回键逻辑，用于activity
-     */
-    fun onBackPressed(): Boolean {
-        return mDisplayContainer.onBackPressed()
-    }
-
 //    override fun onSaveInstanceState(): Parcelable? {
 //        L.d("onSaveInstanceState: currentPosition=$mSeekWhenPrepared")
 //        //activity切到后台后可能被系统回收，故在此处进行进度保存

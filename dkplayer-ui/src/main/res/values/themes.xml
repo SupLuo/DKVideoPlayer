@@ -6,6 +6,7 @@
     <color name="ucsp_ctrl_accent_color_opacity99">#992EAF64</color>
     <color name="ucsp_ctrl_control_component_background_color">@android:color/black</color>
     <color name="ucsp_ctrl_control_component_background_color_opacity">#44000000</color>
+    <color name="ucsp_ctrl_control_component_background_color_opacity99">#99000000</color>
     <dimen name="ucsp_ctrl_semicircle_button_radius">30dp</dimen>
     <dimen name="ucsp_ctrl_button_stroke_size">1dp</dimen>
 
@@ -29,7 +30,7 @@
     <dimen name="ucsp_ctrl_icon_padding_small">10dp</dimen>
 
     <!--底部渐变起始色-->
-    <color name="ucsp_ctrl_panel_gradient_start_color">@android:color/black</color>
+    <color name="ucsp_ctrl_panel_gradient_start_color">#B2000000</color>
     <color name="ucsp_ctrl_panel_gradient_end_color">@android:color/transparent</color>
 
     <!--seek thum 大小-->
@@ -165,8 +166,9 @@
         <item name="android:background">@drawable/ucsp_ctrl_panel_top_gradient_transparent_bg</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
+        <item name="android:paddingTop">8dp</item>
         <!--只是为了让背景更多渐变色-->
-        <item name="android:paddingBottom">100dp</item>
+        <item name="android:paddingBottom">60dp</item>
     </style>
 
     <style name="UcspCtrl.CtrlPrepareTextLeanback" parent="UcspCtrl.Text.WithShadow">

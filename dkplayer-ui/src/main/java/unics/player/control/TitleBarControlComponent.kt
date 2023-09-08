@@ -21,7 +21,7 @@ import xyz.doikki.videocontroller.R
  * 播放器顶部标题栏
  */
 @TVCompatible(message = "没指定布局id时，TV上运行和手机上运行会加载不同的默认布局，tv的布局不包含电量和返回按钮逻辑")
-class TitleBarControlComponent @JvmOverloads constructor(
+open class TitleBarControlComponent @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
     @LayoutRes layoutId: Int = UNDEFINED_LAYOUT
 ) : BaseControlComponent(context, attrs, defStyleAttr) {
@@ -155,7 +155,7 @@ class TitleBarControlComponent @JvmOverloads constructor(
     init {
         visibility = GONE
         val isTelevisionUiMode = isTelevisionUiMode
-        if (layoutId > 0) {
+        if (layoutId != UNDEFINED_LAYOUT) {
             layoutInflater.inflate(layoutId, this)
         } else {
             layoutInflater.inflate(

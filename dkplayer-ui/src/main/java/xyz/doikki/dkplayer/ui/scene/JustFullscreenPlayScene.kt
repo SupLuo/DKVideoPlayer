@@ -65,7 +65,7 @@ class JustFullscreenPlayScene private constructor(
             titleView.setTitle(title)
             return
         }
-        controller.findViewById<TextView?>(R.id.title)?.text = title
+        controller.findViewById<TextView?>(R.id.ucsp_ctrl_title)?.text = title
     }
 
     fun setOnBackClick(click: View.OnClickListener?) {

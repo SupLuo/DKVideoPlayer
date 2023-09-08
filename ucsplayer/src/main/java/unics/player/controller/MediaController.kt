@@ -84,10 +84,12 @@ open class MediaController @JvmOverloads constructor(
                     //所以在播放器release的时候需要移除
                     removeAllDissociateComponent()
                 }
+
                 UCSPlayer.STATE_PLAYBACK_COMPLETED -> {
                     isLocked = false
                     this.isShowing = false
                 }
+
                 UCSPlayer.STATE_ERROR -> this.isShowing = false
             }
             for ((key) in mControlComponents) {
@@ -388,7 +390,7 @@ open class MediaController @JvmOverloads constructor(
      * 显示播放视图
      */
     override fun show() {
-        plogd2("TVController"){
+        plogd2("TVController") {
             "show"
         }
         startFadeOut()
@@ -401,7 +403,7 @@ open class MediaController @JvmOverloads constructor(
      * 隐藏播放视图
      */
     override fun hide() {
-        plogd2("TVController"){
+        plogd2("TVController") {
             "hide"
         }
         stopFadeOut()
@@ -425,7 +427,7 @@ open class MediaController @JvmOverloads constructor(
      * 开始倒计时隐藏控制器
      */
     override fun startFadeOut() {
-        plogd2("TVController"){
+        plogd2("TVController") {
             "startFadeOut"
         }
         //重新开始计时
@@ -437,7 +439,7 @@ open class MediaController @JvmOverloads constructor(
      * 移除控制器隐藏倒计时
      */
     override fun stopFadeOut() {
-        plogd2("TVController"){
+        plogd2("TVController") {
             "stopFadeOut"
         }
         removeCallbacks(mFadeOut)

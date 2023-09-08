@@ -231,9 +231,4 @@ object UCSPManager {
         }
     }
 
-    fun onBackPress(tag: String): Boolean {
-        val videoView = get(tag) ?: return false
-        return videoView.onBackPressed()
-    }
-
 }

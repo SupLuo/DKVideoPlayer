@@ -59,7 +59,8 @@ open class TVVideoController @JvmOverloads constructor(
      */
     private var mCurrentPendingSeekPosition: Int = 0
 
-    private var seekCalculator: PendingSeekCalculator = PendingSeekCalculator.dynamicAccelerateCalculator()
+    private var seekCalculator: PendingSeekCalculator =
+        PendingSeekCalculator.dynamicAccelerateCalculator()
 
     /**
      * 是否处理KeyEvent
@@ -87,7 +88,7 @@ open class TVVideoController @JvmOverloads constructor(
                                 key.onStartLeftOrRightKeyPressedForSeeking(event)
                             }
                         }
-                        preparePendingSeekCalculator(event, currentPosition, duration, width)
+                        seekCalculator.prepareCalculate(event, currentPosition, duration, width)
                         stopFadeOut()
                     }
                 }
@@ -149,32 +150,10 @@ open class TVVideoController @JvmOverloads constructor(
         }
     }
 
-    private fun preparePendingSeekCalculator(
-        event: KeyEvent,
-        currentPosition: Int,
-        duration: Int,
-        viewWidth: Int
-    ) {
-//        if (duration < 1200000) {
-//            if (seekCalculator !is PendingSeekCalculator.LinearPendingSeekCalculator) {
-//                seekCalculator = PendingSeekCalculator.linearStepCalculator()
-//            }
-//        } else if (duration < 3600000) {
-//            if (seekCalculator !is PendingSeekCalculator.DynamicFixedStepPendingSeekCalculator) {
-//                seekCalculator = PendingSeekCalculator.dynamicFixedStepCalculator()
-//            }
-//        } else {
-//            if (seekCalculator !is PendingSeekCalculator.AcceleratePendingSeekCalculator) {
-//                seekCalculator = PendingSeekCalculator.accelerateCalculator()
-//            }
-//        }
-        seekCalculator.prepareCalculate(event, currentPosition, duration, viewWidth)
-    }
-
-
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (!keyEventEnable)
-            return super.dispatchKeyEvent(event)
+        val handled = super.dispatchKeyEvent(event)
+        if (handled || !keyEventEnable)
+            return handled
 
         plogv2(TAG) {
             "dispatchKeyEvent -> keyCode = ${event.keyCode}   action = ${event.action} repeatCount = ${event.repeatCount} isInPlaybackState=${isInPlaybackState} " +
@@ -208,6 +187,7 @@ open class TVVideoController @JvmOverloads constructor(
                             }
                         }
                         show()
+                        return true
                     }
                 } else {
                     if (uniqueDown) {  //第一次按下Ok键/播放暂停键/空格键
@@ -220,9 +200,9 @@ open class TVVideoController @JvmOverloads constructor(
                             replay(resetPosition = false)
                         }
                         show()
+                        return true
                     }
                 }
-                return true
             }
 
             KeyEvent.KEYCODE_MEDIA_PLAY -> {//播放键
@@ -231,8 +211,8 @@ open class TVVideoController @JvmOverloads constructor(
                         player.start()
                     }
                     show()
+                    return true
                 }
-                return true
             }
 
             KeyEvent.KEYCODE_MEDIA_STOP,
@@ -242,8 +222,8 @@ open class TVVideoController @JvmOverloads constructor(
                         player.pause()
                     }
                     show()
+                    return true
                 }
-                return true
             }
 
             KeyEvent.KEYCODE_VOLUME_DOWN,
@@ -253,13 +233,13 @@ open class TVVideoController @JvmOverloads constructor(
             -> {//系统功能键
                 // don't show the controls for volume adjustment
                 //系统会显示对应的UI
-                return super.dispatchKeyEvent(event)
             }
 
             KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_LEFT -> {//左右键，做seek行为
+
                 if (isLive) {
                     plogv2(TAG) { "is live mode ,not response dpad left and right key event." }
-                    return false
+                    return handled
                 }
 
                 plogv2(TAG) { "handle dpad right or left key for pending seek." }
@@ -278,7 +258,7 @@ open class TVVideoController @JvmOverloads constructor(
                         plogv2(TAG) { "has dispatched pending seek,cancel it." }
                         mHasDispatchPendingSeek = false
                     }
-                    return true
+                    return handled
                 }
                 if (uniqueDown && !isShowing) {
                     //第一次按下down并且当前控制器没有显示的情况下，只显示控制器
@@ -304,9 +284,9 @@ open class TVVideoController @JvmOverloads constructor(
 
             else -> {
                 show()
-                return super.dispatchKeyEvent(event)
             }
         }
+        return handled
     }
 
     /**

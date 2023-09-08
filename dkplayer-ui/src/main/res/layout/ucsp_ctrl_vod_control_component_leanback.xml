@@ -13,7 +13,7 @@
         android:layout_gravity="bottom"
         android:background="@drawable/ucsp_ctrl_panel_bottom_gradient_transparent_bg"
         android:gravity="center_vertical"
-        android:minHeight="180dp"
+        android:minHeight="150dp"
         android:orientation="horizontal">
 
         <ImageView
